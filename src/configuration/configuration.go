@@ -72,6 +72,10 @@ func (c *Configuration) FromParameter() {
 	logLevelPtr := flag.String("log-level", "", "Set the log level (info,debug,warning,error,fatal,panic)")
 	logFormatterPtr := flag.String("log-formatter", "", "Set the log formatter (text,json)")
 
+	httpListenerPtr := flag.String("http", "", "Set the http listener address")
+	httpsListenerPtr := flag.String("https", "", "Set the https listener address")
+	apiListenerPtr := flag.String("api", "", "Set the API listener address")
+
 	flag.Parse()
 
 	if dbEndpointPtr != nil && *dbEndpointPtr != "" {
@@ -97,6 +101,18 @@ func (c *Configuration) FromParameter() {
 
 	if logFormatterPtr != nil && *logFormatterPtr != "" {
 		c.LogFormatter = *logFormatterPtr
+	}
+
+	if httpListenerPtr != nil && *httpListenerPtr != "" {
+		c.HTTPListener = *httpListenerPtr
+	}
+
+	if httpsListenerPtr != nil && *httpsListenerPtr != "" {
+		c.HTTPSListener = *httpsListenerPtr
+	}
+
+	if apiListenerPtr != nil && *apiListenerPtr != "" {
+		c.APIListener = *apiListenerPtr
 	}
 }
 
