@@ -1,0 +1,21 @@
+version: "3.2"
+
+services:
+  # dynamo
+  db:
+    image: dwmkerr/dynamodb
+    ports:
+      - 8000:8000
+    volumes:
+      - db_volume:/data
+    command: "-dbPath /data"
+    networks:
+      - dev
+
+# volumes
+volumes:
+  db_volume:
+
+# networks
+networks:
+  dev:
