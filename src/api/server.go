@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/hammi85/swerve/src/db"
-	"github.com/hammi85/swerve/src/log"
+	"github.com/axelspringer/swerve/src/db"
+	"github.com/axelspringer/swerve/src/log"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -104,8 +104,16 @@ func (s *Server) registerDomain(w http.ResponseWriter, r *http.Request, _ httpro
 		return
 	}
 
+	host, path, err := splitDomainPath(domain.Name)
+	if err != nil {
+		sendErrBadRequest(w, r, err)
+	}
+
+	domain.Name = host
+	domain.PathPattern = path
+
 	if err := s.db.InsertDomain(domain); err != nil {
-		http.Error(w, err.Error(), 400)
+		sendErrBadRequest(w, r, err)
 		return
 	}
 

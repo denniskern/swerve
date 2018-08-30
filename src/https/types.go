@@ -3,7 +3,7 @@ package https
 import (
 	"net/http"
 
-	"github.com/hammi85/swerve/src/certificate"
+	"github.com/axelspringer/swerve/src/certificate"
 )
 
 // Server model

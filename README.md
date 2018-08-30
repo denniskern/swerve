@@ -1,6 +1,6 @@
-# swerve
+# SWERVE
 
-Swerve is a redirection service that uses autocert to generate https certificates automatically. It 
+Swerve is a redirection service that uses autocert to generate https certificates automatically. The domain and certificate data are stored in a DynamoDB
 
 ## Build
 

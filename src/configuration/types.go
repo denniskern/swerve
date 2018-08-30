@@ -1,6 +1,6 @@
 package configuration
 
-import "github.com/hammi85/swerve/src/db"
+import "github.com/axelspringer/swerve/src/db"
 
 // Configuration model
 type Configuration struct {

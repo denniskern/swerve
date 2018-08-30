@@ -30,6 +30,7 @@ func (s *Server) handleRedirect(w nethttp.ResponseWriter, r *nethttp.Request) {
 	hostHeader := r.Host
 	domain, err := s.certManager.GetDomain(hostHeader)
 
+	// regular domain lookup
 	if domain != nil && err == nil {
 		redirect := domain.Redirect
 		if domain.Promotable {

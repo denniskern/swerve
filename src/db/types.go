@@ -29,6 +29,7 @@ type DomainList struct {
 type Domain struct {
 	ID           string `json:"id"`
 	Name         string `json:"domain"`
+	PathPattern  string `json:"path"`
 	Redirect     string `json:"redirect"`
 	Promotable   bool   `json:"promotable"`
 	Certificate  string `json:"certificate"`

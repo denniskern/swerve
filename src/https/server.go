@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/hammi85/swerve/src/certificate"
-	"github.com/hammi85/swerve/src/log"
+	"github.com/axelspringer/swerve/src/certificate"
+	"github.com/axelspringer/swerve/src/log"
 )
 
 // promoteRedirect append the path + querystring to the redirect host
