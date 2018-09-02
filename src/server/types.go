@@ -12,28 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package certificate
+package server
 
 import (
-	"sync"
-	"time"
+	"net/http"
 
+	"github.com/axelspringer/swerve/src/certificate"
 	"github.com/axelspringer/swerve/src/db"
-	"golang.org/x/crypto/acme/autocert"
 )
 
-// Manager wraps around autocert and injects a cache
-type Manager struct {
-	certCache   *persistentCertCache
-	acmeManager *autocert.Manager
+// ListenerInterface contains the main server functions
+type ListenerInterface interface {
+	Listen() error
 }
 
-// persistentCertCache certificate cache
-type persistentCertCache struct {
-	autocert.Cache
-	db              *db.DynamoDB
-	pollTicker      *time.Ticker
-	mapMutex        *sync.Mutex
-	wildcardDomains []*db.Domain
-	domainsMap      map[string]*db.Domain
+// API server model
+type API struct {
+	ListenerInterface
+	db       *db.DynamoDB
+	server   *http.Server
+	listener string
+}
+
+// HTTP server model
+type HTTP struct {
+	ListenerInterface
+	certManager *certificate.Manager
+	server      *http.Server
+	listener    string
+}
+
+// HTTPS server model
+type HTTPS struct {
+	ListenerInterface
+	certManager *certificate.Manager
+	server      *http.Server
+	listener    string
 }

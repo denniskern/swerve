@@ -1,3 +1,17 @@
+// Copyright 2018 Axel Springer SE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package log
 
 import (
@@ -34,7 +48,7 @@ func Fatal(args ...interface{}) {
 
 // Fatalf wraps log.Fatalf
 func Fatalf(fmt string, args ...interface{}) {
-	logger.Fatalf(fmt, args)
+	logger.Fatalf(fmt, args...)
 }
 
 // Debug wraps log.Debug
@@ -44,7 +58,7 @@ func Debug(args ...interface{}) {
 
 // Debugf wraps log.Debugf
 func Debugf(fmt string, args ...interface{}) {
-	logger.Debugf(fmt, args)
+	logger.Debugf(fmt, args...)
 }
 
 // Info wraps log.Info
@@ -54,7 +68,7 @@ func Info(args ...interface{}) {
 
 // Infof wraps log.Infof
 func Infof(fmt string, args ...interface{}) {
-	logger.Infof(fmt, args)
+	logger.Infof(fmt, args...)
 }
 
 // Warn wraps log.Warn
@@ -64,7 +78,7 @@ func Warn(args ...interface{}) {
 
 // Warnf wraps log.Warnf
 func Warnf(fmt string, args ...interface{}) {
-	logger.Warnf(fmt, args)
+	logger.Warnf(fmt, args...)
 }
 
 // Error wraps log.Error
@@ -74,5 +88,5 @@ func Error(args ...interface{}) {
 
 // Errorf wraps log.Errorf
 func Errorf(fmt string, args ...interface{}) {
-	logger.Errorf(fmt, args)
+	logger.Errorf(fmt, args...)
 }

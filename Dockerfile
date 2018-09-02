@@ -3,7 +3,7 @@ FROM golang:latest as build
 
 LABEL maintainer="sejamich@googlemail.com"
 
-WORKDIR /go/src/github.com/hammi85/swerve
+WORKDIR /go/src/github.com/axelspringer/swerve
 COPY . .
 
 RUN echo $GOPATH
@@ -15,6 +15,6 @@ FROM scratch
 
 MAINTAINER Jan Michalowsky <sejamich@googlemail.com>
 
-COPY --from=build /go/src/github.com/hammi85/swerve/swerve /swerve
+COPY --from=build /go/src/github.com/axelspringer/swerve/swerve /swerve
 
 CMD [ "/swerve" ]

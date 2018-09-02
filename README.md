@@ -49,6 +49,62 @@ or
 
     SWERVE_DB_ENDPOINT=http://localhost:8000 SWERVE_DB_REGION=eu-west-1 SWERVE_HTTPS=:8081 ./bin/swerve
 
+## API
+
+### Domain model
+
+    {
+        "id": "guid v4 will be generated",
+        "domain": "my.domain.com",
+        "path": ["/deep/link", "/foo"],
+        "redirect": "https://my.redirect.com"
+        "promotable": false,
+        "wildcard": false,
+        "certificate": "certificate data",
+        "code": 308,
+        "description": "Meanful description of this redirection",
+        "created": "generated date",
+        "modified": "generated date"
+    }
+
+#### id
+
+Will be generated
+
+#### domain
+
+The domain name to keep track on. e.g. ```my.redirect.com```
+
+#### path
+
+Optional deep path match e.g. with "path": "/redirect/path" only my.domain.com/redirect/path matches
+
+#### redirect
+
+Redirection target
+
+#### promotable
+
+Promotable redirects are attaching the path of the request to the redirection location e.g.
+with ```"promotable": true``` my.domain.com/foo/bar/baz.html will be redirected to https://my.redirect.com/foo/bar/baz.html
+with ```"promotable": false``` my.domain.com/foo/bar/baz.html will be redirected to https://my.redirect.com
+
+#### wildcard
+
+Wildcard domains use their certificate on every subdomain. e.g. with ```"wildcard": true``` https://sub1.my.domain and https://supersub2.my.domain will use the certificate of https://my.domain
+
+#### certificate
+
+The certificate data
+
+#### code
+
+The redirection code. It has to be greater or equal 300 and less or equal than 399
+
+#### description
+
+Meanful description of the domain entry
+
 ## API calls
 
 ### Get all domains

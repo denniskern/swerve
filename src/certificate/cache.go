@@ -1,7 +1,22 @@
+// Copyright 2018 Axel Springer SE
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package certificate
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,10 +32,11 @@ const (
 // newPersistentCertCache creates a new persistent cache based on dynamo db
 func newPersistentCertCache(d *db.DynamoDB) *persistentCertCache {
 	c := &persistentCertCache{
-		pollTicker: time.NewTicker(time.Second * pollTickerInterval),
-		db:         d,
-		domainsMap: map[string]db.Domain{},
-		mapMutex:   &sync.Mutex{},
+		pollTicker:      time.NewTicker(time.Second * pollTickerInterval),
+		db:              d,
+		domainsMap:      map[string]*db.Domain{},
+		wildcardDomains: []*db.Domain{},
+		mapMutex:        &sync.Mutex{},
 	}
 
 	// cache preload
@@ -38,13 +54,18 @@ func (c *persistentCertCache) updateDomainCache() {
 		return
 	}
 
-	m := map[string]db.Domain{}
+	m := map[string]*db.Domain{}
+	w := []*db.Domain{}
 	for _, domain := range domains {
-		m[domain.Name] = domain
+		m[domain.Name] = &domain
+		if domain.Wildcard == true {
+			w = append(w, &domain)
+		}
 	}
 
 	c.mapMutex.Lock()
 	c.domainsMap = m
+	c.wildcardDomains = w
 	c.mapMutex.Unlock()
 }
 
@@ -53,9 +74,20 @@ func (c *persistentCertCache) Get(ctx context.Context, key string) ([]byte, erro
 	c.mapMutex.Lock()
 	defer c.mapMutex.Unlock()
 
+	// check for non wildcard domains
 	if domain, ok := c.domainsMap[key]; ok {
 		if len(domain.Certificate) > 0 {
 			return []byte(domain.Certificate), nil
+		}
+	}
+
+	// check wildcard domains
+	for _, wc := range c.wildcardDomains {
+		if strings.HasSuffix(key, wc.Name) {
+			if len(wc.Certificate) > 0 {
+				return []byte(wc.Certificate), nil
+			}
+			return nil, autocert.ErrCacheMiss
 		}
 	}
 
@@ -92,8 +124,8 @@ func (c *persistentCertCache) Delete(ctx context.Context, key string) error {
 	)
 
 	go func() {
-		defer close(done)
 		err = c.db.UpdateCertificateData(key, []byte{})
+		close(done)
 	}()
 
 	// handle context timeouts and errors
@@ -119,9 +151,19 @@ func (c *persistentCertCache) observe() error {
 
 // IsDomainAcceptable test for domains in cache
 func (c *persistentCertCache) IsDomainAcceptable(domain string) (*db.Domain, bool) {
+	// check non wildcard domains
 	c.mapMutex.Lock()
-	defer c.mapMutex.Unlock()
+	if d, ok := c.domainsMap[domain]; ok {
+		return d, ok
+	}
+	c.mapMutex.Unlock()
 
-	d, ok := c.domainsMap[domain]
-	return &d, ok
+	// check wildcard domains
+	for _, wc := range c.wildcardDomains {
+		if strings.HasSuffix(domain, wc.Name) {
+			return wc, true
+		}
+	}
+
+	return nil, false
 }
