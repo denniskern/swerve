@@ -83,7 +83,7 @@ func (c *persistentCertCache) Get(ctx context.Context, key string) ([]byte, erro
 
 	// check wildcard domains
 	for _, wc := range c.wildcardDomains {
-		if strings.HasSuffix(key, wc.Name) {
+		if strings.HasSuffix(key, "."+wc.Name) {
 			if len(wc.Certificate) > 0 {
 				return []byte(wc.Certificate), nil
 			}
@@ -160,7 +160,7 @@ func (c *persistentCertCache) IsDomainAcceptable(domain string) (*db.Domain, boo
 
 	// check wildcard domains
 	for _, wc := range c.wildcardDomains {
-		if strings.HasSuffix(domain, wc.Name) {
+		if strings.HasSuffix(domain, "."+wc.Name) {
 			return wc, true
 		}
 	}

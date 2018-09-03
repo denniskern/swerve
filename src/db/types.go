@@ -53,3 +53,8 @@ type Domain struct {
 	Created      string `json:"created"`
 	Modified     string `json:"modified"`
 }
+
+// ExportDomains model
+type ExportDomains struct {
+	Domains []Domain `json:"domains"`
+}

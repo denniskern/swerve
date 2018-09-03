@@ -129,3 +129,31 @@ Meanful description of the domain entry
 ### Purge a domain by name
 
     curl -X DELETE http://localhost:8082/domain/<name>
+
+### Export all domains
+
+    curl -X GET http://localhost:8082/export
+
+### Import a export set
+
+    curl -X POST \
+    http://localhost:8082/import \
+    -H 'cache-control: no-cache' \
+    -H 'content-type: application/json' \
+    -d '{
+        "domains": [
+            {
+                "id": "6a368e16-ea73-40e0-a4cd-e12148c15ffd",
+                "domain": "my.domain.com",
+                "path": "",
+                "redirect": "https://example.com",
+                "promotable": false,
+                "wildcard": false,
+                "certificate": "",
+                "code": 308,
+                "description": "example registration 2",
+                "created": "2018-08-28T14:31:06+02:00",
+                "modified": ""
+            }
+        ]
+    }'

@@ -35,6 +35,8 @@ func NewAPIServer(listener string, dynDB *db.DynamoDB) *API {
 	// register api router
 	router := httprouter.New()
 	router.GET("/health", api.health)
+	router.GET("/export", api.exportDomains)
+	router.POST("/import", api.importDomains)
 	router.GET("/domain", api.fetchAllDomains)
 	router.GET("/domain/:name", api.fetchDomain)
 	router.POST("/domain", api.registerDomain)
@@ -56,6 +58,51 @@ func (api *API) Listen() error {
 
 // health handler
 func (api *API) health(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	sendJSONMessage(w, "ok", 200)
+}
+
+// exportDomains exports the domains
+func (api *API) exportDomains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	domains, err := api.db.FetchAll()
+
+	if err != nil {
+		sendJSONMessage(w, "Error while fetching domains", 500)
+		return
+	}
+
+	export := &db.ExportDomains{
+		Domains: domains,
+	}
+
+	sendJSON(w, export, 200)
+}
+
+// importDomains imports a domain export set
+func (api *API) importDomains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if r.Body == nil {
+		sendJSONMessage(w, "Please send a request body", 400)
+		return
+	}
+
+	var export db.ExportDomains
+
+	if err := json.NewDecoder(r.Body).Decode(&export); err != nil {
+		sendJSONMessage(w, "Invalid request body", 400)
+		return
+	}
+
+	if err := api.db.DeleteAllDomains(); err != nil {
+		log.Error(err)
+		sendJSONMessage(w, "Database operation failed", 500)
+		return
+	}
+
+	if err := api.db.Import(&export); err != nil {
+		log.Error(err)
+		sendJSONMessage(w, "Database operation failed", 500)
+		return
+	}
+
 	sendJSONMessage(w, "ok", 200)
 }
 

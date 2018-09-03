@@ -189,6 +189,42 @@ func (d *DynamoDB) InsertDomain(domain Domain) error {
 	return err
 }
 
+// DeleteAllDomains deletes all items from the domains table
+func (d *DynamoDB) DeleteAllDomains() error {
+	domains, err := d.FetchAll()
+
+	if err != nil {
+		return err
+	}
+
+	for _, do := range domains {
+		_, err = d.DeleteByDomain(do.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Import imports a export set
+func (d *DynamoDB) Import(e *ExportDomains) error {
+	for _, do := range e.Domains {
+		mm, err := dynamodbattribute.MarshalMap(do)
+
+		if err != nil {
+			return err
+		}
+
+		_, err = d.Service.PutItem(&dynamodb.PutItemInput{
+			Item:      mm,
+			TableName: aws.String(dbDomainTableName),
+		})
+	}
+
+	return nil
+}
+
 // Validate the domain
 func (d *Domain) Validate() []error {
 	res := []error{}
