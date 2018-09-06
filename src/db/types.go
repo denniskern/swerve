@@ -39,19 +39,28 @@ type DomainList struct {
 	Domains []Domain `json:"domains"`
 }
 
+// PathMappingEntry model
+type PathMappingEntry struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+// PathList model
+type PathList []PathMappingEntry
+
 // Domain db entry
 type Domain struct {
-	ID           string `json:"id"`
-	Name         string `json:"domain"`
-	PathPattern  string `json:"path"`
-	Redirect     string `json:"redirect"`
-	Promotable   bool   `json:"promotable"`
-	Wildcard     bool   `json:"wildcard"`
-	Certificate  string `json:"certificate"`
-	RedirectCode int    `json:"code"`
-	Description  string `json:"description"`
-	Created      string `json:"created"`
-	Modified     string `json:"modified"`
+	ID           string    `json:"id"`
+	Name         string    `json:"domain"`
+	PathMapping  *PathList `json:"path"`
+	Redirect     string    `json:"redirect"`
+	Promotable   bool      `json:"promotable"`
+	Wildcard     bool      `json:"wildcard"`
+	Certificate  string    `json:"certificate"`
+	RedirectCode int       `json:"code"`
+	Description  string    `json:"description"`
+	Created      string    `json:"created"`
+	Modified     string    `json:"modified"`
 }
 
 // ExportDomains model

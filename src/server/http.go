@@ -35,6 +35,11 @@ func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	// regular domain lookup
 	if domain != nil && err == nil {
 		redirect := domain.Redirect
+
+		if domain.PathMapping != nil && len(*domain.PathMapping) > 0 {
+			redirect = pathMappingRedirect(domain.PathMapping, redirect, r.URL)
+		}
+
 		if domain.Promotable {
 			redirect = promoteRedirect(redirect, r.URL)
 		}

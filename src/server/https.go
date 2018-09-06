@@ -36,6 +36,10 @@ func (h *HTTPS) redirectHandler() http.Handler {
 
 		if domain != nil && err == nil {
 			redirect := domain.Redirect
+			// path mapping
+			if domain.PathMapping != nil && len(*domain.PathMapping) > 0 {
+				redirect = pathMappingRedirect(domain.PathMapping, redirect, r.URL)
+			}
 			// promote redirect
 			if domain.Promotable {
 				redirect = promoteRedirect(redirect, r.URL)

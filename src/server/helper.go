@@ -20,6 +20,9 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
+
+	"github.com/axelspringer/swerve/src/db"
 )
 
 func sendJSON(w http.ResponseWriter, obj interface{}, code int) {
@@ -48,4 +51,28 @@ func promoteRedirect(redirect string, reqURL *url.URL) string {
 	}
 
 	return newRedirect
+}
+
+// pathMappingRedirect tries to match the path of the request to the mapping list
+func pathMappingRedirect(pathList *db.PathList, redirect string, reqURL *url.URL) string {
+	if pathList == nil {
+		return redirect
+	}
+	// look for matching paths
+	for _, p := range *pathList {
+		if p.To == "" {
+			continue
+		}
+		// we match the path prefix
+		if strings.HasPrefix(reqURL.Path, p.From) {
+			// path redirect
+			if strings.HasPrefix(p.To, "/") {
+				return path.Join(redirect, p.To)
+			}
+			// domain redirect
+			return p.To
+		}
+	}
+
+	return redirect
 }
