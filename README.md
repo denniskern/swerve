@@ -56,7 +56,16 @@ or
     {
         "id": "guid v4 will be generated",
         "domain": "my.domain.com",
-        "path": ["/deep/link", "/foo"],
+        "path": [
+            {
+                "from": "/match/path/prefix",
+                "to": "/foo"
+            },
+            {
+                "from": "/other/target",
+                "to": "https://the.other.one/"
+            }
+        ],
         "redirect": "https://my.redirect.com"
         "promotable": false,
         "wildcard": false,
@@ -77,7 +86,7 @@ The domain name to keep track on. e.g. ```my.redirect.com```
 
 #### path
 
-Optional deep path match e.g. with "path": "/redirect/path" only my.domain.com/redirect/path matches
+You can add an aditional path mapping conditional list. When defined the redirection based on the matching result of this list. Fallback is the default redirect
 
 #### redirect
 
@@ -145,7 +154,6 @@ Meanful description of the domain entry
             {
                 "id": "6a368e16-ea73-40e0-a4cd-e12148c15ffd",
                 "domain": "my.domain.com",
-                "path": "",
                 "redirect": "https://example.com",
                 "promotable": false,
                 "wildcard": false,
