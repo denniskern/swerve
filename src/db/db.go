@@ -100,6 +100,9 @@ func (d *DynamoDB) prepareTable() {
 
 // UpdateCertificateData updates the cert data if a domain entry exist
 func (d *DynamoDB) UpdateCertificateData(domain string, data []byte) error {
+
+	log.Infof("Table 'Domains' ubdate domain %s with cert %s", domain, string(data))
+
 	_, err := d.Service.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String(dbDomainTableName),
 		Key: map[string]*dynamodb.AttributeValue{
