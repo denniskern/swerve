@@ -234,7 +234,7 @@ func (d *Domain) Validate() []error {
 	}
 
 	validURL, err := url.Parse("//" + d.Name)
-	if d.Name == "" || err != nil || validURL.Path == "" {
+	if d.Name == "" || err != nil || validURL.Path != "" {
 		res = append(res, errors.New("Invalid domain name"))
 	}
 
