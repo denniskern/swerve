@@ -10,7 +10,8 @@ COPY . .
 RUN echo $GOPATH
 RUN go get -d -v ./...
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o swerve -v -ldflags "-extldflags '-static'" -a -installsuffix cgo main.go
+#RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o swerve -v -ldflags "-extldflags '-static'" -a -installsuffix cgo main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o swerve main.go
 
 # RUNTIME
 #FROM scratch
