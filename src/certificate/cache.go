@@ -54,6 +54,8 @@ func (c *persistentCertCache) updateDomainCache() {
 		return
 	}
 
+	log.Debugf("persistentCertCache.updateDomainCache %#v", domains)
+
 	m := map[string]*db.Domain{}
 	w := []*db.Domain{}
 	for _, domain := range domains {
@@ -103,6 +105,7 @@ func (c *persistentCertCache) Put(ctx context.Context, key string, data []byte) 
 
 	go func() {
 		defer close(done)
+		log.Debugf("persistentCertCache.Put %s %#v", key, data)
 		err = c.db.UpdateCertificateData(key, data)
 	}()
 
@@ -124,6 +127,7 @@ func (c *persistentCertCache) Delete(ctx context.Context, key string) error {
 	)
 
 	go func() {
+		log.Debugf("persistentCertCache.Delete %s ''", key)
 		err = c.db.UpdateCertificateData(key, []byte{})
 		close(done)
 	}()
@@ -142,6 +146,7 @@ func (c *persistentCertCache) Delete(ctx context.Context, key string) error {
 func (c *persistentCertCache) observe() error {
 	go func() {
 		for _ = range c.pollTicker.C {
+			log.Debug("Update domain cache")
 			c.updateDomainCache()
 		}
 	}()

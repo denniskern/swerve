@@ -29,9 +29,26 @@ import (
 
 const (
 	dbDomainTableName = "Domains"
+	dbCacheTableName  = "DomainsTLSCache"
 )
 
 var (
+	dbDomainCacheTableCreate = &dynamodb.CreateTableInput{
+		TableName: aws.String(dbCacheTableName),
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{AttributeName: aws.String("cacheKey"), KeyType: aws.String("HASH")},
+		},
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{AttributeName: aws.String("cacheKey"), AttributeType: aws.String("S")},
+		},
+		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(1),
+			WriteCapacityUnits: aws.Int64(1),
+		},
+	}
+	dbDomainCacheTableDescribe = &dynamodb.DescribeTableInput{
+		TableName: aws.String(dbCacheTableName),
+	}
 	dbListAllDomains = &dynamodb.ScanInput{
 		TableName: aws.String(dbDomainTableName),
 	}
@@ -95,6 +112,15 @@ func (d *DynamoDB) prepareTable() {
 			log.Fatal(cerr)
 		}
 		log.Info("Table 'Domains' created")
+	}
+	// setup the domain tls cache table by spec
+	if _, err := d.Service.DescribeTable(dbDomainCacheTableDescribe); err != nil {
+		log.Error(err)
+		log.Info("Table 'DomainsTLSCache' didn't exists. Creating ...")
+		if _, cerr := d.Service.CreateTable(dbDomainCacheTableCreate); cerr != nil {
+			log.Fatal(cerr)
+		}
+		log.Info("Table 'DomainsTLSCache' created")
 	}
 }
 
