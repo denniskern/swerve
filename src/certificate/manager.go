@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	"github.com/axelspringer/swerve/src/db"
+	"github.com/axelspringer/swerve/src/log"
 	"golang.org/x/crypto/acme/autocert"
 )
 
@@ -46,14 +47,17 @@ func NewManager(d *db.DynamoDB) *Manager {
 // allowHostPolicy decides which host shall pass
 func (m *Manager) allowHostPolicy(_ context.Context, host string) error {
 	if _, found := m.certCache.IsDomainAcceptable(host); !found {
+		log.Info("allowHostPolicy - errHostNotConfigured")
 		return errHostNotConfigured
 	}
 
+	log.Infof("allowHostPolicy - Host accaptable %s", host)
 	return nil
 }
 
 // GetCertificate wrapper for the cert getter
 func (m *Manager) GetCertificate(hello *tls.ClientHelloInfo) (*tls.Certificate, error) {
+	log.Infof("GetCertificate - %#v", *hello)
 	return m.acmeManager.GetCertificate(hello)
 }
 
@@ -64,9 +68,11 @@ func (m *Manager) Serve(fallback http.Handler, w http.ResponseWriter, r *http.Re
 
 // GetDomain by name
 func (m *Manager) GetDomain(host string) (*db.Domain, error) {
+	log.Infof("GetDomain - %s", host)
 	if domain, found := m.certCache.IsDomainAcceptable(host); found {
+		log.Infof("GetDomain - %#v", domain)
 		return domain, nil
 	}
-
+	log.Info("GetDomain - errHostNotConfigured")
 	return nil, errHostNotConfigured
 }
