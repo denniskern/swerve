@@ -18,6 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -124,10 +126,63 @@ func (d *DynamoDB) prepareTable() {
 	}
 }
 
+// DeleteTLSCacheEntry deletes a chache entry
+func (d *DynamoDB) DeleteTLSCacheEntry(key string) error {
+	_, err := d.Service.DeleteItem(&dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+		},
+		TableName: aws.String(dbCacheTableName),
+	})
+
+	return err
+}
+
+// GetTLSCache items from tls cache table
+func (d *DynamoDB) GetTLSCache(key string) ([]byte, error) {
+	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(dbCacheTableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+		},
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("Error while getting item. %v", err)
+	}
+
+	entryRes := &TLSCacheEntry{}
+	if err = dynamodbattribute.UnmarshalMap(res.Item, &entryRes); err == nil {
+		return []byte(entryRes.Value), nil
+	}
+
+	return nil, nil
+}
+
+// UpdateTLSCache updates the tls cache
+func (d *DynamoDB) UpdateTLSCache(key string, data []byte) error {
+	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
+		Item: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+			"cacheValue": {
+				S: aws.String(string(data)),
+			},
+		},
+		ReturnConsumedCapacity: aws.String("TOTAL"),
+		TableName:              aws.String(dbCacheTableName),
+	})
+
+	return err
+}
+
 // UpdateCertificateData updates the cert data if a domain entry exist
 func (d *DynamoDB) UpdateCertificateData(domain string, data []byte) error {
-	log.Infof("Table 'Domains' ubdate domain %s with cert %s", domain, string(data))
-
 	_, err := d.Service.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String(dbDomainTableName),
 		Key: map[string]*dynamodb.AttributeValue{
@@ -279,4 +334,41 @@ func (d *Domain) Validate() []error {
 	}
 
 	return res
+}
+
+// GetRedirect returns calculated routes
+func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
+	code := d.RedirectCode
+	reURL := strings.TrimRight(d.Redirect, "/")
+	rePath := ""
+	reQuery := ""
+
+	if d.Promotable == true {
+		rePath = reqURL.Path
+
+		if len(reqURL.RawQuery) > 0 {
+			reQuery = "?" + reqURL.RawQuery
+		}
+	}
+
+	if d.PathMapping != nil && len(*d.PathMapping) > 0 {
+		for _, p := range *d.PathMapping {
+			if p.To == "" {
+				continue
+			}
+			// we match the path prefix
+			if strings.HasPrefix(rePath, p.From) {
+				rePath = rePath[len(p.From):]
+				// path redirect
+				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
+					reURL = strings.TrimRight(p.To, "/")
+				} else {
+					rePath = path.Join(p.To, rePath)
+				}
+				break
+			}
+		}
+	}
+
+	return reURL + rePath + reQuery, code
 }

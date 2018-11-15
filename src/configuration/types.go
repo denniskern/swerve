@@ -27,4 +27,5 @@ type Configuration struct {
 	Bootstrap     bool
 	Version       bool
 	Help          bool
+	StagingCA     bool
 }

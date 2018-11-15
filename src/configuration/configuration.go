@@ -73,6 +73,10 @@ func (c *Configuration) FromEnv() {
 	if logFormatter := getOSPrefixEnv("LOG_FORMATTER"); logFormatter != nil {
 		c.LogFormatter = *logFormatter
 	}
+
+	if caStagingEnv := getOSPrefixEnv("STAGING"); caStagingEnv != nil {
+		c.StagingCA = len(*caStagingEnv) > 0 && *caStagingEnv != "0"
+	}
 }
 
 // FromParameter read config from application parameter
@@ -82,6 +86,8 @@ func (c *Configuration) FromParameter() {
 	dbKeyPtr := flag.String("db-key", "", "DynamoDB credential key")
 	dbSecretPtr := flag.String("db-secret", "", "DynamoDB credential secret")
 	dbBootstrapPtr := flag.Bool("bootstrap", false, "Bootstrap the database")
+
+	caStagingEnvPtr := flag.Bool("staging", false, "ca manager will connect the CA staging environment")
 
 	logLevelPtr := flag.String("log-level", "", "Set the log level (info,debug,warning,error,fatal,panic)")
 	logFormatterPtr := flag.String("log-formatter", "", "Set the log formatter (text,json)")
@@ -118,6 +124,10 @@ func (c *Configuration) FromParameter() {
 
 	if dbBootstrapPtr != nil && *dbBootstrapPtr {
 		c.Bootstrap = *dbBootstrapPtr
+	}
+
+	if caStagingEnvPtr != nil && *caStagingEnvPtr {
+		c.StagingCA = *caStagingEnvPtr
 	}
 
 	if logLevelPtr != nil && *logLevelPtr != "" {

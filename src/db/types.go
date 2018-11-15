@@ -48,6 +48,12 @@ type PathMappingEntry struct {
 // PathList model
 type PathList []PathMappingEntry
 
+// TLSCacheEntry model
+type TLSCacheEntry struct {
+	Key   string `json:"cacheKey"`
+	Value string `json:"cacheValue"`
+}
+
 // Domain db entry
 type Domain struct {
 	ID           string    `json:"id"`
