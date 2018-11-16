@@ -34,19 +34,10 @@ func (h *HTTPS) redirectHandler() http.Handler {
 		hostHeader := r.Host
 		domain, err := h.certManager.GetDomain(hostHeader)
 
+		// regular domain lookup
 		if domain != nil && err == nil {
-			redirect := domain.Redirect
-			// path mapping
-			if domain.PathMapping != nil && len(*domain.PathMapping) > 0 {
-				redirect = pathMappingRedirect(domain.PathMapping, redirect, r.URL)
-			}
-			// promote redirect
-			if domain.Promotable {
-				redirect = promoteRedirect(redirect, r.URL)
-			}
-
-			log.Infof("https redirect %s => %s", r.URL.String(), redirect)
-			http.Redirect(w, r, domain.Redirect, domain.RedirectCode)
+			redirectURL, redirectCode := domain.GetRedirect(r.URL)
+			http.Redirect(w, r, redirectURL, redirectCode)
 			return
 		}
 

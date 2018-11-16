@@ -42,8 +42,12 @@ func (a *Application) Setup() {
 		log.Fatalf("Can't setup db connection %#v", err)
 	}
 
-	// certificate pool
-	a.Certificates = certificate.NewManager(a.DynamoDB)
+	// cert manager
+	a.Certificates = certificate.NewManager(a.DynamoDB, a.Config.StagingCA)
+	// cache preload
+	a.Certificates.CertCache.UpdateDomainCache()
+	// backgroud update ticker
+	a.Certificates.CertCache.Observe()
 }
 
 // Run the application

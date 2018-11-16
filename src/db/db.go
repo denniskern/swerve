@@ -18,6 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -29,9 +31,26 @@ import (
 
 const (
 	dbDomainTableName = "Domains"
+	dbCacheTableName  = "DomainsTLSCache"
 )
 
 var (
+	dbDomainCacheTableCreate = &dynamodb.CreateTableInput{
+		TableName: aws.String(dbCacheTableName),
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{AttributeName: aws.String("cacheKey"), KeyType: aws.String("HASH")},
+		},
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{AttributeName: aws.String("cacheKey"), AttributeType: aws.String("S")},
+		},
+		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(1),
+			WriteCapacityUnits: aws.Int64(1),
+		},
+	}
+	dbDomainCacheTableDescribe = &dynamodb.DescribeTableInput{
+		TableName: aws.String(dbCacheTableName),
+	}
 	dbListAllDomains = &dynamodb.ScanInput{
 		TableName: aws.String(dbDomainTableName),
 	}
@@ -96,6 +115,70 @@ func (d *DynamoDB) prepareTable() {
 		}
 		log.Info("Table 'Domains' created")
 	}
+	// setup the domain tls cache table by spec
+	if _, err := d.Service.DescribeTable(dbDomainCacheTableDescribe); err != nil {
+		log.Error(err)
+		log.Info("Table 'DomainsTLSCache' didn't exists. Creating ...")
+		if _, cerr := d.Service.CreateTable(dbDomainCacheTableCreate); cerr != nil {
+			log.Fatal(cerr)
+		}
+		log.Info("Table 'DomainsTLSCache' created")
+	}
+}
+
+// DeleteTLSCacheEntry deletes a chache entry
+func (d *DynamoDB) DeleteTLSCacheEntry(key string) error {
+	_, err := d.Service.DeleteItem(&dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+		},
+		TableName: aws.String(dbCacheTableName),
+	})
+
+	return err
+}
+
+// GetTLSCache items from tls cache table
+func (d *DynamoDB) GetTLSCache(key string) ([]byte, error) {
+	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(dbCacheTableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+		},
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("Error while getting item. %v", err)
+	}
+
+	entryRes := &TLSCacheEntry{}
+	if err = dynamodbattribute.UnmarshalMap(res.Item, &entryRes); err == nil {
+		return []byte(entryRes.Value), nil
+	}
+
+	return nil, nil
+}
+
+// UpdateTLSCache updates the tls cache
+func (d *DynamoDB) UpdateTLSCache(key string, data []byte) error {
+	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
+		Item: map[string]*dynamodb.AttributeValue{
+			"cacheKey": {
+				S: aws.String(key),
+			},
+			"cacheValue": {
+				S: aws.String(string(data)),
+			},
+		},
+		ReturnConsumedCapacity: aws.String("TOTAL"),
+		TableName:              aws.String(dbCacheTableName),
+	})
+
+	return err
 }
 
 // UpdateCertificateData updates the cert data if a domain entry exist
@@ -234,7 +317,7 @@ func (d *Domain) Validate() []error {
 	}
 
 	validURL, err := url.Parse("//" + d.Name)
-	if d.Name == "" || err != nil || validURL.Path == "" {
+	if d.Name == "" || err != nil || validURL.Path != "" {
 		res = append(res, errors.New("Invalid domain name"))
 	}
 
@@ -251,4 +334,41 @@ func (d *Domain) Validate() []error {
 	}
 
 	return res
+}
+
+// GetRedirect returns calculated routes
+func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
+	code := d.RedirectCode
+	reURL := strings.TrimRight(d.Redirect, "/")
+	rePath := ""
+	reQuery := ""
+
+	if d.Promotable == true {
+		rePath = reqURL.Path
+
+		if len(reqURL.RawQuery) > 0 {
+			reQuery = "?" + reqURL.RawQuery
+		}
+	}
+
+	if d.PathMapping != nil && len(*d.PathMapping) > 0 {
+		for _, p := range *d.PathMapping {
+			if p.To == "" {
+				continue
+			}
+			// we match the path prefix
+			if strings.HasPrefix(rePath, p.From) {
+				rePath = rePath[len(p.From):]
+				// path redirect
+				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
+					reURL = strings.TrimRight(p.To, "/")
+				} else {
+					rePath = path.Join(p.To, rePath)
+				}
+				break
+			}
+		}
+	}
+
+	return reURL + rePath + reQuery, code
 }

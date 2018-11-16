@@ -16,7 +16,6 @@ package certificate
 
 import (
 	"context"
-	"strings"
 	"sync"
 	"time"
 
@@ -29,73 +28,58 @@ const (
 	pollTickerInterval = 10
 )
 
-// newPersistentCertCache creates a new persistent cache based on dynamo db
-func newPersistentCertCache(d *db.DynamoDB) *persistentCertCache {
-	c := &persistentCertCache{
-		pollTicker:      time.NewTicker(time.Second * pollTickerInterval),
-		db:              d,
-		domainsMap:      map[string]*db.Domain{},
-		wildcardDomains: []*db.Domain{},
-		mapMutex:        &sync.Mutex{},
+// NewPersistentCertCache creates a new persistent cache based on dynamo db
+func NewPersistentCertCache(d *db.DynamoDB) *PersistentCertCache {
+	return &PersistentCertCache{
+		PollTicker: time.NewTicker(time.Second * pollTickerInterval),
+		DB:         d,
+		DomainsMap: map[string]db.Domain{},
+		MapMutex:   &sync.Mutex{},
 	}
-
-	// cache preload
-	c.updateDomainCache()
-	// backgroud update ticker
-	c.observe()
-	return c
 }
 
-// updateDomainCache updates the domain cache
-func (c *persistentCertCache) updateDomainCache() {
-	domains, err := c.db.FetchAll()
+// UpdateDomainCache updates the domain cache
+func (c *PersistentCertCache) UpdateDomainCache() {
+	domains, err := c.DB.FetchAll()
 	if err != nil {
 		log.Errorf("Error while fetching domain list %v", err)
 		return
 	}
 
-	m := map[string]*db.Domain{}
-	w := []*db.Domain{}
-	for _, domain := range domains {
-		m[domain.Name] = &domain
-		if domain.Wildcard == true {
-			w = append(w, &domain)
-		}
-	}
+	// lock the map
+	c.MapMutex.Lock()
+	defer c.MapMutex.Unlock()
+	// create new domain map
+	c.DomainsMap = map[string]db.Domain{}
 
-	c.mapMutex.Lock()
-	c.domainsMap = m
-	c.wildcardDomains = w
-	c.mapMutex.Unlock()
+	for _, domain := range domains {
+		c.DomainsMap[domain.Name] = domain
+	}
 }
 
 // Get cert by domain name
-func (c *persistentCertCache) Get(ctx context.Context, key string) ([]byte, error) {
-	c.mapMutex.Lock()
-	defer c.mapMutex.Unlock()
+func (c *PersistentCertCache) Get(ctx context.Context, key string) ([]byte, error) {
+	var (
+		done = make(chan struct{})
+		err  error
+		data []byte
+	)
 
-	// check for non wildcard domains
-	if domain, ok := c.domainsMap[key]; ok {
-		if len(domain.Certificate) > 0 {
-			return []byte(domain.Certificate), nil
-		}
-	}
+	go func() {
+		defer close(done)
+		data, err = c.DB.GetTLSCache(key)
+		log.Debugf("c.db.GetTLSCache k:%s len:%d err %#v", key, len(data), err)
+	}()
 
-	// check wildcard domains
-	for _, wc := range c.wildcardDomains {
-		if strings.HasSuffix(key, "."+wc.Name) {
-			if len(wc.Certificate) > 0 {
-				return []byte(wc.Certificate), nil
-			}
-			return nil, autocert.ErrCacheMiss
-		}
+	if err == nil && data != nil {
+		return data, nil
 	}
 
 	return nil, autocert.ErrCacheMiss
 }
 
 // Put a cert to the cache
-func (c *persistentCertCache) Put(ctx context.Context, key string, data []byte) error {
+func (c *PersistentCertCache) Put(ctx context.Context, key string, data []byte) error {
 	var (
 		done = make(chan struct{})
 		err  error
@@ -103,7 +87,8 @@ func (c *persistentCertCache) Put(ctx context.Context, key string, data []byte) 
 
 	go func() {
 		defer close(done)
-		err = c.db.UpdateCertificateData(key, data)
+		err = c.DB.UpdateTLSCache(key, data)
+		log.Debugf("c.db.UpdateTLSCache k:%s len:%d err %#v", key, len(data), err)
 	}()
 
 	// handle context timeouts and errors
@@ -117,15 +102,16 @@ func (c *persistentCertCache) Put(ctx context.Context, key string, data []byte) 
 }
 
 // Delete a domain from
-func (c *persistentCertCache) Delete(ctx context.Context, key string) error {
+func (c *PersistentCertCache) Delete(ctx context.Context, key string) error {
 	var (
 		done = make(chan struct{})
 		err  error
 	)
 
 	go func() {
-		err = c.db.UpdateCertificateData(key, []byte{})
-		close(done)
+		defer close(done)
+		err = c.DB.DeleteTLSCacheEntry(key)
+		log.Debugf("c.db.DeleteTLSCacheEntry k:%s err %#v", key, err)
 	}()
 
 	// handle context timeouts and errors
@@ -138,11 +124,11 @@ func (c *persistentCertCache) Delete(ctx context.Context, key string) error {
 	return err
 }
 
-// observe the domain backend. Ya through polling. Pub/Sub would be much better. Go implement it
-func (c *persistentCertCache) observe() error {
+// Observe the domain backend. Ya through polling. Pub/Sub would be much better. Go implement it
+func (c *PersistentCertCache) Observe() error {
 	go func() {
-		for _ = range c.pollTicker.C {
-			c.updateDomainCache()
+		for _ = range c.PollTicker.C {
+			c.UpdateDomainCache()
 		}
 	}()
 
@@ -150,19 +136,13 @@ func (c *persistentCertCache) observe() error {
 }
 
 // IsDomainAcceptable test for domains in cache
-func (c *persistentCertCache) IsDomainAcceptable(domain string) (*db.Domain, bool) {
+func (c *PersistentCertCache) IsDomainAcceptable(domain string) (*db.Domain, bool) {
 	// check non wildcard domains
-	c.mapMutex.Lock()
-	if d, ok := c.domainsMap[domain]; ok {
-		return d, ok
-	}
-	c.mapMutex.Unlock()
+	c.MapMutex.Lock()
+	defer c.MapMutex.Unlock()
 
-	// check wildcard domains
-	for _, wc := range c.wildcardDomains {
-		if strings.HasSuffix(domain, "."+wc.Name) {
-			return wc, true
-		}
+	if d, ok := c.DomainsMap[domain]; ok {
+		return &d, ok
 	}
 
 	return nil, false

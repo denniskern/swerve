@@ -24,16 +24,15 @@ import (
 
 // Manager wraps around autocert and injects a cache
 type Manager struct {
-	certCache   *persistentCertCache
-	acmeManager *autocert.Manager
+	CertCache   *PersistentCertCache
+	AcmeManager *autocert.Manager
 }
 
-// persistentCertCache certificate cache
-type persistentCertCache struct {
+// PersistentCertCache certificate cache
+type PersistentCertCache struct {
 	autocert.Cache
-	db              *db.DynamoDB
-	pollTicker      *time.Ticker
-	mapMutex        *sync.Mutex
-	wildcardDomains []*db.Domain
-	domainsMap      map[string]*db.Domain
+	DB         *db.DynamoDB
+	PollTicker *time.Ticker
+	MapMutex   *sync.Mutex
+	DomainsMap map[string]db.Domain
 }

@@ -2,6 +2,10 @@
 
 Swerve is a redirection service that uses autocert to generate https certificates automatically. The domain and certificate data are stored in a DynamoDB
 
+## Test
+
+    make test/local
+
 ## Build
 
     make
@@ -68,9 +72,7 @@ or
         ],
         "redirect": "https://my.redirect.com"
         "promotable": false,
-        "wildcard": false,
-        "certificate": "certificate data",
-        "code": 308,
+        "code": 301,
         "description": "Meanful description of this redirection",
         "created": "generated date",
         "modified": "generated date"
@@ -97,14 +99,6 @@ Redirection target
 Promotable redirects are attaching the path of the request to the redirection location e.g.
 with ```"promotable": true``` my.domain.com/foo/bar/baz.html will be redirected to https://my.redirect.com/foo/bar/baz.html
 with ```"promotable": false``` my.domain.com/foo/bar/baz.html will be redirected to https://my.redirect.com
-
-#### wildcard
-
-Wildcard domains use their certificate on every subdomain. e.g. with ```"wildcard": true``` https://sub1.my.domain and https://supersub2.my.domain will use the certificate of https://my.domain
-
-#### certificate
-
-The certificate data
 
 #### code
 

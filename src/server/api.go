@@ -122,6 +122,8 @@ func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
+	api.db.DeleteTLSCacheEntry(name)
+
 	sendJSONMessage(w, "ok", 204)
 }
 
