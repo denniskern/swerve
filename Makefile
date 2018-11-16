@@ -29,7 +29,7 @@ build/local:
 	$(GO) build -ldflags "-X main.Version=$(VERSION)" -o $(BIN) $(GOFLAGS) $(RACE) main.go
 
 build/docker:
-	docker build -t ${IMAGE}.
+	docker build -t ${IMAGE} .
 
 push/docker:
 	docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
