@@ -4,6 +4,7 @@ GOFLAGS=
 BIN=bin/swerve
 VERSION := $(shell git rev-parse HEAD)
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+IMAGE="axelspringer/swerve"
 
 all: build/local
 
@@ -28,9 +29,13 @@ build/local:
 	$(GO) build -ldflags "-X main.Version=$(VERSION)" -o $(BIN) $(GOFLAGS) $(RACE) main.go
 
 build/docker:
-	docker build -t axelspringer/swerve .
+	docker build -t ${IMAGE}.
 
-run/dynamo: 
+push/docker:
+	docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
+	docker push ${IMAGE}
+
+run/dynamo:
 	docker-compose -f example/stack/stack.yml up
 
 restore:
