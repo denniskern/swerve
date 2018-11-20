@@ -15,7 +15,6 @@
 package server
 
 import (
-	"crypto/tls"
 	"net/http"
 
 	"github.com/axelspringer/swerve/src/certificate"
@@ -53,11 +52,9 @@ func NewHTTPSServer(listener string, certManager *certificate.Manager) *HTTPS {
 	}
 
 	server.server = &http.Server{
-		Addr: listener,
-		TLSConfig: &tls.Config{
-			GetCertificate: server.certManager.GetCertificate,
-		},
-		Handler: server.redirectHandler(),
+		Addr:      listener,
+		TLSConfig: certManager.AcmeManager.TLSConfig(),
+		Handler:   server.redirectHandler(),
 	}
 
 	return server

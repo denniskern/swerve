@@ -36,10 +36,33 @@ var (
 	errHostNotConfigured = errors.New("acme/autocert: host not configured")
 )
 
+type cacheAccessLogWrapper struct {
+	dirCache autocert.DirCache
+}
+
+func (c cacheAccessLogWrapper) Get(ctx context.Context, name string) ([]byte, error) {
+	log.Debugf("cacheAccessLogWrapper Get %s", name)
+	return c.dirCache.Get(ctx, name)
+}
+
+func (c cacheAccessLogWrapper) Delete(ctx context.Context, name string) error {
+	log.Debugf("cacheAccessLogWrapper Delete %s", name)
+	return c.dirCache.Delete(ctx, name)
+}
+
+func (c cacheAccessLogWrapper) Put(ctx context.Context, name string, data []byte) error {
+	log.Debugf("cacheAccessLogWrapper Put %s", name, len(data))
+	return c.dirCache.Put(ctx, name, data)
+}
+
 // NewManager creates a new instance
 func NewManager(d *db.DynamoDB, staging bool) *Manager {
 	manager := &Manager{
 		CertCache: NewPersistentCertCache(d),
+	}
+
+	wrapper := &cacheAccessLogWrapper{
+		dirCache: autocert.DirCache("/tmp/swerve"),
 	}
 
 	directoryURL := acme.LetsEncryptURL
@@ -48,16 +71,16 @@ func NewManager(d *db.DynamoDB, staging bool) *Manager {
 		log.Infof("Using CA staging environment")
 	}
 	log.Infof("CA URI %s", directoryURL)
-
-	client := &acme.Client{
-		DirectoryURL: directoryURL,
-	}
-
+	/*
+		client := &acme.Client{
+			DirectoryURL: directoryURL,
+		}
+	*/
 	manager.AcmeManager = &autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: manager.AllowHostPolicy,
-		Cache:      manager.CertCache,
-		Client:     client,
+		Cache:      wrapper,
+		//Client:     client,
 	}
 
 	return manager
