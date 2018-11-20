@@ -154,14 +154,43 @@ Meanful description of the domain entry
     -d '{
         "domains": [
             {
-                "id": "6a368e16-ea73-40e0-a4cd-e12148c15ffd",
                 "domain": "my.domain.com",
                 "redirect": "https://example.com",
                 "promotable": false,
                 "code": 308,
                 "description": "example registration 2",
-                "created": "2018-08-28T14:31:06+02:00",
-                "modified": ""
             }
         ]
     }'
+
+## Example stack
+
+Start the stack
+
+    make compose/up
+
+This should start a swerve, dynamodb and a test target nginx service
+
+Lets add a target to swerve
+
+    curl -X POST \
+        http://127.0.0.1:8082/domain \
+        -H 'cache-control: no-cache' \
+        -H 'content-type: application/json' \
+        -d '{"domain": "example.org", "redirect": "http://127.0.0.1:8090/", "code": 301, "description": "test", "promotable": true}'
+
+Test the record
+
+    curl -X GET 127.0.0.1:8082/domain
+
+So lets see whether the http redirect works
+
+    curl -X GET -H 'Host: example.org' -I 127.0.0.1:8080
+
+The result should look like
+
+    HTTP/1.1 301 Moved Permanently
+    Location: http://127.0.0.1:8090/
+    Date: Tue, 20 Nov 2018 13:00:44 GMT
+    Content-Length: 57
+    Content-Type: text/html; charset=utf-8
