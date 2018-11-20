@@ -20,6 +20,7 @@ help:
 	@echo
 
 test/local:
+	$(GO) get ./...
 	ginkgo --race --cover --coverprofile "$(ROOT_DIR)/swerve.coverprofile" ./...
 	go tool cover -html=swerve.coverprofile -o swerve_test_coverage.html
 
