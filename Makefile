@@ -25,11 +25,11 @@ deps:
 	$(GO) get github.com/julienschmidt/httprouter
 	$(GO) get github.com/aws/aws-sdk-go
 	$(GO) get github.com/sirupsen/logrus
-	$(GO) get github.com/prometheus/client_golang
+	$(GO) get github.com/prometheus/client_golang/...
 	$(GO) get github.com/beorn7/perks
 	$(GO) get github.com/satori/go.uuid
 
-test/local: deps
+test/local:
 	ginkgo --race --cover --coverprofile "$(ROOT_DIR)/swerve.coverprofile" ./...
 	go tool cover -html=swerve.coverprofile -o swerve_test_coverage.html
 
