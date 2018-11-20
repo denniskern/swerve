@@ -2,7 +2,7 @@
 #FROM golang:latest as build
 FROM golang:latest
 
-LABEL maintainer="sejamich@googlemail.com"
+LABEL maintainer="jan.michalowsky@axelspringer.com"
 
 WORKDIR /go/src/github.com/axelspringer/swerve
 COPY . .

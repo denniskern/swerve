@@ -20,9 +20,10 @@ import (
 	"os"
 
 	"github.com/axelspringer/swerve/src/app"
+	"github.com/axelspringer/swerve/src/configuration"
 )
 
-// Version filled by the build process
+// Version string
 var Version string
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 	application := app.NewApplication()
 	// read configuration
 	application.Setup()
+	configuration.Version = Version
 	// print app verion
 	if application.Config.Version {
 		fmt.Printf("version %v\n", Version)

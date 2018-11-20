@@ -16,6 +16,9 @@ package configuration
 
 import "github.com/axelspringer/swerve/src/db"
 
+// Version string
+var Version string
+
 // Configuration model
 type Configuration struct {
 	HTTPListener  string

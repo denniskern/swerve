@@ -14,9 +14,25 @@ or
 
     make build/local
 
+or to build as linux binary
+
+    make build/linux
+
 ### Build docker container
 
     make build/docker
+
+### Start docker compose stack
+
+    make compose/up
+
+### Shutdown docker compose stack
+
+    make compose/down
+
+### Deploy local build to stack
+
+    make deploy/local
 
 ## Parameter
 
@@ -29,8 +45,8 @@ or
 * SWERVE_API - Address for the API listener
 * SWERVE_HTTP - Address for the HTTP listener
 * SWERVE_HTTPS - Address for the HTTPS listener
-* BOOTSTRAP - DB table preparation
-* LOG_LEVEL - Log level info, debug, warning, error, fatal and panic
+* SWERVE_BOOTSTRAP - DB table preparation
+* SWERVE_LOG_LEVEL - Log level info, debug, warning, error, fatal and panic
 
 ### Application parameter
 
@@ -42,16 +58,6 @@ or
 * api - Address for the API listener
 * http - Address for the HTTP listener
 * https - Address for the HTTPS listener
-
-## Run
-
-### run local dynamodb
-
-    make run/dynamo
-
-### run swerve (examples)
-
-    SWERVE_DB_ENDPOINT=http://localhost:8000 SWERVE_DB_REGION=eu-west-1 SWERVE_HTTPS=:8081 ./bin/swerve
 
 ## API
 
@@ -112,16 +118,16 @@ Meanful description of the domain entry
 
 ### Get all domains
 
-    curl -X GET http://localhost:8082/domain
+    curl -X GET http://<api_host>:<api_port>/domain
 
 ### Get a single domain by name
 
-    curl -X GET http://localhost:8082/domain/<name>
+    curl -X GET http://<api_host>:<api_port>/domain/<name>
 
 ### Insert a new domain
 
     curl -X POST \
-        http://localhost:8082/domain/ \
+        http://<api_host>:<api_port>/domain/ \
         -d '{
             "domain": "<name>",
             "redirect": "https://my.redirect.target.com",
@@ -131,16 +137,16 @@ Meanful description of the domain entry
 
 ### Purge a domain by name
 
-    curl -X DELETE http://localhost:8082/domain/<name>
+    curl -X DELETE http://<api_host>:<api_port>/domain/<name>
 
 ### Export all domains
 
-    curl -X GET http://localhost:8082/export
+    curl -X GET http://<api_host>:<api_port>/export
 
 ### Import a export set
 
     curl -X POST \
-    http://localhost:8082/import \
+    http://<api_host>:<api_port>/import \
     -H 'cache-control: no-cache' \
     -H 'content-type: application/json' \
     -d '{
@@ -150,8 +156,6 @@ Meanful description of the domain entry
                 "domain": "my.domain.com",
                 "redirect": "https://example.com",
                 "promotable": false,
-                "wildcard": false,
-                "certificate": "",
                 "code": 308,
                 "description": "example registration 2",
                 "created": "2018-08-28T14:31:06+02:00",

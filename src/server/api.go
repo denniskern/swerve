@@ -16,14 +16,27 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/axelspringer/swerve/src/configuration"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/axelspringer/swerve/src/db"
 	"github.com/axelspringer/swerve/src/log"
 	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 )
+
+func prometheusHandler() httprouter.Handle {
+	h := promhttp.Handler()
+
+	return func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		h.ServeHTTP(w, r)
+	}
+}
 
 // NewAPIServer creates a new API server instance
 func NewAPIServer(listener string, dynDB *db.DynamoDB) *API {
@@ -35,6 +48,9 @@ func NewAPIServer(listener string, dynDB *db.DynamoDB) *API {
 	// register api router
 	router := httprouter.New()
 	router.GET("/health", api.health)
+	router.GET("/metrics", prometheusHandler())
+
+	router.GET("/version", api.version)
 	router.GET("/export", api.exportDomains)
 	router.POST("/import", api.importDomains)
 	router.GET("/domain", api.fetchAllDomains)
@@ -59,6 +75,13 @@ func (api *API) Listen() error {
 // health handler
 func (api *API) health(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	sendJSONMessage(w, "ok", 200)
+}
+
+// version handler
+func (api *API) version(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(fmt.Sprintf("{\"version\":\"%s\"}", configuration.Version)))
 }
 
 // exportDomains exports the domains
