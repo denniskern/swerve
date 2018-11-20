@@ -41,7 +41,7 @@ deploy/local: build/linux
 build/linux: test/local
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -ldflags "-X main.Version=$(VERSION)" -o "$(BIN)_linux" $(GOFLAGS)  main.go
 
-build/docker: build/linux
+build/docker:
 	docker build -t $(IMAGE) .
 
 compose/up: build/linux
