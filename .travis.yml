@@ -5,6 +5,7 @@ services:
   - docker
 
 script:
+- make deps
 - make build/docker
 - make push/docker
 
