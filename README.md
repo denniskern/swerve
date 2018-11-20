@@ -1,5 +1,7 @@
 # SWERVE
 
+[![Build Status](https://travis-ci.org/axelspringer/swerve.svg?branch=master)](https://travis-ci.org/axelspringer/swerve.svg?branch=master)
+
 Swerve is a redirection service that uses autocert to generate https certificates automatically. The domain and certificate data are stored in a DynamoDB
 
 ## Test
