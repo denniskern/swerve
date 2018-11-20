@@ -26,7 +26,6 @@ deps:
 	$(GO) get github.com/aws/aws-sdk-go
 	$(GO) get github.com/sirupsen/logrus
 	$(GO) get github.com/prometheus/client_golang/...
-	$(GO) get github.com/beorn7/perks
 	$(GO) get github.com/satori/go.uuid
 
 test/local:
