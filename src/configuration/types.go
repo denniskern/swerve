@@ -21,14 +21,15 @@ var Version string
 
 // Configuration model
 type Configuration struct {
-	HTTPListener  string
-	HTTPSListener string
-	APIListener   string
-	DynamoDB      db.DynamoConnection
-	LogLevel      string
-	LogFormatter  string
-	Bootstrap     bool
-	Version       bool
-	Help          bool
-	StagingCA     bool
+	HTTPListener        string
+	HTTPSListener       string
+	APIListener         string
+	DynamoDB            db.DynamoConnection
+	LogLevel            string
+	LogFormatter        string
+	Bootstrap           bool
+	Version             bool
+	Help                bool
+	StagingCA           bool
+	APIClientStaticPath string
 }
