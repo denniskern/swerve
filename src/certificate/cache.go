@@ -71,6 +71,13 @@ func (c *PersistentCertCache) Get(ctx context.Context, key string) ([]byte, erro
 		log.Debugf("c.db.GetTLSCache k:%s len:%d err %#v", key, len(data), err)
 	}()
 
+	// handle context timeouts and errors
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-done:
+	}
+
 	if err == nil && data != nil {
 		return data, nil
 	}
