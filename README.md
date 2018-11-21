@@ -194,3 +194,17 @@ The result should look like
     Date: Tue, 20 Nov 2018 13:00:44 GMT
     Content-Length: 57
     Content-Type: text/html; charset=utf-8
+
+## Benchmark with vegeta (version > 12.0.0)
+
+    printf "GET http://127.0.0.1:8080\nHost: example.org\n" > target.txt
+
+    vegeta attack -rate 50 -duration 2m -targets target.txt | vegeta encode | \
+        jaggr @count=rps \
+            hist\[100,200,300,400,500\]:code \
+            p25,p50,p95:latency \
+            sum:bytes_in \
+            sum:bytes_out | \
+        jplot rps+code.hist.100+code.hist.200+code.hist.300+code.hist.400+code.hist.500 \
+            latency.p95+latency.p50+latency.p25 \
+            bytes_in.sum+bytes_out.sum

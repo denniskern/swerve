@@ -68,7 +68,6 @@ func (c *PersistentCertCache) Get(ctx context.Context, key string) ([]byte, erro
 	go func() {
 		defer close(done)
 		data, err = c.DB.GetTLSCache(key)
-		log.Debugf("c.db.GetTLSCache k:%s len:%d err %#v", key, len(data), err)
 	}()
 
 	// handle context timeouts and errors
@@ -78,7 +77,7 @@ func (c *PersistentCertCache) Get(ctx context.Context, key string) ([]byte, erro
 	case <-done:
 	}
 
-	if err == nil && data != nil {
+	if err == nil && data != nil && len(data) > 0 {
 		return data, nil
 	}
 
@@ -95,7 +94,6 @@ func (c *PersistentCertCache) Put(ctx context.Context, key string, data []byte) 
 	go func() {
 		defer close(done)
 		err = c.DB.UpdateTLSCache(key, data)
-		log.Debugf("c.db.UpdateTLSCache k:%s len:%d err %#v", key, len(data), err)
 	}()
 
 	// handle context timeouts and errors
@@ -118,7 +116,6 @@ func (c *PersistentCertCache) Delete(ctx context.Context, key string) error {
 	go func() {
 		defer close(done)
 		err = c.DB.DeleteTLSCacheEntry(key)
-		log.Debugf("c.db.DeleteTLSCacheEntry k:%s err %#v", key, err)
 	}()
 
 	// handle context timeouts and errors
