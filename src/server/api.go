@@ -39,7 +39,7 @@ func prometheusHandler() httprouter.Handle {
 }
 
 // NewAPIServer creates a new API server instance
-func NewAPIServer(listener string, dynDB *db.DynamoDB) *API {
+func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
 	api := &API{
 		listener: listener,
 		db:       dynDB,
@@ -49,14 +49,18 @@ func NewAPIServer(listener string, dynDB *db.DynamoDB) *API {
 	router := httprouter.New()
 	router.GET("/health", api.health)
 	router.GET("/metrics", prometheusHandler())
-
 	router.GET("/version", api.version)
-	router.GET("/export", api.exportDomains)
-	router.POST("/import", api.importDomains)
-	router.GET("/domain", api.fetchAllDomains)
-	router.GET("/domain/:name", api.fetchDomain)
-	router.POST("/domain", api.registerDomain)
-	router.DELETE("/domain/:name", api.purgeDomain)
+
+	router.GET("/api/export", api.exportDomains)
+	router.POST("/api/import", api.importDomains)
+	router.GET("/api/domain", api.fetchAllDomains)
+	router.GET("/api/domain/:name", api.fetchDomain)
+	router.POST("/api/domain", api.registerDomain)
+	router.DELETE("/api/domain/:name", api.purgeDomain)
+
+	static := httprouter.New()
+	static.ServeFiles("/*filepath", http.Dir(staticDir))
+	router.NotFound = static
 
 	api.server = &http.Server{
 		Addr:    listener,

@@ -49,6 +49,8 @@ or to build as linux binary
 * SWERVE_HTTPS - Address for the HTTPS listener
 * SWERVE_BOOTSTRAP - DB table preparation
 * SWERVE_LOG_LEVEL - Log level info, debug, warning, error, fatal and panic
+* SWERVE_STAGING - Use letsencrypt staging api with much higher quota. Use this when you run tests
+* SWERVE_API_CLIENT_STATIC - Path to the API client static files
 
 ### Application parameter
 
@@ -60,6 +62,9 @@ or to build as linux binary
 * api - Address for the API listener
 * http - Address for the HTTP listener
 * https - Address for the HTTPS listener
+* client-static - Path to the API client static files
+* log-level - Set the log level (info,debug,warning,error,fatal,panic)
+* log-formatter - Set the log formatter (text,json)
 
 ## API
 
@@ -118,18 +123,22 @@ Meanful description of the domain entry
 
 ## API calls
 
+### API manager
+
+Go to ```http://<api_host>:<api_port>/```. This is a little vue app to manage the swerve domains
+
 ### Get all domains
 
-    curl -X GET http://<api_host>:<api_port>/domain
+    curl -X GET http://<api_host>:<api_port>/api/domain
 
 ### Get a single domain by name
 
-    curl -X GET http://<api_host>:<api_port>/domain/<name>
+    curl -X GET http://<api_host>:<api_port>/api/domain/<name>
 
 ### Insert a new domain
 
     curl -X POST \
-        http://<api_host>:<api_port>/domain/ \
+        http://<api_host>:<api_port>/api/domain/ \
         -d '{
             "domain": "<name>",
             "redirect": "https://my.redirect.target.com",
@@ -139,16 +148,16 @@ Meanful description of the domain entry
 
 ### Purge a domain by name
 
-    curl -X DELETE http://<api_host>:<api_port>/domain/<name>
+    curl -X DELETE http://<api_host>:<api_port>/api/domain/<name>
 
 ### Export all domains
 
-    curl -X GET http://<api_host>:<api_port>/export
+    curl -X GET http://<api_host>:<api_port>/api/export
 
 ### Import a export set
 
     curl -X POST \
-    http://<api_host>:<api_port>/import \
+    http://<api_host>:<api_port>/api/import \
     -H 'cache-control: no-cache' \
     -H 'content-type: application/json' \
     -d '{
@@ -174,14 +183,14 @@ This should start a swerve, dynamodb and a test target nginx service
 Lets add a target to swerve
 
     curl -X POST \
-        http://127.0.0.1:8082/domain \
+        http://127.0.0.1:8082/api/domain \
         -H 'cache-control: no-cache' \
         -H 'content-type: application/json' \
         -d '{"domain": "example.org", "redirect": "http://127.0.0.1:8090/", "code": 301, "description": "test", "promotable": true}'
 
 Test the record
 
-    curl -X GET 127.0.0.1:8082/domain
+    curl -X GET 127.0.0.1:8082/api/domain
 
 So lets see whether the http redirect works
 
