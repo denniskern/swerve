@@ -25,6 +25,7 @@ type Configuration struct {
 	HTTPSListener       string
 	APIListener         string
 	DynamoDB            db.DynamoConnection
+	TablePrefix         string
 	LogLevel            string
 	LogFormatter        string
 	Bootstrap           bool

@@ -4,6 +4,13 @@
 
 Swerve is a redirection service that uses autocert to generate https certificates automatically. The domain and certificate data are stored in a DynamoDB
 
+## Setup the DB tables
+
+Create the dynamodb tables. This example with AWS cli based on the assumption that the table prefix is empty
+
+    aws dynamodb create-table --table-name Domains --attribute-definitions AttributeName=domain,AttributeType=S --key-schema AttributeName=domain,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+    aws dynamodb create-table --table-name DomainsTLSCache --attribute-definitions AttributeName=cacheKey,AttributeType=S --key-schema AttributeName=cacheKey,KeyType=HASH --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
+
 ## Test
 
     make test/local
@@ -44,6 +51,7 @@ or to build as linux binary
 * SWERVE_DB_REGION - AWS region for the DynamoDB
 * SWERVE_DB_KEY - AWS key for credential based access
 * SWERVE_DB_SECRET - AWS secret for credential based access
+* SWERVE_DB_TABLE_PREFIX - DynamoDB table name prefix
 * SWERVE_API - Address for the API listener
 * SWERVE_HTTP - Address for the HTTP listener
 * SWERVE_HTTPS - Address for the HTTPS listener
@@ -58,6 +66,7 @@ or to build as linux binary
 * db-region - AWS region for the DynamoDB
 * db-key - AWS key for credential based access
 * db-secret - AWS secret for credential based access
+* db-table-prefix - DynamoDB table name prefix
 * bootstrap - DB table preparation
 * api - Address for the API listener
 * http - Address for the HTTP listener

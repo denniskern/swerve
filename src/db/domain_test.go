@@ -11,12 +11,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestDB(t *testing.T) {
+func TestDBDomain(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "DB Suite")
+	RunSpecs(t, "DB domain suite")
 }
 
-var _ = Describe("DB", func() {
+var _ = Describe("type Domain", func() {
 	It("Domain struct validating", func() {
 		domain := &db.Domain{}
 		errList := domain.Validate()

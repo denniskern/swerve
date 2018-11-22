@@ -55,6 +55,10 @@ func (c *Configuration) FromEnv() {
 		c.DynamoDB.Region = *dbRegion
 	}
 
+	if dbTablePrefix := getOSPrefixEnv("DB_TABLE_PREFIX"); dbTablePrefix != nil {
+		c.TablePrefix = *dbTablePrefix
+	}
+
 	if dbKey := getOSPrefixEnv("DB_KEY"); dbKey != nil {
 		if dbSecret := getOSPrefixEnv("DB_SECRET"); dbSecret != nil {
 			c.DynamoDB.Key = *dbKey
@@ -90,6 +94,7 @@ func (c *Configuration) FromParameter() {
 	dbKeyPtr := flag.String("db-key", "", "DynamoDB credential key")
 	dbSecretPtr := flag.String("db-secret", "", "DynamoDB credential secret")
 	dbBootstrapPtr := flag.Bool("bootstrap", false, "Bootstrap the database")
+	dbTablePrefixPtr := flag.String("db-table-prefix", "", "DynamoDB table name prefix")
 
 	caStagingEnvPtr := flag.Bool("staging", false, "ca manager will connect the CA staging environment")
 
@@ -116,6 +121,10 @@ func (c *Configuration) FromParameter() {
 
 	if dbEndpointPtr != nil && *dbEndpointPtr != "" {
 		c.DynamoDB.Endpoint = *dbEndpointPtr
+	}
+
+	if dbTablePrefixPtr != nil && *dbTablePrefixPtr != "" {
+		c.TablePrefix = *dbTablePrefixPtr
 	}
 
 	if dbRegionPtr != nil && *dbRegionPtr != "" {
@@ -169,5 +178,6 @@ func NewConfiguration() *Configuration {
 		LogFormatter:  "text",
 		LogLevel:      "debug",
 		Bootstrap:     false,
+		TablePrefix:   "",
 	}
 }

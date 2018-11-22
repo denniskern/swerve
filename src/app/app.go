@@ -33,6 +33,8 @@ func (a *Application) Setup() {
 	a.Config.FromParameter()
 	// setup logger
 	log.SetupLogger(a.Config.LogLevel, a.Config.LogFormatter)
+	// set the table prefix
+	db.DBTablePrefix = a.Config.TablePrefix
 	// database connection
 	var err error
 	a.DynamoDB, err = db.NewDynamoDB(&a.Config.DynamoDB, a.Config.Bootstrap)
