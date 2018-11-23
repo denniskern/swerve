@@ -57,9 +57,9 @@ func NewHTTPSServer(listener string, certManager *certificate.Manager) *HTTPS {
 		TLSConfig: &tls.Config{
 			GetCertificate: server.certManager.GetCertificate,
 		},
-		Handler:      server.redirectHandler(),
-		ReadTimeout:  DefaultRedirectRequestTimeout,
-		WriteTimeout: DefaultRedirectRequestTimeout,
+		Handler: server.redirectHandler(),
+		//		ReadTimeout:  DefaultRedirectRequestTimeout,
+		//		WriteTimeout: DefaultRedirectRequestTimeout,
 	}
 
 	return server

@@ -57,10 +57,10 @@ func NewHTTPServer(listener string, certManager *certificate.Manager) *HTTP {
 	}
 
 	server.server = &http.Server{
-		Addr:         listener,
-		Handler:      server.handler(),
-		ReadTimeout:  DefaultRedirectRequestTimeout,
-		WriteTimeout: DefaultRedirectRequestTimeout,
+		Addr:    listener,
+		Handler: server.handler(),
+		//		ReadTimeout:  DefaultRedirectRequestTimeout,
+		//		WriteTimeout: DefaultRedirectRequestTimeout,
 	}
 
 	return server
