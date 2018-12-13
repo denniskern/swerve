@@ -169,7 +169,7 @@ var _ = Describe("type Domain", func() {
 			url, err = url.Parse("https://example.com/old/path/to/promote?with=query")
 			Expect(err).To(BeNil())
 			redirectURL, redirectCode = domain.GetRedirect(url)
-			Expect("https://theotherserver.com/new/target/to/promote?with=query").To(Equal(redirectURL))
+			Expect("https://theotherserver.com/new/target/to/promote").To(Equal(redirectURL))
 			Expect(redirectCode).To(Equal(301))
 		})
 	})

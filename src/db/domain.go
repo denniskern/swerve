@@ -63,7 +63,6 @@ func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 
 	if d.Promotable == true {
 		rePath = reqURL.Path
-		reURL = strings.TrimRight(reURL, "/")
 
 		if len(reqURL.RawQuery) > 0 {
 			reQuery = "?" + reqURL.RawQuery
@@ -72,25 +71,30 @@ func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 
 	if d.PathMapping != nil && len(*d.PathMapping) > 0 {
 		for _, p := range *d.PathMapping {
+			// skip empty path mapping
 			if p.To == "" {
 				continue
 			}
 			// we match the path prefix
-			if strings.HasPrefix(rePath, p.From) {
-				rePath = rePath[len(p.From):]
+			if strings.HasPrefix(reqURL.Path, p.From) {
+				rePath = reqURL.Path[len(p.From):]
 				// path redirect
 				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
-					reURL = strings.TrimRight(p.To, "/")
-				}
-
-				if d.Promotable == true {
-					rePath = path.Join(p.To, rePath)
+					reURL = p.To
 				} else {
-					rePath = p.To
+					if d.Promotable {
+						rePath = path.Join(p.To, rePath)
+					} else {
+						rePath = p.To
+					}
 				}
 				break
 			}
 		}
+	}
+
+	if strings.HasSuffix(reURL, "/") && strings.HasPrefix(rePath, "/") {
+		rePath = strings.TrimLeft(rePath, "/")
 	}
 
 	return reURL + rePath + reQuery, code
