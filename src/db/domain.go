@@ -57,7 +57,7 @@ func (d *Domain) Validate() []error {
 // GetRedirect returns calculated routes
 func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 	code := d.RedirectCode
-	reURL := strings.TrimRight(d.Redirect, "/")
+	reURL := d.Redirect
 	rePath := ""
 	reQuery := ""
 
@@ -71,21 +71,30 @@ func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 
 	if d.PathMapping != nil && len(*d.PathMapping) > 0 {
 		for _, p := range *d.PathMapping {
+			// skip empty path mapping
 			if p.To == "" {
 				continue
 			}
 			// we match the path prefix
-			if strings.HasPrefix(rePath, p.From) {
-				rePath = rePath[len(p.From):]
+			if strings.HasPrefix(reqURL.Path, p.From) {
+				rePath = reqURL.Path[len(p.From):]
 				// path redirect
 				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
-					reURL = strings.TrimRight(p.To, "/")
+					reURL = p.To
 				} else {
-					rePath = path.Join(p.To, rePath)
+					if d.Promotable {
+						rePath = path.Join(p.To, rePath)
+					} else {
+						rePath = p.To
+					}
 				}
 				break
 			}
 		}
+	}
+
+	if strings.HasSuffix(reURL, "/") && strings.HasPrefix(rePath, "/") {
+		rePath = strings.TrimLeft(rePath, "/")
 	}
 
 	return reURL + rePath + reQuery, code
