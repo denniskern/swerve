@@ -57,6 +57,7 @@ func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
 	router.GET("/api/domain/:id", api.fetchDomain)
 	router.POST("/api/domain", api.registerDomain)
 	router.DELETE("/api/domain/:id", api.purgeDomain)
+	router.PUT("/api/domain/:id", api.updateDomain)
 
 	static := httprouter.New()
 	static.ServeFiles("/*filepath", http.Dir(staticDir))
@@ -152,6 +153,54 @@ func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httproute
 	api.db.DeleteTLSCacheEntry(id)
 
 	sendJSONMessage(w, "ok", 204)
+}
+
+// updateDomain updates a domain entry
+func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if r.Body == nil {
+		sendJSONMessage(w, "Please send a request body", 400)
+		return
+	}
+
+	id := ps.ByName("id")
+	oldDomain, err := api.db.FetchByID(id)
+
+	if oldDomain == nil || err != nil {
+		sendJSONMessage(w, "not found", 404)
+		return
+	}
+
+	var domain db.Domain
+
+	if err := json.NewDecoder(r.Body).Decode(&domain); err != nil {
+		sendJSONMessage(w, "Invalid request body", 400)
+		return
+	}
+
+	domain.ID = oldDomain.ID
+	domain.Created = oldDomain.Created
+	domain.Modified = time.Now().Format(time.RFC3339)
+
+	// validate
+	if errList := domain.Validate(); len(errList) > 0 {
+		errMsg := ""
+		for _, err := range errList {
+			errMsg = errMsg + err.Error() + ". "
+		}
+		sendJSONMessage(w, errMsg, 400)
+		return
+	}
+
+	// insert new domain
+	if err := api.db.InsertDomain(domain); err != nil {
+		log.Error(err)
+		sendJSONMessage(w, "Can't store document", 500)
+		return
+	}
+
+	// api.db.DeleteTLSCacheEntry(id)
+
+	sendJSONMessage(w, "ok", 200)
 }
 
 // fetchAllDomains return a list of all domains
