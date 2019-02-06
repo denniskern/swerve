@@ -121,12 +121,12 @@ func (d *DynamoDB) UpdateCertificateData(domain string, data []byte) error {
 	return err
 }
 
-// DeleteByDomain items from domains table
-func (d *DynamoDB) DeleteByDomain(domain string) (bool, error) {
+// DeleteByID items from domains table
+func (d *DynamoDB) DeleteByID(id string) (bool, error) {
 	out, err := d.Service.DeleteItem(&dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			"domain": {
-				S: aws.String(domain),
+			"id": {
+				S: aws.String(id),
 			},
 		},
 		TableName: aws.String(DBTablePrefix + dbDomainTableName),
@@ -135,13 +135,13 @@ func (d *DynamoDB) DeleteByDomain(domain string) (bool, error) {
 	return out != nil && err == nil, err
 }
 
-// FetchByDomain items from domains table
-func (d *DynamoDB) FetchByDomain(domain string) (*Domain, error) {
+// FetchByID items from domains table
+func (d *DynamoDB) FetchByID(id string) (*Domain, error) {
 	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(DBTablePrefix + dbDomainTableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"domain": {
-				S: aws.String(domain),
+			"id": {
+				S: aws.String(id),
 			},
 		},
 	})
@@ -202,7 +202,7 @@ func (d *DynamoDB) DeleteAllDomains() error {
 	}
 
 	for _, do := range domains {
-		_, err = d.DeleteByDomain(do.Name)
+		_, err = d.DeleteByID(do.Name)
 		if err != nil {
 			return err
 		}

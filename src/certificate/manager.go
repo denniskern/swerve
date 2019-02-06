@@ -22,8 +22,8 @@ import (
 
 	"golang.org/x/crypto/acme"
 
-	"github.com/axelspringer/swerve/src/db"
-	"github.com/axelspringer/swerve/src/log"
+	"github.com/TetsuyaXD/swerve/src/db"
+	"github.com/TetsuyaXD/swerve/src/log"
 	"golang.org/x/crypto/acme/autocert"
 )
 

@@ -15,11 +15,11 @@
 package db
 
 import (
+	"github.com/TetsuyaXD/swerve/src/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/axelspringer/swerve/src/log"
 )
 
 const (

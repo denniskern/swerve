@@ -20,12 +20,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/axelspringer/swerve/src/configuration"
+	"github.com/TetsuyaXD/swerve/src/configuration"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/axelspringer/swerve/src/db"
-	"github.com/axelspringer/swerve/src/log"
+	"github.com/TetsuyaXD/swerve/src/db"
+	"github.com/TetsuyaXD/swerve/src/log"
 	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 )
@@ -135,21 +135,21 @@ func (api *API) importDomains(w http.ResponseWriter, r *http.Request, _ httprout
 
 // purgeDomain deletes a domain entry
 func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	name := ps.ByName("name")
-	domain, err := api.db.FetchByDomain(name)
+	id := ps.ByName("id")
+	domain, err := api.db.FetchByID(id)
 
 	if domain == nil || err != nil {
 		sendJSONMessage(w, "not found", 404)
 		return
 	}
 
-	if _, err = api.db.DeleteByDomain(name); err != nil {
+	if _, err = api.db.DeleteByID(id); err != nil {
 		log.Error(err)
 		sendJSONMessage(w, "Error while deleting domain", 500)
 		return
 	}
 
-	api.db.DeleteTLSCacheEntry(name)
+	api.db.DeleteTLSCacheEntry(id)
 
 	sendJSONMessage(w, "ok", 204)
 }
@@ -167,8 +167,8 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 }
 
 func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	name := ps.ByName("name")
-	domain, err := api.db.FetchByDomain(name)
+	id := ps.ByName("id")
+	domain, err := api.db.FetchByID(id)
 
 	if err != nil {
 		sendJSONMessage(w, "not found", 404)

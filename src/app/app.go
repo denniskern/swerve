@@ -19,11 +19,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/axelspringer/swerve/src/certificate"
-	"github.com/axelspringer/swerve/src/configuration"
-	"github.com/axelspringer/swerve/src/db"
-	"github.com/axelspringer/swerve/src/log"
-	"github.com/axelspringer/swerve/src/server"
+	"github.com/TetsuyaXD/swerve/src/certificate"
+	"github.com/TetsuyaXD/swerve/src/configuration"
+	"github.com/TetsuyaXD/swerve/src/db"
+	"github.com/TetsuyaXD/swerve/src/log"
+	"github.com/TetsuyaXD/swerve/src/server"
 )
 
 // Setup the application configuration

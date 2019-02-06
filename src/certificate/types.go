@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/axelspringer/swerve/src/db"
+	"github.com/TetsuyaXD/swerve/src/db"
 	"golang.org/x/crypto/acme/autocert"
 )
 

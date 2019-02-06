@@ -17,8 +17,8 @@ package server
 import (
 	"net/http"
 
-	"github.com/axelspringer/swerve/src/certificate"
-	"github.com/axelspringer/swerve/src/log"
+	"github.com/TetsuyaXD/swerve/src/certificate"
+	"github.com/TetsuyaXD/swerve/src/log"
 )
 
 // Listen to the http
