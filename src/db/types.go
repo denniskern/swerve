@@ -58,7 +58,7 @@ type TLSCacheEntry struct {
 type Domain struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"domain"`
-	PathMapping  *PathList `json:"path"`
+	PathMapping  *PathList `json:"paths"`
 	Redirect     string    `json:"redirect"`
 	Promotable   bool      `json:"promotable"`
 	Wildcard     bool      `json:"wildcard"`

@@ -84,7 +84,7 @@ or to build as linux binary
     {
         "id": "guid v4 will be generated",
         "domain": "my.domain.com",
-        "path": [
+        "paths": [
             {
                 "from": "/match/path/prefix",
                 "to": "/foo"
@@ -110,7 +110,7 @@ Will be generated
 
 The domain name to keep track on. e.g. ```my.redirect.com```
 
-#### path
+#### paths
 
 You can add an aditional path mapping conditional list. When defined the redirection based on the matching result of this list. Fallback is the default redirect
 
