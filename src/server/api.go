@@ -54,9 +54,9 @@ func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
 	router.GET("/api/export", api.exportDomains)
 	router.POST("/api/import", api.importDomains)
 	router.GET("/api/domain", api.fetchAllDomains)
-	router.GET("/api/domain/:name", api.fetchDomain)
+	router.GET("/api/domain/:id", api.fetchDomain)
 	router.POST("/api/domain", api.registerDomain)
-	router.DELETE("/api/domain/:name", api.purgeDomain)
+	router.DELETE("/api/domain/:id", api.purgeDomain)
 
 	static := httprouter.New()
 	static.ServeFiles("/*filepath", http.Dir(staticDir))

@@ -1,2 +1,5 @@
 logs/
 data/
+bin/
+/swerve_test_coverage.html
+/swerve.coverprofile

@@ -21,7 +21,11 @@ import (
 )
 
 func sendJSON(w http.ResponseWriter, obj interface{}, code int) {
-	jsonBytes, _ := json.Marshal(obj)
+	jsonBytes, _ := json.Marshal(struct {
+		Data interface{} `json:"data"`
+	}{
+		Data: obj,
+	})
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonBytes)
 }
