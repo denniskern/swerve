@@ -15,6 +15,7 @@
 package db
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
@@ -175,6 +176,48 @@ func (d *DynamoDB) FetchAll() ([]Domain, error) {
 	}
 
 	return recs, nil
+}
+
+// FetchAllPaginated items from domains table
+func (d *DynamoDB) FetchAllPaginated(cursor *string) ([]Domain, *string, error) {
+	var startkey map[string]*dynamodb.AttributeValue
+	var newCursor string
+	if cursor != nil {
+		sk, err := base64.StdEncoding.DecodeString(*cursor)
+		if err != nil {
+			return nil, nil, fmt.Errorf("Error while decoding cursor, %v", err)
+		}
+		startkey = map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(string(sk)),
+			},
+		}
+	}
+
+	itemList, err := d.Service.Scan(&dynamodb.ScanInput{
+		TableName:         aws.String(DBTablePrefix + dbDomainTableName),
+		ExclusiveStartKey: startkey,
+		Limit:             aws.Int64(10),
+	})
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error while fetching domain items, %v", err)
+	}
+
+	recs := []Domain{}
+	err = dynamodbattribute.UnmarshalListOfMaps(itemList.Items, &recs)
+	if err != nil {
+		return nil, nil, fmt.Errorf("Failed to unmarshal Dynamodb Scan Items, %v", err)
+	}
+
+	val, ok := itemList.LastEvaluatedKey["id"]
+	if ok {
+		newCursor = base64.StdEncoding.EncodeToString([]byte(*val.S))
+	} else {
+		newCursor = "EOF"
+	}
+
+	return recs, &newCursor, nil
 }
 
 // InsertDomain stores a domain

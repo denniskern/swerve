@@ -205,14 +205,27 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 
 // fetchAllDomains return a list of all domains
 func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	domains, err := api.db.FetchAll()
+	var cursor *string
+	queryparam, ok := r.URL.Query()["cursor"]
+	if !ok || len(queryparam[0]) < 1 {
+		cursor = nil
+	} else {
+		cursor = &queryparam[0]
+	}
+	domains, cursor, err := api.db.FetchAllPaginated(cursor)
 
 	if err != nil {
 		sendJSONMessage(w, "Error while fetching domains", 500)
 		return
 	}
 
-	sendJSON(w, domains, 200)
+	sendJSON(w, struct {
+		Domains []db.Domain `json:"domains"`
+		Cursor  *string     `json:"cursor"`
+	}{
+		domains,
+		cursor,
+	}, 200)
 }
 
 func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
