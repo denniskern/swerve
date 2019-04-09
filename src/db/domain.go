@@ -122,12 +122,12 @@ func (d *DynamoDB) UpdateCertificateData(domain string, data []byte) error {
 	return err
 }
 
-// DeleteByID items from domains table
-func (d *DynamoDB) DeleteByID(id string) (bool, error) {
+// DeleteByDomain items from domains table
+func (d *DynamoDB) DeleteByDomain(domain string) (bool, error) {
 	out, err := d.Service.DeleteItem(&dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(id),
+			"domain": {
+				S: aws.String(domain),
 			},
 		},
 		TableName: aws.String(DBTablePrefix + dbDomainTableName),
@@ -136,13 +136,13 @@ func (d *DynamoDB) DeleteByID(id string) (bool, error) {
 	return out != nil && err == nil, err
 }
 
-// FetchByID items from domains table
-func (d *DynamoDB) FetchByID(id string) (*Domain, error) {
+// FetchByDomain items from domains table
+func (d *DynamoDB) FetchByDomain(domain string) (*Domain, error) {
 	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(DBTablePrefix + dbDomainTableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
-				S: aws.String(id),
+			"domain": {
+				S: aws.String(domain),
 			},
 		},
 	})
@@ -188,7 +188,7 @@ func (d *DynamoDB) FetchAllPaginated(cursor *string) ([]Domain, *string, error) 
 			return nil, nil, fmt.Errorf("Error while decoding cursor, %v", err)
 		}
 		startkey = map[string]*dynamodb.AttributeValue{
-			"id": {
+			"domain": {
 				S: aws.String(string(sk)),
 			},
 		}
@@ -210,7 +210,7 @@ func (d *DynamoDB) FetchAllPaginated(cursor *string) ([]Domain, *string, error) 
 		return nil, nil, fmt.Errorf("Failed to unmarshal Dynamodb Scan Items, %v", err)
 	}
 
-	val, ok := itemList.LastEvaluatedKey["id"]
+	val, ok := itemList.LastEvaluatedKey["domain"]
 	if ok {
 		newCursor = base64.StdEncoding.EncodeToString([]byte(*val.S))
 	} else {
@@ -245,7 +245,7 @@ func (d *DynamoDB) DeleteAllDomains() error {
 	}
 
 	for _, do := range domains {
-		_, err = d.DeleteByID(do.Name)
+		_, err = d.DeleteByDomain(do.Name)
 		if err != nil {
 			return err
 		}

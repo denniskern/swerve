@@ -54,10 +54,10 @@ func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
 	router.GET("/api/export", api.exportDomains)
 	router.POST("/api/import", api.importDomains)
 	router.GET("/api/domain", api.fetchAllDomains)
-	router.GET("/api/domain/:id", api.fetchDomain)
+	router.GET("/api/domain/:name", api.fetchDomain)
 	router.POST("/api/domain", api.registerDomain)
-	router.DELETE("/api/domain/:id", api.purgeDomain)
-	router.PUT("/api/domain/:id", api.updateDomain)
+	router.DELETE("/api/domain/:name", api.purgeDomain)
+	router.PUT("/api/domain/:name", api.updateDomain)
 
 	static := httprouter.New()
 	static.ServeFiles("/*filepath", http.Dir(staticDir))
@@ -136,21 +136,21 @@ func (api *API) importDomains(w http.ResponseWriter, r *http.Request, _ httprout
 
 // purgeDomain deletes a domain entry
 func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id := ps.ByName("id")
-	domain, err := api.db.FetchByID(id)
+	name := ps.ByName("name")
+	domain, err := api.db.FetchByDomain(name)
 
 	if domain == nil || err != nil {
 		sendJSONMessage(w, "not found", 404)
 		return
 	}
 
-	if _, err = api.db.DeleteByID(id); err != nil {
+	if _, err = api.db.DeleteByDomain(name); err != nil {
 		log.Error(err)
 		sendJSONMessage(w, "Error while deleting domain", 500)
 		return
 	}
 
-	api.db.DeleteTLSCacheEntry(id)
+	api.db.DeleteTLSCacheEntry(name)
 
 	sendJSONMessage(w, "ok", 204)
 }
@@ -162,8 +162,8 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	id := ps.ByName("id")
-	oldDomain, err := api.db.FetchByID(id)
+	name := ps.ByName("name")
+	oldDomain, err := api.db.FetchByDomain(name)
 
 	if oldDomain == nil || err != nil {
 		sendJSONMessage(w, "not found", 404)
@@ -229,8 +229,8 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 }
 
 func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	id := ps.ByName("id")
-	domain, err := api.db.FetchByID(id)
+	name := ps.ByName("name")
+	domain, err := api.db.FetchByDomain(name)
 
 	if err != nil {
 		sendJSONMessage(w, "not found", 404)
