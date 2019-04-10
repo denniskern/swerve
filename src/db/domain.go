@@ -197,7 +197,6 @@ func (d *DynamoDB) FetchAllPaginated(cursor *string) ([]Domain, *string, error) 
 	itemList, err := d.Service.Scan(&dynamodb.ScanInput{
 		TableName:         aws.String(DBTablePrefix + dbDomainTableName),
 		ExclusiveStartKey: startkey,
-		Limit:             aws.Int64(10),
 	})
 
 	if err != nil {
