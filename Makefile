@@ -45,7 +45,7 @@ build/linux: test/local
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -ldflags "-X main.Version=$(VERSION)" -o "$(BIN)_linux" $(GOFLAGS)  main.go
 
 build/docker:
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE):$(TRAVIS_BRANCH)-$(TRAVIS_BUILD_NUMBER) .
 
 compose/up: build/linux
 	docker-compose -f docker-compose.yml up -d
@@ -55,7 +55,7 @@ compose/down:
 
 push/docker:
 	echo "$(DOCKER_PASSWORD)" | docker login -u "$(DOCKER_USERNAME)" --password-stdin
-	docker push $(IMAGE)
+	docker push $(IMAGE):$(TRAVIS_BRANCH)-$(TRAVIS_BUILD_NUMBER)
 
 restore:
-	dep ensure
+
