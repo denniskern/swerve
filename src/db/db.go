@@ -15,6 +15,8 @@
 package db
 
 import (
+	"os"
+
 	"github.com/TetsuyaXD/swerve/src/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -22,9 +24,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-const (
-	dbDomainTableName = "Domains"
-	dbCacheTableName  = "DomainsTLSCache"
+var (
+	dbDomainTableName = os.Getenv("DOMAINS")
+	dbCacheTableName  = os.Getenv("DOMAINS_TLS_CACHE")
 )
 
 var (
