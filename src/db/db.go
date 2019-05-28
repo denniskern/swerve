@@ -18,7 +18,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/TetsuyaXD/swerve/src/log"
+	"github.com/axelspringer/swerve/src/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"

@@ -14,7 +14,7 @@
 
 package configuration
 
-import "github.com/TetsuyaXD/swerve/src/db"
+import "github.com/axelspringer/swerve/src/db"
 
 // Version string
 var Version string

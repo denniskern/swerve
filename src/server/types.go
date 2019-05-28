@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/TetsuyaXD/swerve/src/certificate"
-	"github.com/TetsuyaXD/swerve/src/db"
+	"github.com/axelspringer/swerve/src/certificate"
+	"github.com/axelspringer/swerve/src/db"
 )
 
 // DefaultRedirectRequestTimeout default timeout for every redirect request

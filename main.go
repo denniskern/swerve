@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TetsuyaXD/swerve/src/app"
-	"github.com/TetsuyaXD/swerve/src/configuration"
+	"github.com/axelspringer/swerve/src/app"
+	"github.com/axelspringer/swerve/src/configuration"
 )
 
 // Version string

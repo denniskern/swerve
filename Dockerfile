@@ -6,8 +6,8 @@ LABEL maintainer="jan.michalowsky@axelspringer.com"
 RUN apk update && apk add git && apk add ca-certificates
 #RUN adduser -D -g '' serviceuser
 
-COPY . $GOPATH/src/github.com/TetsuyaXD/swerve/
-WORKDIR $GOPATH/src/github.com/TetsuyaXD/swerve/
+COPY . $GOPATH/src/github.com/axelspringer/swerve/
+WORKDIR $GOPATH/src/github.com/axelspringer/swerve/
 
 RUN echo $GOPATH
 RUN go get -d -v ./...
@@ -24,7 +24,7 @@ LABEL maintainer="jan.michalowsky@axelspringer.com"
 
 #COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /go/src/github.com/TetsuyaXD/swerve/swerve /swerve
+COPY --from=builder /go/src/github.com/axelspringer/swerve/swerve /swerve
 COPY --from=jsbuilder /tmp/client/dist /tmp/static
 
 ENV SWERVE_API_CLIENT_STATIC /tmp/static

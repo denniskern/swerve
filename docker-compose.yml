@@ -29,6 +29,8 @@ services:
       - SWERVE_DB_SECRET=0
       - SWERVE_BOOTSTRAP=0
       - SWERVE_API_CLIENT_STATIC=/tmp/static
+      - SWERVE_DOMAINS=Domains
+      - SWERVE_DOMAINS_TLS_CACHE=DomainsTLSCache
     volumes:
       - ./bin/swerve_linux:/swerve
       - ./src/client/dist:/tmp/static

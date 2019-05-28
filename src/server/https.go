@@ -18,8 +18,8 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/TetsuyaXD/swerve/src/certificate"
-	"github.com/TetsuyaXD/swerve/src/log"
+	"github.com/axelspringer/swerve/src/certificate"
+	"github.com/axelspringer/swerve/src/log"
 )
 
 // Listen to the https

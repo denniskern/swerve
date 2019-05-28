@@ -20,12 +20,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/TetsuyaXD/swerve/src/configuration"
+	"github.com/axelspringer/swerve/src/configuration"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/TetsuyaXD/swerve/src/db"
-	"github.com/TetsuyaXD/swerve/src/log"
+	"github.com/axelspringer/swerve/src/db"
+	"github.com/axelspringer/swerve/src/log"
 	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 )

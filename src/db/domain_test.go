@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/TetsuyaXD/swerve/src/db"
+	"github.com/axelspringer/swerve/src/db"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

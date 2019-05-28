@@ -4,3 +4,4 @@ data/
 /swerve_test_coverage.html
 /swerve.coverprofile
 diff.txt
+src/client/node_modules
