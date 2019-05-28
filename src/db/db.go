@@ -16,6 +16,7 @@ package db
 
 import (
 	"os"
+	"strings"
 
 	"github.com/TetsuyaXD/swerve/src/log"
 	"github.com/aws/aws-sdk-go/aws"
@@ -25,14 +26,27 @@ import (
 )
 
 var (
-	dbDomainTableName = os.Getenv("DOMAINS")
-	dbCacheTableName  = os.Getenv("DOMAINS_TLS_CACHE")
+	dbDomainTableName = getOSPrefixEnv("DOMAINS")
+	dbCacheTableName  = getOSPrefixEnv("DOMAINS_TLS_CACHE")
 )
 
 var (
 	// DBTablePrefix holds the db prefix
 	DBTablePrefix = ""
 )
+
+const (
+	envPrefix = "SWERVE_"
+)
+
+// getOSPrefixEnv get os env
+func getOSPrefixEnv(s string) string {
+	if e := strings.TrimSpace(os.Getenv(envPrefix + s)); len(e) > 0 {
+		return e
+	}
+
+	return ""
+}
 
 // NewDynamoDB creates a new instance
 func NewDynamoDB(c *DynamoConnection, bootstrap bool) (*DynamoDB, error) {
