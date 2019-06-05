@@ -58,6 +58,7 @@ func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
 	router.POST("/api/domain", api.registerDomain)
 	router.DELETE("/api/domain/:name", api.purgeDomain)
 	router.PUT("/api/domain/:name", api.updateDomain)
+	router.OPTIONS("/*opti", api.options)
 
 	static := httprouter.New()
 	static.ServeFiles("/*filepath", http.Dir(staticDir))
@@ -84,9 +85,17 @@ func (api *API) health(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 
 // version handler
 func (api *API) version(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	w.WriteHeader(200)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(fmt.Sprintf("{\"version\":\"%s\"}", configuration.Version)))
+	w.WriteHeader(200)
+}
+
+func (api *API) options(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept")
+	w.Write([]byte("jo"))
+	w.WriteHeader(200)
 }
 
 // exportDomains exports the domains

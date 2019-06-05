@@ -27,17 +27,20 @@ func sendJSON(w http.ResponseWriter, obj interface{}, code int) {
 		Data: obj,
 	})
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
 	w.Write(jsonBytes)
 }
 
 func sendJSONMessage(w http.ResponseWriter, msg string, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
 	w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
+	w.WriteHeader(code)
 }
 
 func sendPlainMessage(w http.ResponseWriter, msg string, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
 	w.Write([]byte(fmt.Sprintf("%d - %s", code, msg)))
+	w.WriteHeader(code)
 }
