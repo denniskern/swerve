@@ -79,6 +79,10 @@ or to build as linux binary
 
 ## API
 
+### User
+
+You need at least 1 valid user to control the API. Passwords are stored as base64 encoded bcrypt with a uow of 12. You can add multiple users separated by comma ```SWERVE_API_USERS=testuser:JDJ5JDEyJFdNQUtzdk1ESmdyRE1sOWZ3NmJSb08xOTlIMTU3QjFCeEVXbUphd1YxSjhnUWVMY2VoNFRt, ....```
+
 ### Domain model
 
     {

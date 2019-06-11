@@ -18,16 +18,17 @@ import (
 	"os"
 	"strings"
 
-	"github.com/axelspringer/swerve/src/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/axelspringer/swerve/src/log"
 )
 
 var (
 	dbDomainTableName = getOSPrefixEnv("DOMAINS")
 	dbCacheTableName  = getOSPrefixEnv("DOMAINS_TLS_CACHE")
+	dbUsersTable      = getOSPrefixEnv("USERS")
 )
 
 var (
@@ -114,6 +115,22 @@ func (d *DynamoDB) prepareTable() {
 	dbDomainTableDescribe := &dynamodb.DescribeTableInput{
 		TableName: aws.String(DBTablePrefix + dbDomainTableName),
 	}
+	dbUsersTableCreate := &dynamodb.CreateTableInput{
+		TableName: aws.String(DBTablePrefix + dbUsersTable),
+		KeySchema: []*dynamodb.KeySchemaElement{
+			{AttributeName: aws.String("name"), KeyType: aws.String("HASH")},
+		},
+		AttributeDefinitions: []*dynamodb.AttributeDefinition{
+			{AttributeName: aws.String("name"), AttributeType: aws.String("S")},
+		},
+		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(1),
+			WriteCapacityUnits: aws.Int64(1),
+		},
+	}
+	dbUsersTableDescribe := &dynamodb.DescribeTableInput{
+		TableName: aws.String(DBTablePrefix + dbUsersTable),
+	}
 
 	// setup the domain table by spec
 	if _, err := d.Service.DescribeTable(dbDomainTableDescribe); err != nil {
@@ -132,5 +149,14 @@ func (d *DynamoDB) prepareTable() {
 			log.Fatal(cerr)
 		}
 		log.Info("Table 'DomainsTLSCache' created")
+	}
+	// setup the users table by spec
+	if _, err := d.Service.DescribeTable(dbUsersTableDescribe); err != nil {
+		log.Error(err)
+		log.Info("Table 'SwerveUsers' didn't exists. Creating ...")
+		if _, cerr := d.Service.CreateTable(dbUsersTableCreate); cerr != nil {
+			log.Fatal(cerr)
+		}
+		log.Info("Table 'SwerveUsers' created")
 	}
 }

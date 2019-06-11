@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/axelspringer/swerve/src/configuration"
+	jwt "github.com/dgrijalva/jwt-go"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -29,6 +30,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 	uuid "github.com/satori/go.uuid"
 )
+
+var secret string
 
 func prometheusHandler() httprouter.Handle {
 	h := promhttp.Handler()
@@ -39,30 +42,33 @@ func prometheusHandler() httprouter.Handle {
 }
 
 // NewAPIServer creates a new API server instance
-func NewAPIServer(listener string, staticDir string, dynDB *db.DynamoDB) *API {
+func NewAPIServer(listener string, apiSecret string, dynDB *db.DynamoDB) *API {
 	api := &API{
 		listener: listener,
 		db:       dynDB,
 	}
+
+	secret = apiSecret
 
 	// register api router
 	router := httprouter.New()
 	router.GET("/health", api.health)
 	router.GET("/metrics", prometheusHandler())
 	router.GET("/version", api.version)
+	router.POST("/login", api.login)
 
-	router.GET("/api/export", api.exportDomains)
-	router.POST("/api/import", api.importDomains)
-	router.GET("/api/domain", api.fetchAllDomains)
-	router.GET("/api/domain/:name", api.fetchDomain)
-	router.POST("/api/domain", api.registerDomain)
-	router.DELETE("/api/domain/:name", api.purgeDomain)
-	router.PUT("/api/domain/:name", api.updateDomain)
-	router.OPTIONS("/*opti", api.options)
+	authRouter := httprouter.New()
+	authRouter.GET("/api/export", api.exportDomains)
+	authRouter.POST("/api/import", api.importDomains)
+	authRouter.GET("/api/domain", api.fetchAllDomains)
+	authRouter.GET("/api/domain/:name", api.fetchDomain)
+	authRouter.POST("/api/domain", api.registerDomain)
+	authRouter.DELETE("/api/domain/:name", api.purgeDomain)
+	authRouter.PUT("/api/domain/:name", api.updateDomain)
+	authRouter.GET("/refresh", api.refresh)
 
-	static := httprouter.New()
-	static.ServeFiles("/*filepath", http.Dir(staticDir))
-	router.NotFound = static
+	router.NotFound = AuthHandler(authRouter)
+	// router.NotFound = static
 
 	api.server = &http.Server{
 		Addr:    listener,
@@ -80,22 +86,14 @@ func (api *API) Listen() error {
 
 // health handler
 func (api *API) health(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	sendJSONMessage(w, "ok", 200)
+	sendJSONMessage(w, "ok", http.StatusOK)
 }
 
 // version handler
 func (api *API) version(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write([]byte(fmt.Sprintf("{\"version\":\"%s\"}", configuration.Version)))
-	w.WriteHeader(200)
-}
-
-func (api *API) options(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-	w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept")
-	w.Write([]byte("jo"))
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 }
 
 // exportDomains exports the domains
@@ -111,36 +109,36 @@ func (api *API) exportDomains(w http.ResponseWriter, r *http.Request, _ httprout
 		Domains: domains,
 	}
 
-	sendJSON(w, export, 200)
+	sendJSON(w, export, http.StatusOK)
 }
 
 // importDomains imports a domain export set
 func (api *API) importDomains(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if r.Body == nil {
-		sendJSONMessage(w, "Please send a request body", 400)
+		sendJSONMessage(w, "Please send a request body", http.StatusBadRequest)
 		return
 	}
 
 	var export db.ExportDomains
 
 	if err := json.NewDecoder(r.Body).Decode(&export); err != nil {
-		sendJSONMessage(w, "Invalid request body", 400)
+		sendJSONMessage(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if err := api.db.DeleteAllDomains(); err != nil {
 		log.Error(err)
-		sendJSONMessage(w, "Database operation failed", 500)
+		sendJSONMessage(w, "Database operation failed", http.StatusInternalServerError)
 		return
 	}
 
 	if err := api.db.Import(&export); err != nil {
 		log.Error(err)
-		sendJSONMessage(w, "Database operation failed", 500)
+		sendJSONMessage(w, "Database operation failed", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONMessage(w, "ok", 200)
+	sendJSONMessage(w, "ok", http.StatusOK)
 }
 
 // purgeDomain deletes a domain entry
@@ -149,25 +147,25 @@ func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httproute
 	domain, err := api.db.FetchByDomain(name)
 
 	if domain == nil || err != nil {
-		sendJSONMessage(w, "not found", 404)
+		sendJSONMessage(w, "not found", http.StatusNotFound)
 		return
 	}
 
 	if _, err = api.db.DeleteByDomain(name); err != nil {
 		log.Error(err)
-		sendJSONMessage(w, "Error while deleting domain", 500)
+		sendJSONMessage(w, "Error while deleting domain", http.StatusInternalServerError)
 		return
 	}
 
 	api.db.DeleteTLSCacheEntry(name)
 
-	sendJSONMessage(w, "ok", 204)
+	sendJSONMessage(w, "ok", http.StatusNoContent)
 }
 
 // updateDomain updates a domain entry
 func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if r.Body == nil {
-		sendJSONMessage(w, "Please send a request body", 400)
+		sendJSONMessage(w, "Please send a request body", http.StatusBadRequest)
 		return
 	}
 
@@ -175,14 +173,14 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 	oldDomain, err := api.db.FetchByDomain(name)
 
 	if oldDomain == nil || err != nil {
-		sendJSONMessage(w, "not found", 404)
+		sendJSONMessage(w, "not found", http.StatusNotFound)
 		return
 	}
 
 	var domain db.Domain
 
 	if err := json.NewDecoder(r.Body).Decode(&domain); err != nil {
-		sendJSONMessage(w, "Invalid request body", 400)
+		sendJSONMessage(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -196,14 +194,14 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 		for _, err := range errList {
 			errMsg = errMsg + err.Error() + ". "
 		}
-		sendJSONMessage(w, errMsg, 400)
+		sendJSONMessage(w, errMsg, http.StatusBadRequest)
 		return
 	}
 
 	// insert new domain
 	if err := api.db.InsertDomain(domain); err != nil {
 		log.Error(err)
-		sendJSONMessage(w, "Can't store document", 500)
+		sendJSONMessage(w, "Can't store document", http.StatusInternalServerError)
 		return
 	}
 
@@ -224,7 +222,7 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 	domains, cursor, err := api.db.FetchAllPaginated(cursor)
 
 	if err != nil {
-		sendJSONMessage(w, "Error while fetching domains", 500)
+		sendJSONMessage(w, "Error while fetching domains", http.StatusInternalServerError)
 		return
 	}
 
@@ -234,7 +232,7 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 	}{
 		domains,
 		cursor,
-	}, 200)
+	}, http.StatusOK)
 }
 
 func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -242,23 +240,23 @@ func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httproute
 	domain, err := api.db.FetchByDomain(name)
 
 	if err != nil {
-		sendJSONMessage(w, "not found", 404)
+		sendJSONMessage(w, "not found", http.StatusNotFound)
 		return
 	}
 
-	sendJSON(w, domain, 200)
+	sendJSON(w, domain, http.StatusOK)
 }
 
 func (api *API) registerDomain(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	if r.Body == nil {
-		sendJSONMessage(w, "Please send a request body", 400)
+		sendJSONMessage(w, "Please send a request body", http.StatusBadRequest)
 		return
 	}
 
 	var domain db.Domain
 
 	if err := json.NewDecoder(r.Body).Decode(&domain); err != nil {
-		sendJSONMessage(w, "Invalid request body", 400)
+		sendJSONMessage(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -272,16 +270,104 @@ func (api *API) registerDomain(w http.ResponseWriter, r *http.Request, _ httprou
 		for _, err := range errList {
 			errMsg = errMsg + err.Error() + ". "
 		}
-		sendJSONMessage(w, errMsg, 400)
+		sendJSONMessage(w, errMsg, http.StatusBadRequest)
 		return
 	}
 
 	// insert new domain
 	if err := api.db.InsertDomain(domain); err != nil {
 		log.Error(err)
-		sendJSONMessage(w, "Can't store document", 500)
+		sendJSONMessage(w, "Can't store document", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSONMessage(w, "ok", 201)
+	sendJSONMessage(w, "ok", http.StatusCreated)
+}
+
+func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	var creds Credentials
+	err := json.NewDecoder(r.Body).Decode(&creds)
+	if err != nil {
+		sendJSONMessage(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	err = api.db.CheckPassword(creds.Username, creds.Password)
+	if err != nil {
+		log.Error(err)
+		sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	expirationTime := time.Now().Add(1 * time.Minute)
+	claims := &Claims{
+		Username: creds.Username,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		log.Error(err)
+		sendJSONMessage(w, "JWT token could not be signed", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+	})
+}
+
+func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	c, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		sendJSONMessage(w, "Invalid token", http.StatusBadRequest)
+		return
+	}
+	tknStr := c.Value
+	claims := &Claims{}
+	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	if !tkn.Valid {
+		sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		sendJSONMessage(w, "Invalid token", http.StatusBadRequest)
+		return
+	}
+
+	if time.Unix(claims.ExpiresAt, 0).Sub(time.Now()) > 30*time.Second {
+		sendJSONMessage(w, "Not yet", http.StatusBadRequest)
+		return
+	}
+
+	expirationTime := time.Now().Add(5 * time.Minute)
+	claims.ExpiresAt = expirationTime.Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(secret))
+	if err != nil {
+		sendJSONMessage(w, "Could not sign new token", http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   tokenString,
+		Expires: expirationTime,
+	})
 }

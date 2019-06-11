@@ -73,3 +73,9 @@ type Domain struct {
 type ExportDomains struct {
 	Domains []Domain `json:"domains"`
 }
+
+// User model
+type User struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}

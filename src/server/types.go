@@ -20,6 +20,7 @@ import (
 
 	"github.com/axelspringer/swerve/src/certificate"
 	"github.com/axelspringer/swerve/src/db"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 // DefaultRedirectRequestTimeout default timeout for every redirect request
@@ -52,4 +53,21 @@ type HTTPS struct {
 	certManager *certificate.Manager
 	server      *http.Server
 	listener    string
+}
+
+// AuthMiddlewareHandler model
+type AuthMiddlewareHandler struct {
+	next http.Handler
+}
+
+// Credentials model
+type Credentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// Claims model
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
 }

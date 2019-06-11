@@ -41,14 +41,6 @@ func (a *Application) Setup() {
 	if err != nil {
 		log.Fatalf("Can't setup db connection %#v", err)
 	}
-	// check api static file path
-	if a.Config.APIClientStaticPath == "" {
-		log.Fatal("You have to specify the api client static path")
-	}
-	// check path folder
-	if dstat, err := os.Stat(a.Config.APIClientStaticPath); err != nil || !dstat.IsDir() {
-		log.Fatalf("The api client static path is invalid. err %#v", err)
-	}
 	// cert manager
 	a.Certificates = certificate.NewManager(a.DynamoDB, a.Config.StagingCA)
 	// cache preload
@@ -74,7 +66,7 @@ func (a *Application) Run() {
 		log.Fatal(httpServer.Listen())
 	}()
 	// run the api listener
-	apiServer := server.NewAPIServer(a.Config.APIListener, a.Config.APIClientStaticPath, a.DynamoDB)
+	apiServer := server.NewAPIServer(a.Config.APIListener, a.Config.APISecret, a.DynamoDB)
 	go func() {
 		log.Fatal(apiServer.Listen())
 	}()
