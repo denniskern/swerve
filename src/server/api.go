@@ -299,7 +299,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		return
 	}
 
-	expirationTime := time.Now().Add(1 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
 	claims := &Claims{
 		Username: creds.Username,
 		StandardClaims: jwt.StandardClaims{
