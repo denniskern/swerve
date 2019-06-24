@@ -219,9 +219,10 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 	} else {
 		cursor = &queryparam[0]
 	}
-	domains, cursor, err := api.db.FetchAllPaginated(cursor)
 
+	domains, cursor, err := api.db.FetchAllPaginated(cursor)
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Error while fetching domains", http.StatusInternalServerError)
 		return
 	}
@@ -294,7 +295,6 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	err = api.db.CheckPassword(creds.Username, creds.Password)
 	if err != nil {
-		log.Error(err)
 		sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -361,6 +361,7 @@ func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(secret))
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Could not sign new token", http.StatusInternalServerError)
 		return
 	}

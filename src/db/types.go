@@ -54,7 +54,7 @@ type TLSCacheEntry struct {
 	Value string `json:"cacheValue"`
 }
 
-// Domain db entry
+// Domain struct as it is received via the request body entry
 type Domain struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"domain"`
@@ -67,6 +67,12 @@ type Domain struct {
 	Description  string    `json:"description"`
 	Created      string    `json:"created"`
 	Modified     string    `json:"modified"`
+}
+
+// DomainDB entry
+type DomainDB struct {
+	Domain
+	BinPathMapping *[]byte `json:"bin_paths"`
 }
 
 // ExportDomains model
