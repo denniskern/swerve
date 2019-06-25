@@ -167,6 +167,18 @@ func (d *DynamoDB) FetchByDomain(domain string) (*Domain, error) {
 	return &domainRes, nil
 }
 
+// FetchAllSorted returns all items from table with a sorted paths (important for the redirects!)
+func (d *DynamoDB) FetchAllSorted() ([]Domain, error) {
+	domains, err := d.FetchAll()
+	if err != nil {
+		return nil, err
+	}
+	for _, domain := range domains {
+		domain.sortPathMap()
+	}
+	return domains, nil
+}
+
 // FetchAll items from domains table
 func (d *DynamoDB) FetchAll() ([]Domain, error) {
 	domains := []Domain{}

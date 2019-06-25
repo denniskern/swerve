@@ -40,7 +40,7 @@ func NewPersistentCertCache(d *db.DynamoDB) *PersistentCertCache {
 
 // UpdateDomainCache updates the domain cache
 func (c *PersistentCertCache) UpdateDomainCache() {
-	domains, err := c.DB.FetchAll()
+	domains, err := c.DB.FetchAllSorted()
 	if err != nil {
 		log.Errorf("Error while fetching domain list %v", err)
 		return
@@ -131,7 +131,7 @@ func (c *PersistentCertCache) Delete(ctx context.Context, key string) error {
 // Observe the domain backend. Ya through polling. Pub/Sub would be much better. Go implement it
 func (c *PersistentCertCache) Observe() error {
 	go func() {
-		for _ = range c.PollTicker.C {
+		for range c.PollTicker.C {
 			c.UpdateDomainCache()
 		}
 	}()
