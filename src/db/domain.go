@@ -65,13 +65,16 @@ func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 	reURL := d.Redirect
 	rePath := ""
 	reQuery := ""
+	reqPath := reqURL.EscapedPath()
 
 	if d.Promotable == true {
-		rePath = reqURL.Path
+		rePath = reqURL.EscapedPath()
 
 		if len(reqURL.RawQuery) > 0 {
 			reQuery = "?" + reqURL.RawQuery
 		}
+	} else if reqURL.RawQuery != "" {
+		reqPath += "?" + reqURL.RawQuery
 	}
 
 	if d.PathMapping != nil && len(*d.PathMapping) > 0 {
@@ -81,8 +84,8 @@ func (d *Domain) GetRedirect(reqURL *url.URL) (string, int) {
 				continue
 			}
 			// we match the path prefix
-			if strings.HasPrefix(reqURL.Path, p.From) {
-				rePath = reqURL.Path[len(p.From):]
+			if strings.HasPrefix(reqPath, p.From) {
+				rePath = reqPath[len(p.From):]
 				// path redirect
 				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
 					reURL = p.To
