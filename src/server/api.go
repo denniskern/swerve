@@ -145,9 +145,8 @@ func (api *API) importDomains(w http.ResponseWriter, r *http.Request, _ httprout
 func (api *API) purgeDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	name := ps.ByName("name")
 	domain, err := api.db.FetchByDomain(name)
-
 	if domain == nil || err != nil {
-		sendJSONMessage(w, "not found", http.StatusNotFound)
+		sendJSONMessage(w, "Not found", http.StatusNotFound)
 		return
 	}
 
@@ -173,7 +172,7 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 	oldDomain, err := api.db.FetchByDomain(name)
 
 	if oldDomain == nil || err != nil {
-		sendJSONMessage(w, "not found", http.StatusNotFound)
+		sendJSONMessage(w, "Not found", http.StatusNotFound)
 		return
 	}
 
@@ -239,9 +238,8 @@ func (api *API) fetchAllDomains(w http.ResponseWriter, r *http.Request, _ httpro
 func (api *API) fetchDomain(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	name := ps.ByName("name")
 	domain, err := api.db.FetchByDomain(name)
-
 	if err != nil {
-		sendJSONMessage(w, "not found", http.StatusNotFound)
+		sendJSONMessage(w, "Not found", http.StatusNotFound)
 		return
 	}
 
@@ -258,6 +256,16 @@ func (api *API) registerDomain(w http.ResponseWriter, r *http.Request, _ httprou
 
 	if err := json.NewDecoder(r.Body).Decode(&domain); err != nil {
 		sendJSONMessage(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	alreadyExisting, err := api.db.FetchByDomain(domain.Name)
+	if err != nil {
+		sendJSONMessage(w, "Could not check database for already existing entry", http.StatusInternalServerError)
+		return
+	}
+	if alreadyExisting.ID != "" {
+		sendJSONMessage(w, "Already exists", http.StatusBadRequest)
 		return
 	}
 
@@ -295,7 +303,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	err = api.db.CheckPassword(creds.Username, creds.Password)
 	if err != nil {
-		sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -327,7 +335,7 @@ func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	c, err := r.Cookie("token")
 	if err != nil {
 		if err == http.ErrNoCookie {
-			sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+			sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		sendJSONMessage(w, "Invalid token", http.StatusBadRequest)
@@ -339,12 +347,12 @@ func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 		return []byte(secret), nil
 	})
 	if !tkn.Valid {
-		sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
-			sendJSONMessage(w, "unauthorized", http.StatusUnauthorized)
+			sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 		sendJSONMessage(w, "Invalid token", http.StatusBadRequest)
