@@ -324,11 +324,16 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
+
 	http.SetCookie(w, &http.Cookie{
 		Name:    "token",
 		Value:   tokenString,
 		Expires: expirationTime,
 	})
+
+	w.WriteHeader(200)
 }
 
 func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
