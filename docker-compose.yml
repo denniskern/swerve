@@ -32,6 +32,7 @@ services:
       - SWERVE_DOMAINS=Domains
       - SWERVE_DOMAINS_TLS_CACHE=DomainsTLSCache
       - SWERVE_USERS=SwerveUsers
+      - SWERVE_UI_DOMAIN=https://swerve.tortuga.cloud
     volumes:
       - ./bin/swerve_linux:/swerve
       - ./src/client/dist:/tmp/static

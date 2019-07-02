@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/axelspringer/swerve/src/configuration"
@@ -31,7 +33,24 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+var (
+	uiDomain = getOSPrefixEnv("UI_DOMAIN")
+)
+
 var secret string
+
+const (
+	envPrefix = "SWERVE_"
+)
+
+// getOSPrefixEnv get os env
+func getOSPrefixEnv(s string) string {
+	if e := strings.TrimSpace(os.Getenv(envPrefix + s)); len(e) > 0 {
+		return e
+	}
+
+	return ""
+}
 
 func prometheusHandler() httprouter.Handle {
 	h := promhttp.Handler()
@@ -325,7 +344,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
+	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    "token",

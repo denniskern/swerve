@@ -15,7 +15,7 @@ func AuthHandler(next http.Handler) http.Handler {
 
 func (amh AuthMiddlewareHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodOptions {
-		w.Header().Set("Access-Control-Allow-Origin", "http://swerve.tortuga.cloud")
+		w.Header().Set("Access-Control-Allow-Origin", uiDomain)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept, token")
 		w.WriteHeader(http.StatusOK)
