@@ -75,6 +75,7 @@ func NewAPIServer(listener string, apiSecret string, dynDB *db.DynamoDB) *API {
 	router.GET("/metrics", prometheusHandler())
 	router.GET("/version", api.version)
 	router.POST("/login", api.login)
+	router.OPTIONS("/login", api.options)
 
 	authRouter := httprouter.New()
 	authRouter.GET("/api/export", api.exportDomains)
@@ -103,6 +104,13 @@ func (api *API) Listen() error {
 	return api.server.ListenAndServe()
 }
 
+func (api *API) options(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "origin, content-type, accept, token")
+	w.WriteHeader(http.StatusOK)
+}
+
 // health handler
 func (api *API) health(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	sendJSONMessage(w, "ok", http.StatusOK)
@@ -120,7 +128,7 @@ func (api *API) exportDomains(w http.ResponseWriter, r *http.Request, _ httprout
 	domains, err := api.db.FetchAll()
 
 	if err != nil {
-		sendJSONMessage(w, "Error while fetching domains", 500)
+		sendJSONMessage(w, "Error while fetching domains", http.StatusInternalServerError)
 		return
 	}
 
@@ -225,7 +233,7 @@ func (api *API) updateDomain(w http.ResponseWriter, r *http.Request, ps httprout
 
 	// api.db.DeleteTLSCacheEntry(id)
 
-	sendJSONMessage(w, "ok", 200)
+	sendJSONMessage(w, "ok", http.StatusOK)
 }
 
 // fetchAllDomains return a list of all domains
@@ -352,7 +360,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		Expires: expirationTime,
 	})
 
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (api *API) refresh(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
