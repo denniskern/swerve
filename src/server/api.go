@@ -353,6 +353,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    "token",
