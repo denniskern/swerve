@@ -60,7 +60,11 @@ or to build as linux binary
 * SWERVE_BOOTSTRAP - DB table preparation
 * SWERVE_LOG_LEVEL - Log level info, debug, warning, error, fatal and panic
 * SWERVE_STAGING - Use letsencrypt staging api with much higher quota. Use this when you run tests
-* SWERVE_API_CLIENT_STATIC - Path to the API client static files
+* SWERVE_API_SECRET - The bycrypt secret to check incoming pw against the pw in the database
+* SWERVE_DOMAINS - The name of the domains table
+* SWERVE_DOMAINS_TLS_CACHE - The name of the domains tls cache taböe
+* SWERVE_USERS - The name of the table holding the user login data
+* SWERVE_UI_DOMAIN - (https://swerve.tortuga.cloud) The url of the frontend (for CORS)
 
 ### Application parameter
 
@@ -81,7 +85,11 @@ or to build as linux binary
 
 ### User
 
-You need at least 1 valid user to control the API. Passwords are stored as base64 encoded bcrypt with a uow of 12. You can add multiple users separated by comma ```SWERVE_API_USERS=testuser:JDJ5JDEyJFdNQUtzdk1ESmdyRE1sOWZ3NmJSb08xOTlIMTU3QjFCeEVXbUphd1YxSjhnUWVMY2VoNFRt, ....```
+You need at least 1 valid user to control the API. Passwords are stored as base64 encoded bcrypt with a uow of 12.
+User login data has to be inserted manually in the login data table (env: SWERVE_USERS)
+as 
+name (string): testuser
+password (string): JDJ5JDEyJFdNQUtzdk1ESmdyRE1sOWZ3NmJSb08xOTlIMTU3QjFCeEVXbUphd1YxSjhnUWVMY2VoNFRt
 
 ### Domain model
 
@@ -138,9 +146,15 @@ Meanful description of the domain entry
 
 ## API calls
 
-### API manager
+### Login
+    curl -X POST \
+        http://<api_host>:<api_port>/login \
+        -d '{
+            "name": "testuser",
+            "password": "JDJ5JDEyJFdNQUtzdk1ESmdyRE1sOWZ3NmJSb08xOTlIMTU3QjFCeEVXbUphd1YxSjhnUWVMY2VoNFRt"
+        }'
 
-Go to ```http://<api_host>:<api_port>/```. This is a little vue app to manage the swerve domains
+    (response returns a cookie)
 
 ### Get all domains
 

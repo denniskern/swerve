@@ -25,13 +25,13 @@ import (
 )
 
 const (
-	pollTickerInterval = 10
+	pollTickerInterval = 5
 )
 
 // NewPersistentCertCache creates a new persistent cache based on dynamo db
 func NewPersistentCertCache(d *db.DynamoDB) *PersistentCertCache {
 	return &PersistentCertCache{
-		PollTicker: time.NewTicker(time.Second * pollTickerInterval),
+		PollTicker: time.NewTicker(time.Minute * pollTickerInterval),
 		DB:         d,
 		DomainsMap: map[string]db.Domain{},
 		MapMutex:   &sync.Mutex{},
