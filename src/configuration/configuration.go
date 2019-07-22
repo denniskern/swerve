@@ -78,8 +78,8 @@ func (c *Configuration) FromEnv() {
 		c.LogFormatter = *logFormatter
 	}
 
-	if clientStaticPath := getOSPrefixEnv("API_CLIENT_STATIC"); clientStaticPath != nil {
-		c.APIClientStaticPath = *clientStaticPath
+	if apiSecret := getOSPrefixEnv("API_SECRET"); apiSecret != nil {
+		c.APISecret = *apiSecret
 	}
 
 	if caStagingEnv := getOSPrefixEnv("STAGING"); caStagingEnv != nil {
@@ -104,8 +104,8 @@ func (c *Configuration) FromParameter() {
 	httpListenerPtr := flag.String("http", "", "Set the http listener address")
 	httpsListenerPtr := flag.String("https", "", "Set the https listener address")
 	apiListenerPtr := flag.String("api", "", "Set the API listener address")
+	apiSecret := flag.String("api-secret", "", "Set the api secret")
 
-	staticPathPtr := flag.String("client-static", "", "Set the path to api client static files")
 	versionPtr := flag.Bool("version", false, "Print the version of the application")
 	helpPtr := flag.Bool("help", false, "Print the default usage help dialog")
 
@@ -160,8 +160,8 @@ func (c *Configuration) FromParameter() {
 		c.HTTPSListener = *httpsListenerPtr
 	}
 
-	if staticPathPtr != nil && *staticPathPtr != "" {
-		c.APIClientStaticPath = *staticPathPtr
+	if apiSecret != nil && *apiSecret != "" {
+		c.APISecret = *apiSecret
 	}
 
 	if apiListenerPtr != nil && *apiListenerPtr != "" {

@@ -23,12 +23,16 @@ services:
       - SWERVE_HTTP=:8080
       - SWERVE_HTTPS=:8081
       - SWERVE_API=:8082
-      - SWERVE_DB_REGION=eu-central-1
+      - SWERVE_DB_REGION=eu-west-1
       - SWERVE_DB_ENDPOINT=http://dynamodb:8000
       - SWERVE_DB_KEY=0
       - SWERVE_DB_SECRET=0
       - SWERVE_BOOTSTRAP=0
-      - SWERVE_API_CLIENT_STATIC=/tmp/static
+      - SWERVE_API_SECRET=eiso7ohn5zoow2thohJ8
+      - SWERVE_DOMAINS=Domains
+      - SWERVE_DOMAINS_TLS_CACHE=DomainsTLSCache
+      - SWERVE_USERS=SwerveUsers
+      - SWERVE_UI_DOMAIN=https://swerve.tortuga.cloud
     volumes:
       - ./bin/swerve_linux:/swerve
       - ./src/client/dist:/tmp/static
@@ -54,7 +58,7 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=0
       - AWS_SECRET_ACCESS_KEY=0
-      - AWS_DEFAULT_REGION=eu-central-1
+      - AWS_DEFAULT_REGION=eu-west-1
     depends_on:
       - "dynamodb"
     links:

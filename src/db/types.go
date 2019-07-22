@@ -54,11 +54,11 @@ type TLSCacheEntry struct {
 	Value string `json:"cacheValue"`
 }
 
-// Domain db entry
+// Domain struct as it is received via the request body entry
 type Domain struct {
 	ID           string    `json:"id"`
 	Name         string    `json:"domain"`
-	PathMapping  *PathList `json:"path"`
+	PathMapping  *PathList `json:"paths"`
 	Redirect     string    `json:"redirect"`
 	Promotable   bool      `json:"promotable"`
 	Wildcard     bool      `json:"wildcard"`
@@ -69,7 +69,19 @@ type Domain struct {
 	Modified     string    `json:"modified"`
 }
 
+// DomainDB entry
+type DomainDB struct {
+	Domain
+	BinPathMapping *[]byte `json:"bin_paths"`
+}
+
 // ExportDomains model
 type ExportDomains struct {
 	Domains []Domain `json:"domains"`
+}
+
+// User model
+type User struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }

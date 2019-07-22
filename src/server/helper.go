@@ -21,19 +21,30 @@ import (
 )
 
 func sendJSON(w http.ResponseWriter, obj interface{}, code int) {
-	jsonBytes, _ := json.Marshal(obj)
+	jsonBytes, _ := json.Marshal(struct {
+		Data interface{} `json:"data"`
+	}{
+		Data: obj,
+	})
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.WriteHeader(code)
 	w.Write(jsonBytes)
 }
 
 func sendJSONMessage(w http.ResponseWriter, msg string, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
 }
 
 func sendPlainMessage(w http.ResponseWriter, msg string, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf("%d - %s", code, msg)))
 }

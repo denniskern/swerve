@@ -45,6 +45,8 @@ func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 // Handler for requests
 func (h *HTTP) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Info("requested: " + r.URL.String())
+		log.Info("host:" + r.Host)
 		h.certManager.Serve(http.HandlerFunc(h.handleRedirect), w, r)
 	})
 }

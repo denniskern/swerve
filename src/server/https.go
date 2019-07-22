@@ -31,6 +31,8 @@ func (h *HTTPS) Listen() error {
 // redirectHandler redirects the request to the domain redirect location
 func (h *HTTPS) redirectHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Info("requested: " + r.URL.String())
+		log.Info("host:" + r.Host)
 		hostHeader := r.Host
 		domain, err := h.certManager.GetDomain(hostHeader)
 
