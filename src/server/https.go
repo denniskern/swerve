@@ -30,19 +30,20 @@ func (h *HTTPS) Listen() error {
 
 // redirectHandler redirects the request to the domain redirect location
 func (h *HTTPS) redirectHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Info("requested: " + r.URL.String())
-		log.Info("host:" + r.Host)
+	return handlerWithLogging(func(w http.ResponseWriter, r *http.Request) {
 		hostHeader := r.Host
 		domain, err := h.certManager.GetDomain(hostHeader)
+		msg := "Response with status code %d"
 
 		// regular domain lookup
 		if domain != nil && err == nil {
 			redirectURL, redirectCode := domain.GetRedirect(r.URL)
 			http.Redirect(w, r, redirectURL, redirectCode)
+			log.Infof(msg, redirectCode)
 			return
 		}
 
+		log.Infof(msg, http.StatusNotFound)
 		http.NotFound(w, r)
 	})
 }
