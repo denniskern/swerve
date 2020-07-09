@@ -75,6 +75,10 @@ func (c *Configuration) Validate() error {
 		errs[paramStrAPIUIURL] = "Invalid URL"
 	}
 
+	if c.UsePebble && c.LetsencryptUrl == "" {
+		errs[envStrUsePebble] = "If using pebble, you must provide a custom letsencrypt url"
+	}
+
 	if len(errs) > 0 {
 		return errors.New(fmt.Sprintf("%+v", errs))
 	}

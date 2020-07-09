@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/TetsuyaXD/evade/api"
-	"github.com/TetsuyaXD/evade/database"
+	"github.com/axelspringer/swerve/api"
+	"github.com/axelspringer/swerve/database"
 )
 
 // NewConfiguration creates a new instance
@@ -18,11 +18,13 @@ func NewConfiguration() *Configuration {
 		Prod:              defaultProd,
 		Bootstrap:         defaultBootstrap,
 		CacheInterval:     defaultCacheInterval,
+		PebbleCA:          defaultPebbleCACert,
 		Database: database.Config{
 			TableNamePrefix: defaultTableNamePrefix,
 			Region:          defaultDBRegion,
 			TableRedirects:  defaultTableRedirects,
 			TableCertCache:  defaultTableCertCache,
+			TableUsers:      defaultTableUsers,
 		},
 	}
 }

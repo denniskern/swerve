@@ -25,7 +25,7 @@ func (api *API) authMiddlewear(next http.Handler) http.Handler {
 		c, err := r.Cookie(cookieName)
 		if err != nil {
 			if err == http.ErrNoCookie {
-				sendJSONMessage(w, "No token found", http.StatusUnauthorized)
+				sendJSONMessage(r, w, "No token found", http.StatusUnauthorized)
 				return
 			}
 			w.WriteHeader(http.StatusBadRequest)
@@ -35,7 +35,7 @@ func (api *API) authMiddlewear(next http.Handler) http.Handler {
 		tknStr := c.Value
 
 		if !api.Model.CheckToken(tknStr, api.Config.Secret) {
-			sendJSONMessage(w, "Token is invalid", http.StatusUnauthorized)
+			sendJSONMessage(r, w, "Token is invalid", http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r)

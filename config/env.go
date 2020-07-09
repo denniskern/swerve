@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/TetsuyaXD/evade/log"
+	"github.com/axelspringer/swerve/log"
 )
 
 // FromEnv reads the configuration from the environment
@@ -19,6 +19,38 @@ func (c *Configuration) FromEnv() error {
 		}
 		params[envStrAPIListenerPort] = apiPortNumber
 		c.API.Listener = apiPortNumber
+	}
+
+	usePebble := getPrefixedOSEnv(envStrUsePebble)
+	if usePebble != "" {
+		params[envStrUsePebble] = usePebble
+		pebbleBoolean, err := strconv.ParseBool(usePebble)
+		if err != nil {
+			return errors.New(ErrPebbleValInvalid)
+		}
+		c.UsePebble = pebbleBoolean
+	}
+
+	pebbleCAUrl := getPrefixedOSEnv(envStrPebbleCAUrl)
+	if pebbleCAUrl != "" {
+		params[envStrPebbleCAUrl] = pebbleCAUrl
+		c.PebbleCAUrl = pebbleCAUrl
+	}
+
+	useStage := getPrefixedOSEnv(envStrUseStage)
+	if useStage != "" {
+		params[envStrUseStage] = usePebble
+		stageBoolean, err := strconv.ParseBool(useStage)
+		if err != nil {
+			return errors.New(ErrPebbleValInvalid)
+		}
+		c.UseStage = stageBoolean
+	}
+
+	letsencryptUrl := getPrefixedOSEnv(envStrLetsencryptUrl)
+	if letsencryptUrl != "" {
+		params[envStrLetsencryptUrl] = letsencryptUrl
+		c.LetsencryptUrl = letsencryptUrl
 	}
 
 	apiVersion := getPrefixedOSEnv(envStrAPIVersion)

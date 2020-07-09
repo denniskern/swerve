@@ -7,6 +7,7 @@ const (
 	ErrHTTPPortInvalid      = "HTTP listener port invalid"
 	ErrHTTPSPortInvalid     = "HTTPS listener port invalid"
 	ErrProdValInvalid       = "Prod value is invalid"
+	ErrPebbleValInvalid     = "use pabble value is invalid"
 	ErrBoostrapValInvalid   = "Boostrap value is invalid"
 	ErrCacheIntervalInvalid = "Cache interval value is invalid"
 )

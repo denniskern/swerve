@@ -9,18 +9,28 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/TetsuyaXD/evade/log"
+	"github.com/axelspringer/swerve/helper"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/axelspringer/swerve/log"
 	"github.com/gorilla/mux"
 )
 
+var githubHash string
+
 // NewAPIServer creates a new instance
-func NewAPIServer(mod ModelAdapter, conf Config) *API {
+func NewAPIServer(mod ModelAdapter, conf Config, wrapHandler func(string, http.Handler) http.Handler) *API {
 	api := &API{
 		Model:  mod,
 		Config: conf,
 	}
 
 	router := mux.NewRouter()
+	router.Use(helper.LoggingMiddleware)
+
+	router.HandleFunc("/metrics", prometheusHandler).
+		Methods(http.MethodGet)
 	router.HandleFunc("/health", api.health).
 		Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/version", api.version).
@@ -28,6 +38,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router.HandleFunc("/login", api.login).
 		Methods(http.MethodPost, http.MethodOptions)
 
+	// TODO conf.Version can be "" this cause to an error, remove or make it mandetory
 	auth := router.PathPrefix("/" + conf.Version + "/redirects").Subrouter()
 	auth.HandleFunc("/export", api.exportRedirects).
 		Methods(http.MethodGet, http.MethodOptions)
@@ -64,18 +75,22 @@ func (api *API) Listen() error {
 }
 
 func (api *API) health(w http.ResponseWriter, r *http.Request) {
-	sendJSONMessage(w, "OK", http.StatusOK)
+	sendJSONMessage(r, w, "OK", http.StatusOK)
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
-	sendJSONMessage(w, api.Config.Version, http.StatusOK)
+	versionSuffix := ""
+	if githubHash != "" {
+		versionSuffix = fmt.Sprintf("-%s", githubHash)
+	}
+	sendJSONMessage(r, w, api.Config.Version+versionSuffix, http.StatusOK)
 }
 
 func (api *API) exportRedirects(w http.ResponseWriter, r *http.Request) {
 	data, err := api.Model.ExportRedirectsAsJSON()
 	if err != nil {
 		log.Debugf(ErrRedirectsExport+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectsExport, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectsExport, http.StatusInternalServerError)
 	}
 	modtime := time.Now()
 	name := "redirects" + modtime.Format("2006-01-02") + ".json"
@@ -96,7 +111,7 @@ func (api *API) getRedirectsPaginated(w http.ResponseWriter, r *http.Request) {
 	redirects, newCursor, err := api.Model.GetRedirectsPaginatedAsJSON(cursor)
 	if err != nil {
 		log.Debugf(ErrRedirectsFetch+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectsFetch, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectsFetch, http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -106,107 +121,110 @@ func (api *API) getRedirectsPaginated(w http.ResponseWriter, r *http.Request) {
 func (api *API) importRedirects(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("file")
 	if err != nil {
-		sendJSONMessage(w, "Please provide a file", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Please provide a file", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 	reader := bufio.NewReader(file)
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
-		sendJSONMessage(w, "File could not be read", http.StatusBadRequest)
+		sendJSONMessage(r, w, "File could not be read", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.ImportRedirectsFromJSON(data)
 	if err != nil {
 		log.Debugf(ErrRedirectsImport+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectsImport, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectsImport, http.StatusInternalServerError)
 		return
 	}
-	sendJSONMessage(w, "Success", http.StatusOK)
+	sendJSONMessage(r, w, "Success", http.StatusOK)
 }
 
 func (api *API) getRedirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	domain, ok := vars[pathParamName]
 	if !ok {
-		sendJSONMessage(w, "Please provide a domain name", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Please provide a domain name", http.StatusBadRequest)
 		return
 	}
 	redirect, err := api.Model.GetRedirectByDomainAsJSON(domain)
 	if err != nil {
 		log.Debugf(ErrRedirectNotFound+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectNotFound, http.StatusNotFound)
+		sendJSONMessage(r, w, ErrRedirectNotFound, http.StatusNotFound)
 		return
 	}
-	sendJSON(w, redirect, http.StatusOK)
+	sendJSON(r, w, redirect, http.StatusOK)
 }
 
 func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.CreateRedirectFromJSON(data)
 	if err != nil {
 		log.Debugf(ErrRedirectCreate+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectCreate, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectCreate, http.StatusInternalServerError)
 		return
 	}
-	sendJSONMessage(w, "Success", http.StatusOK)
+	sendJSONMessage(r, w, "Success", http.StatusOK)
 }
 
 func (api *API) deleteRedirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	domain, ok := vars[pathParamName]
 	if !ok {
-		sendJSONMessage(w, "Please provide a domain name", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Please provide a domain name", http.StatusBadRequest)
 		return
 	}
 	err := api.Model.DeleteRedirectByDomain(domain)
 	if err != nil {
 		log.Debugf(ErrRedirectDelete+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectDelete, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectDelete, http.StatusInternalServerError)
 		return
 	}
-	sendJSONMessage(w, "Success", http.StatusOK)
+	sendJSONMessage(r, w, "Success", http.StatusOK)
 }
 
 func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	domain, ok := vars[pathParamName]
 	if !ok {
-		sendJSONMessage(w, "Please provide a domain name", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Please provide a domain name", http.StatusBadRequest)
 		return
 	}
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.UpdateRedirectByDomainWithJSON(domain, data)
 	if err != nil {
 		log.Debugf(ErrRedirectUpdate+": %s", err.Error())
-		sendJSONMessage(w, ErrRedirectUpdate, http.StatusInternalServerError)
+		sendJSONMessage(r, w, ErrRedirectUpdate, http.StatusInternalServerError)
 		return
 	}
-	sendJSONMessage(w, "Success", http.StatusOK)
+	sendJSONMessage(r, w, "Success", http.StatusOK)
 }
 
 func (api *API) login(w http.ResponseWriter, r *http.Request) {
+	log.Info("here")
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
+		sendJSONMessage(r, w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
 	tokenString, expirationTime, err := api.Model.CheckPasswordFromJSON(data, api.Config.Secret)
 	if err != nil {
-		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
+		log.Error(err)
+		sendJSONMessage(r, w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	log.Debug("set cookie")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    cookieName,
@@ -214,5 +232,10 @@ func (api *API) login(w http.ResponseWriter, r *http.Request) {
 		Expires: time.Unix(expirationTime, 0),
 	})
 
-	sendJSONMessage(w, "Success", http.StatusOK)
+	sendJSONMessage(r, w, "Success", http.StatusOK)
+}
+
+func prometheusHandler(w http.ResponseWriter, r *http.Request) {
+	h := promhttp.Handler()
+	h.ServeHTTP(w, r)
 }

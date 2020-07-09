@@ -1,11 +1,11 @@
 package database
 
 import (
-	"github.com/TetsuyaXD/evade/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/axelspringer/swerve/log"
 	"github.com/pkg/errors"
 )
 
@@ -38,6 +38,7 @@ func NewDatabase(c Config) (*Database, error) {
 
 // Prepare prepares the database
 func (d *Database) Prepare() error {
+	log.Debug("call Prepare() dynamodb")
 	err := d.prepareTable(d.Config.TableRedirects, keyNameRedirectsTable)
 	if err != nil {
 		return errors.WithMessagef(err, ErrfTableCreate, d.Config.TableRedirects)
@@ -50,10 +51,26 @@ func (d *Database) Prepare() error {
 	if err != nil {
 		return errors.WithMessagef(err, ErrfTableCreate, d.Config.TableUsers)
 	}
+	_, err = d.Service.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(d.Config.TableUsers),
+		Item: map[string]*dynamodb.AttributeValue{
+			keyNameUsersTable: {
+				S: aws.String(defaultDynamoUser),
+			},
+			attrNamePwd: {
+				S: aws.String(defaultDynamoPassword),
+			},
+		},
+	})
+	if err != nil {
+		return errors.WithMessagef(err, "can't create default user", d.Config.TableUsers)
+	}
+
 	return nil
 }
 
 func (d *Database) prepareTable(tableName string, keyName string) error {
+	log.Debugf("try to create table %s", tableName)
 	tablePrefix := d.Config.TableNamePrefix
 
 	tableCreate := &dynamodb.CreateTableInput{

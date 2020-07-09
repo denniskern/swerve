@@ -1,6 +1,7 @@
 package log
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -16,6 +17,7 @@ func SetupLogger(level string, outType string) {
 	if logLevel, err := logrus.ParseLevel(level); err == nil {
 		logger.SetLevel(logLevel)
 	}
+	logger.WithField("a", "b")
 
 	outType = strings.ToLower(outType)
 
@@ -77,4 +79,14 @@ func Error(args ...interface{}) {
 // Errorf wraps log.Errorf
 func Errorf(fmt string, args ...interface{}) {
 	logger.Errorf(fmt, args...)
+}
+
+// ResponseWithMsg logs response specific data including error messages
+func ResponseWithMsg(r *http.Request, code int, msg string) {
+	logger.Infof("status=%d request=%s %s %s%s msg=%s", code, r.Proto, r.Method, r.Host, r.URL.Path, msg)
+}
+
+// Response logs response specific data
+func Response(r *http.Request, code int) {
+	logger.Infof("status=%d request=%s %s %s%s", code, r.Proto, r.Method, r.Host, r.URL.Path)
 }

@@ -23,6 +23,7 @@ type Redirect struct {
 	RedirectFrom string  `json:"redirect_from"`
 	Description  string  `json:"description"`
 	RedirectTo   string  `json:"redirect_to"`
+	Domain       string  `json:"domain"`
 	Promotable   bool    `json:"promotable"`
 	Code         int     `json:"code"`
 	Created      int     `json:"created"`
