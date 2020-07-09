@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/TetsuyaXD/evade/log"
+	"github.com/axelspringer/swerve/log"
 
-	"github.com/TetsuyaXD/evade/database"
+	"github.com/axelspringer/swerve/database"
 	"github.com/pkg/errors"
 )
 

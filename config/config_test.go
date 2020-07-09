@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/TetsuyaXD/evade/config"
+	"github.com/axelspringer/swerve/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
