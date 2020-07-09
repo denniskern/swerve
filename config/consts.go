@@ -1,7 +1,7 @@
 package config
 
 const (
-	envVarPrefix = "EVADE_"
+	envVarPrefix = "SWERVE_"
 )
 
 const (
