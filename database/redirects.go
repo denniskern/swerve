@@ -21,10 +21,11 @@ func (d *Database) CreateRedirect(redirect Redirect) error {
 	redirect.Created = int(time.Now().Unix())
 	redirect.Modified = redirect.Created
 
-	_, err := d.GetRedirectByDomain(redirect.RedirectTo)
-	if err == nil {
-		return errors.New(ErrRedirectExists)
-	}
+	// TODO I removed it because faild if db is empty
+	//	_, err := d.GetRedirectByDomain(redirect.RedirectTo)
+	//	if err == nil {
+	//		return errors.New(ErrRedirectExists)
+	//	}
 
 	payload, err := dynamodbattribute.MarshalMap(redirect)
 	if err != nil {

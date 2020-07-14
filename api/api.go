@@ -28,6 +28,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router.HandleFunc("/login", api.login).
 		Methods(http.MethodPost, http.MethodOptions)
 
+	// TODO conf.Version can be "" this cause to an error, remove or make it mandetory
 	auth := router.PathPrefix("/" + conf.Version + "/redirects").Subrouter()
 	auth.HandleFunc("/export", api.exportRedirects).
 		Methods(http.MethodGet, http.MethodOptions)

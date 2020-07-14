@@ -57,7 +57,7 @@ const (
 	defaultProd            = false
 	defaultBootstrap       = false
 	defaultCacheInterval   = 10
-	defaultTableNamePrefix = "Evade"
+	defaultTableNamePrefix = ""
 	defaultDBRegion        = "eu-west-1"
 	defaultTableRedirects  = "Redirects"
 	defaultTableCertCache  = "CertCache"

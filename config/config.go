@@ -23,6 +23,7 @@ func NewConfiguration() *Configuration {
 			Region:          defaultDBRegion,
 			TableRedirects:  defaultTableRedirects,
 			TableCertCache:  defaultTableCertCache,
+			TableUsers:      defaultTableUsers,
 		},
 	}
 }
