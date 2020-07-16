@@ -58,13 +58,13 @@ type testcase struct {
 
 func Test_APILOGIN(t *testing.T) {
 	testCases := []testcase{
-		{"valid login", "dkern", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS", http.StatusOK},
+		{"valid login", "dker", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS", http.StatusOK},
 		{"invalid login", "dkern", "noValidPW", http.StatusUnauthorized},
 	}
 
 	for _, te := range testCases {
 		url := fmt.Sprintf("%s/login", baseUrlApi)
-		t.Logf("run -> %s, user: %s pw: %s wanted statuscode: %d", te.name, te.user, te.pass, te.expectedStatuscode)
+		t.Logf("run -> %s, user: %s pw: %s wanted statuscode: %d, url: %s", te.name, te.user, te.pass, te.expectedStatuscode, url)
 		payload := []byte(fmt.Sprintf(`{"username":"%s", "pwd":"%s"}`, te.user, te.pass))
 		resp, err := httpClient.Post(url, "content-type: application/json", bytes.NewReader(payload))
 		if err != nil {
@@ -78,7 +78,7 @@ func Test_APILOGIN(t *testing.T) {
 				}
 			}
 		}
-		assert.Equal(t, resp.StatusCode, te.expectedStatuscode, fmt.Sprintf("Test %s", te.name))
+		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, fmt.Sprintf("Test %s", te.name))
 	}
 }
 
