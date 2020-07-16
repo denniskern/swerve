@@ -1,43 +1,7 @@
 version: "2"
 
 services:
-  # evade
-  evade:
-    build:
-      context: .
-    image: axelspringer/evade
-    restart: always
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-      - "8082:8082"
-    environment:
-      - EVADE_API_LISTENER=8082
-      - EVADE_API_VERSION=1.0
-      - EVADE_API_UI_URL=*
-      - EVADE_API_JWT_SECRET=placehold
-      - EVADE_HTTP_LISTENER=8080
-      - EVADE_HTTPS_LISTENER=8081
-      - EVADE_LOG_LEVEL=debug
-      - EVADE_LOG_FORMATTER=text
-      - EVADE_PROD=0
-      - EVADE_BOOTSTRAP=1
-      - EVADE_CACHE_INTERVAL=1
-      - EVADE_TABLE_PREFIX=Evade-
-      - EVADE_DB_REGION=eu-west-1
-      - EVADE_TABLE_REDIRECTS=Redirects
-      - EVADE_TABLE_CERTCACHE=CertCache
-      - EVADE_TABLE_USERS=Users
-      - EVADE_DB_KEY=0
-      - EVADE_DB_SECRET=0
-      - EVADE_DB_ENDPOINT=http://dynamodb:8000
-    volumes:
-      - ./bin/evade_linux:/evade
-    depends_on:
-      - "init-dynamodb"
-    links:
-      - "dynamodb"
-  # local dynamodb
+  # dynamodb
   dynamodb:
     image: dwmkerr/dynamodb:latest
     command: "-sharedDb -dbPath /data"
@@ -46,7 +10,7 @@ services:
       - dynamo_local:/data
     ports:
       - "8000:8000"
-  # inititalize the database
+  # inititalize  the database
   init-dynamodb:
     image: garland/aws-cli-docker
     command: "/bin/sh /tmp/init_db.sh"
