@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"testing"
@@ -43,8 +42,11 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 	go a.Run()
-	waitUntilServerIsUpAndReady([]int{a.Config.API.Listener, a.Config.HTTPListenerPort, a.Config.HTTPSListenerPort})
-	m.Run()
+	err := waitUntilServerIsUpAndReady(a.Config.API.Listener)
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(m.Run())
 }
 
 func Test_APILOGIN(t *testing.T) {
@@ -78,6 +80,9 @@ func Test_APILOGIN(t *testing.T) {
 }
 
 func Test_PostRedirects(t *testing.T) {
+	if checkEmptyToken(t) {
+		return
+	}
 	testCases := []struct {
 		name               string
 		payload            model.Redirect
@@ -122,27 +127,26 @@ func Test_PostRedirects(t *testing.T) {
 
 }
 
-func waitUntilServerIsUpAndReady(ports []int) error {
-	counter := 0
-	for {
-		log.Printf("counter %d", counter)
-		portreachable := true
-		if counter >= 2 {
-			return fmt.Errorf("not all ports are available")
+func waitUntilServerIsUpAndReady(apiport int) error {
+	for i := 0; i < 30; i++ {
+		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/health", apiport))
+		if err != nil {
+			log.Println("api server not ready yet ...")
 		}
-		for _, p := range ports {
-			conn, err := net.Listen("tcp4", fmt.Sprintf(":%d", p))
-			if err != nil {
-				portreachable = false
-				continue
-			}
-			conn.Close()
-		}
-		if portreachable {
+		if resp != nil && resp.StatusCode == 200 {
+			log.Printf("lets start the tests, api is reachable")
 			return nil
 		}
-		counter++
 		time.Sleep(time.Second * 1)
 	}
-	return fmt.Errorf("reach end of wait function ... should not happen!")
+	return fmt.Errorf("Can't reach api server on http://127.0.0.1:%d/health", apiport)
+}
+
+func checkEmptyToken(t *testing.T) bool {
+	if token == "" {
+		t.Fail()
+		t.Log("test skipped because of missing token")
+		return true
+	}
+	return false
 }
