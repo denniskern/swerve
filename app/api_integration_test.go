@@ -6,13 +6,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/axelspringer/swerve/config"
+	"github.com/axelspringer/swerve/log"
 	"github.com/axelspringer/swerve/model"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
@@ -42,8 +42,10 @@ func TestMain(m *testing.M) {
 	if err := a.Setup(); err != nil {
 		log.Fatal(err)
 	}
-	a.Config.Database.Secret = "0"
+	a.Config.Database.Secret = "4"
 	a.Config.Database.Key = "0"
+	a.Config.Database.Endpoint = "http://www.www.de"
+	a.Config.Database.TableCertCache = "app/api_integration_test.go"
 	spew.Dump(a.Config.Database)
 	go a.Run()
 	err := waitUntilServerIsUpAndReady(a.Config.API.Listener)
@@ -138,10 +140,10 @@ func waitUntilServerIsUpAndReady(apiport int) error {
 	for i := 0; i < 30; i++ {
 		resp, err := http.Get(fmt.Sprintf("http://127.0.0.1:%d/health", apiport))
 		if err != nil {
-			log.Println("api server not ready yet ...")
+			fmt.Println("api server not ready yet ...")
 		}
 		if resp != nil && resp.StatusCode == 200 {
-			log.Printf("lets start the tests, api is reachable")
+			fmt.Printf("lets start the tests, api is reachable")
 			return nil
 		}
 		time.Sleep(time.Second * 1)
