@@ -70,6 +70,9 @@ func (a *Application) Setup() error {
 
 	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
 
+	a.Config.Database.Key = "0"
+	a.Config.Database.Secret = "0"
+	a.Config.Database.TableCertCache = "DomainsTLSCache"
 	fmt.Println("+++++ DB CONFIG +++++++")
 	spew.Dump(a.Config.Database)
 	fmt.Println("++++++++++++")
