@@ -14,6 +14,7 @@ import (
 
 	"github.com/axelspringer/swerve/config"
 	"github.com/axelspringer/swerve/model"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,6 +42,9 @@ func TestMain(m *testing.M) {
 	if err := a.Setup(); err != nil {
 		log.Fatal(err)
 	}
+	a.Config.Database.Secret = "0"
+	a.Config.Database.Key = "0"
+	spew.Dump(a.Config.Database)
 	go a.Run()
 	err := waitUntilServerIsUpAndReady(a.Config.API.Listener)
 	if err != nil {
@@ -58,7 +62,7 @@ type testcase struct {
 
 func Test_APILOGIN(t *testing.T) {
 	testCases := []testcase{
-		{"valid login", "dker", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS", http.StatusOK},
+		{"valid login", "dkern", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS", http.StatusOK},
 		{"invalid login", "dkern", "noValidPW", http.StatusUnauthorized},
 	}
 
