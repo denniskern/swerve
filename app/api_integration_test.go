@@ -30,6 +30,8 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_STAGING", "true")
 	os.Setenv("SWERVE_DB_ENDPOINT", "http://localhost:8000")
 	os.Setenv("SWERVE_DB_REGION", "eu-west-1")
+	os.Setenv("SWERVE_DB_KEY", "0")
+	os.Setenv("SWERVE_DB_SECRET", "0")
 	os.Setenv("SWERVE_USERS", "Users")
 	os.Setenv("SWERVE_DOMAINS", "Domains")
 	os.Setenv("SWERVE_DOMAINS_TLSSWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")

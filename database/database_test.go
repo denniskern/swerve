@@ -24,6 +24,8 @@ func TestMain(m *testing.M) {
 		TableRedirects:  "Redirects",
 		TableCertCache:  "DomainsTLSCache",
 		TableUsers:      "Users",
+		Key:             "0",
+		Secret:          "0",
 		Endpoint:        "http://localhost:8000",
 	}
 	d, err = NewDatabase(cfg)
