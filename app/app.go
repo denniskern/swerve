@@ -1,9 +1,12 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/axelspringer/swerve/acm"
 	"github.com/axelspringer/swerve/api"
@@ -66,6 +69,10 @@ func (a *Application) Setup() error {
 		a.Config.HTTPSListenerPort)
 
 	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
+
+	fmt.Println("+++++ DB CONFIG +++++++")
+	spew.Dump(a.Config.Database)
+	fmt.Println("++++++++++++")
 
 	return nil
 }
