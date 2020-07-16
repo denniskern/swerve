@@ -18,21 +18,14 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	os.Setenv("SWERVE_STAGING", "true")
-	os.Setenv("SWERVE_DB_ENDPOINT", "http://localhost:8000")
-	os.Setenv("SWERVE_DB_REGION", "eu-west-1")
-	os.Setenv("SWERVE_USERS", "Users")
-	os.Setenv("SWERVE_DOMAINS", "Domains")
-	os.Setenv("SWERVE_DOMAINS_TLSSWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")
-	os.Setenv("SWERVE_API_UI_URL", "*")
-	os.Setenv("SWERVE_API_VERSION", "v1")
-
 	cfg := Config{
 		TableNamePrefix: "",
 		Region:          "eu-west-1",
 		TableRedirects:  "Redirects",
 		TableCertCache:  "DomainsTLSCache",
 		TableUsers:      "Users",
+		Key:             "0",
+		Secret:          "0",
 		Endpoint:        "http://localhost:8000",
 	}
 	d, err = NewDatabase(cfg)
