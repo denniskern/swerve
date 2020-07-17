@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -12,8 +11,6 @@ import (
 // CheckPassword checks pwd hash on db against entered plain pwd, returns nil if it is correct
 func (c *Model) CheckPassword(username string, plainPwd string) error {
 	pwd, err := c.DB.GetPwdHash(username)
-	fmt.Printf(" [DEBUG-CODE] got plain pw from json: %s\n", plainPwd)
-	fmt.Printf(" [DEBUG-CODE] got pw from db: %s\n", pwd)
 	if err != nil {
 		return err
 	}

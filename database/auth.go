@@ -6,15 +6,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 )
 
 // GetPwdHash returns a password hash from the database
 func (d *Database) GetPwdHash(username string) (string, error) {
-	fmt.Println("**************")
-	spew.Dump(d.Config)
-	fmt.Println("**************")
 	tablePrefix := d.Config.TableNamePrefix
 	tableName := d.Config.TableUsers
 	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
@@ -41,6 +37,5 @@ func (d *Database) GetPwdHash(username string) (string, error) {
 		return "", errors.WithMessage(err, ErrRedirectMarshal)
 	}
 
-	fmt.Printf("*** return alles normal\n ")
 	return userRes.Pwd, nil
 }

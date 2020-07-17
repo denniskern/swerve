@@ -1,9 +1,7 @@
 package database
 
 import (
-	"encoding/base64"
 	"log"
-	"net/url"
 	"os"
 	"testing"
 
@@ -35,9 +33,24 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestPutItem(t *testing.T) {
+	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(d.Config.TableNamePrefix + d.Config.TableUsers),
+		Item: map[string]*dynamodb.AttributeValue{
+			"username": {
+				S: aws.String("testuser"),
+			},
+			"password": {
+				S: aws.String("c3ZvYnFvb2pic2R2bnN2ZG5zbnZ3Cg=="),
+			},
+		}})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestUserTable(t *testing.T) {
 	var startkey map[string]*dynamodb.AttributeValue
-	var newCursor string
 	tablePrefix := d.Config.TableNamePrefix
 	tableName := d.Config.TableUsers
 
@@ -57,18 +70,11 @@ func TestUserTable(t *testing.T) {
 	}
 
 	if len(users) == 0 {
-		t.Log("No Users found in dynamodb")
+		t.Fatal("No Users found in dynamodb")
 	}
 
 	for _, v := range users {
 		t.Logf("Found User %s with PW %s", v.Name, v.Pwd)
 	}
 
-	val, ok := res.LastEvaluatedKey[keyNameRedirectsTable]
-	if ok {
-		newCursor = base64.StdEncoding.EncodeToString([]byte(*val.S))
-		newCursor = url.QueryEscape(newCursor)
-	} else {
-		newCursor = "EOF"
-	}
 }

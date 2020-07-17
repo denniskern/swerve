@@ -1,12 +1,9 @@
 package app
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/davecgh/go-spew/spew"
 
 	"github.com/axelspringer/swerve/acm"
 	"github.com/axelspringer/swerve/api"
@@ -73,9 +70,6 @@ func (a *Application) Setup() error {
 	a.Config.Database.Key = "0"
 	a.Config.Database.Secret = "0"
 	a.Config.Database.TableCertCache = "DomainsTLSCache"
-	fmt.Println("+++++ DB CONFIG +++++++")
-	spew.Dump(a.Config.Database)
-	fmt.Println("++++++++++++")
 
 	return nil
 }
