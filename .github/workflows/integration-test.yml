@@ -44,7 +44,7 @@ jobs:
         DOCKER_PASSWD: ${{ secrets.ARTIFACTORY_AUTH_TOKEN }}
         DOCKER_REGISTRY: 'spring-docker.jfrog.io'
         PARENT: 'red'
-        PROJECT: 'red-swerve'
+        PROJECT: 'swerve'
       run: |
         IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
         echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
