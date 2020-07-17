@@ -35,5 +35,8 @@ jobs:
     - name: Build
       run: go build -v .
 
-    - name: Test
+    - name: check if Test-DB is filled up correctly
+      run: go test -v ./database/...
+
+    - name: Test HTTP Endpoints
       run: go test -tags integration -v ./app
