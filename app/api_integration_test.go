@@ -14,7 +14,6 @@ import (
 	"github.com/axelspringer/swerve/config"
 	"github.com/axelspringer/swerve/log"
 	"github.com/axelspringer/swerve/model"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,16 +38,13 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	a := NewApplication()
 	cfg = a.Config
-	httpClient = http.Client{}
+	httpClient = http.Client{
+		Timeout: time.Second * 5,
+	}
 	baseUrlApi = fmt.Sprintf("http://127.0.0.1:%d", cfg.API.Listener)
 	if err := a.Setup(); err != nil {
 		log.Fatal(err)
 	}
-	a.Config.Database.Secret = "4"
-	a.Config.Database.Key = "0"
-	a.Config.Database.Endpoint = "http://www.www.de"
-	a.Config.Database.TableCertCache = "app/api_integration_test.go"
-	spew.Dump(a.Config.Database)
 	go a.Run()
 	err := waitUntilServerIsUpAndReady(a.Config.API.Listener)
 	if err != nil {
@@ -67,12 +63,12 @@ type testcase struct {
 func Test_APILOGIN(t *testing.T) {
 	testCases := []testcase{
 		{"valid login", "dkern", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS", http.StatusOK},
-		{"invalid login", "dkern", "noValidPW", http.StatusOK},
+		{"invalid login", "dkern", "noValidPW", http.StatusUnauthorized},
 	}
 
 	for _, te := range testCases {
 		url := fmt.Sprintf("%s/login", baseUrlApi)
-		t.Logf("run -> %s, user: %s pw: %s wanted statuscode: %d, url: %s", te.name, te.user, te.pass, te.expectedStatuscode, url)
+		t.Logf("run -> %s, user: %s wanted statuscode: %d, url: %s", te.name, te.user, te.expectedStatuscode, url)
 		payload := []byte(fmt.Sprintf(`{"username":"%s", "pwd":"%s"}`, te.user, te.pass))
 		resp, err := httpClient.Post(url, "content-type: application/json", bytes.NewReader(payload))
 		if err != nil {
@@ -100,7 +96,7 @@ func Test_PostRedirects(t *testing.T) {
 		expectedStatuscode int
 	}{
 		{
-			"domain ilk.org",
+			"post new redirect for domain ilk.org",
 			model.Redirect{
 				RedirectFrom: "ilk.org",
 				Description:  "Testdomain1",
@@ -136,6 +132,36 @@ func Test_PostRedirects(t *testing.T) {
 		assert.Equal(t, resp.StatusCode, te.expectedStatuscode, te.name)
 	}
 
+}
+
+func Test_GetRedirects(t *testing.T) {
+	if checkEmptyToken(t) {
+		return
+	}
+	testCases := []struct {
+		name               string
+		expectedStatuscode int
+	}{
+		{"get redirect for domain ilk.org",
+			200,
+		},
+	}
+
+	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/")
+	for _, te := range testCases {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		req.Header.Set("Cookie", fmt.Sprintf("token=%s", token))
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		r := model.Redirect{}
+		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
+		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
+	}
 }
 
 func waitUntilServerIsUpAndReady(apiport int) error {
