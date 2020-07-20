@@ -5,6 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	phm "github.com/axelspringer/swerve/prometheus"
+
 	"github.com/axelspringer/swerve/acm"
 	"github.com/axelspringer/swerve/api"
 	"github.com/axelspringer/swerve/cache"
@@ -49,6 +51,7 @@ func (a *Application) Setup() error {
 		}
 	}
 
+	pro := phm.NewPHM()
 	a.Cache = cache.NewCache(db)
 
 	controlModel := model.NewModel(a.Cache)
@@ -59,13 +62,14 @@ func (a *Application) Setup() error {
 
 	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,
-		a.Config.HTTPListenerPort)
+		a.Config.HTTPListenerPort,
+		pro.WrapHandler)
 
 	a.HTTPSServer = https.NewHTTPSServer(controlModel.GetRedirectByDomain,
 		autocertManager.GetCertificate,
-		a.Config.HTTPSListenerPort)
-
-	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
+		a.Config.HTTPSListenerPort,
+		pro.WrapHandler)
+	a.APIServer = api.NewAPIServer(controlModel, a.Config.API, pro.WrapHandler)
 
 	return nil
 }

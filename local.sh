@@ -3,6 +3,7 @@
 NAME_NGINX=swerve-nginx
 NAME_SWERVE=swerve-app
 NAME_DYNAMODB=dynamodb
+NAME_PEBBLE=pebble
 VOLUME_DYNAMODB=swerve-dynamodb
 NAME_AWS_CLI=swerve-aws-cli
 export TABLE_USERS=Users
@@ -10,6 +11,17 @@ export TABLE_USERS=Users
 
 function docker_stop() {
     docker ps | grep -q "$1" &&  docker stop "$1" && echo -e "\tstopped"
+}
+
+function start_pebble() {
+  docker_stop $NAME_PEBBLE
+  docker run --rm --network swerve \
+    -e "PEBBLE_VA_ALWAYS_VALID=1" \
+    -e "PEBBLE_VA_NOSLEEP=1" \
+    --name $NAME_PEBBLE \
+    -p 14000:14000 \
+    -p 15000:15000 \
+    -d letsencrypt/pebble
 }
 
 function create_volume() {
@@ -118,6 +130,12 @@ fi
 
 if [[ "$1" == "dyno" ]]; then
  init_dynamodb
+fi
+
+
+if [[ "$1" == "dep" ]]; then
+  start_dynamodb
+  start_pebble
 fi
 
 if [[ "$1" == "run" ]]; then
