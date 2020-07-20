@@ -1,11 +1,34 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"strings"
+	"time"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/axelspringer/swerve/log"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/xid"
 )
+
+func (api *API) logMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		guid := xid.New()
+		entry := logrus.WithFields(logrus.Fields{
+			"request_id": guid.String(),
+		})
+		ctx := context.WithValue(r.Context(), "RequestLogger", entry)
+		next.ServeHTTP(w, r.WithContext(ctx))
+		start := time.Now()
+		log.Infof("Request starting %s %s %s %s", r.Proto, r.Method, r.Host, r.URL.Path)
+		end := time.Now()
+		diff := end.Sub(start)
+		log.Infof("Request finished in %d ms", diff.Nanoseconds()/int64(time.Millisecond))
+	})
+}
 
 func (api *API) corsMiddlewear(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

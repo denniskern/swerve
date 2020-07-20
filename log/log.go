@@ -16,6 +16,7 @@ func SetupLogger(level string, outType string) {
 	if logLevel, err := logrus.ParseLevel(level); err == nil {
 		logger.SetLevel(logLevel)
 	}
+	logger.WithField("a", "b")
 
 	outType = strings.ToLower(outType)
 

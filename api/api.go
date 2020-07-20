@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/axelspringer/swerve/log"
 	"github.com/gorilla/mux"
 )
@@ -21,6 +23,8 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	}
 
 	router := mux.NewRouter()
+	router.Use(api.logMiddleware)
+
 	router.HandleFunc("/health", api.health).
 		Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/version", api.version).
@@ -197,6 +201,7 @@ func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) login(w http.ResponseWriter, r *http.Request) {
+	logger := r.Context().Value("RequestLogger").(*logrus.Entry)
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -205,9 +210,11 @@ func (api *API) login(w http.ResponseWriter, r *http.Request) {
 	}
 	tokenString, expirationTime, err := api.Model.CheckPasswordFromJSON(data, api.Config.Secret)
 	if err != nil {
+		logger.Error(err)
 		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	logger.Debug("set cookie")
 
 	http.SetCookie(w, &http.Cookie{
 		Name:    cookieName,
