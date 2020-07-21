@@ -27,10 +27,6 @@ jobs:
     - name: Get dependencies
       run: |
         go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
 
     - name: Build
       run: go build -v .
@@ -40,3 +36,20 @@ jobs:
 
     - name: Test HTTP Endpoints
       run: go test -tags integration -v ./app
+    
+    - name: Build docker image
+      if: ${{ success() }}
+      env:
+        DOCKER_USER: dennis.kern@axelspringer.com
+        DOCKER_PASSWD: ${{ secrets.ARTIFACTORY_AUTH_TOKEN }}
+        DOCKER_REGISTRY: 'spring-docker.jfrog.io'
+        PARENT: 'red'
+        PROJECT: 'swerve'
+      run: |
+        IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
+        echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
+        FULL_NAME="$IMAGE_NAME:1.5.1"
+        echo "Push to: $(echo ${FULL_NAME})"
+        echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
+        docker build --pull -t $FULL_NAME .
+        docker push $FULL_NAME
