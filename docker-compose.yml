@@ -1,6 +1,15 @@
 version: "2"
 
 services:
+  # local CA (letsencrypt)
+  pebble:
+    image: letsencrypt/pebble
+    restart: always
+    ports:
+    - "14000:14000"
+    - "15000:15000"
+    environment:
+      - PEBBLE_VA_ALWAYS_VALID=1
   # dynamodb
   dynamodb:
     image: dwmkerr/dynamodb:latest

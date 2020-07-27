@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -46,8 +47,7 @@ func (h *HTTPS) Listen() error {
 
 func (h *HTTPS) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		hostHeader := r.Host
-		redirect, err := h.getRedirect(hostHeader)
+		redirect, err := h.getRedirect(strings.Split(r.Host, ":")[0])
 
 		// regular domain lookup
 		if err == nil {

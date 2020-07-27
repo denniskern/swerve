@@ -47,6 +47,7 @@ func (a *Application) Setup() error {
 	if a.Config.Bootstrap {
 		err = db.Prepare()
 		if err != nil {
+			log.Errorf("error while preparing the dynamodb %v", err)
 			return errors.WithMessage(err, ErrTablePrepare)
 		}
 	}
@@ -58,7 +59,7 @@ func (a *Application) Setup() error {
 
 	autocertManager := acm.NewACM(a.Cache.AllowHostPolicy,
 		a.Cache,
-		!a.Config.Prod)
+		a.Config)
 
 	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,

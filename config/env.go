@@ -21,6 +21,22 @@ func (c *Configuration) FromEnv() error {
 		c.API.Listener = apiPortNumber
 	}
 
+	usePebble := getPrefixedOSEnv(envStrUsePebble)
+	if usePebble != "" {
+		params[envStrUsePebble] = usePebble
+		pebbleBoolean, err := strconv.ParseBool(usePebble)
+		if err != nil {
+			return errors.New(ErrPebbleValInvalid)
+		}
+		c.UsePebble = pebbleBoolean
+	}
+
+	letsencryptUrl := getPrefixedOSEnv(envStrLetsencryptUrl)
+	if letsencryptUrl != "" {
+		params[envStrLetsencryptUrl] = letsencryptUrl
+		c.LetsencryptUrl = letsencryptUrl
+	}
+
 	apiVersion := getPrefixedOSEnv(envStrAPIVersion)
 	if apiVersion != "" {
 		params[envStrAPIVersion] = apiVersion

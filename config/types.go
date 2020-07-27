@@ -9,6 +9,8 @@ import (
 type Configuration struct {
 	Database          database.Config
 	API               api.Config
+	LetsencryptUrl    string
+	UsePebble         bool
 	HTTPListenerPort  int
 	HTTPSListenerPort int
 	LogLevel          string

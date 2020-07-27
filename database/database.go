@@ -1,11 +1,11 @@
 package database
 
 import (
-	"github.com/axelspringer/swerve/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/axelspringer/swerve/log"
 	"github.com/pkg/errors"
 )
 
@@ -38,6 +38,7 @@ func NewDatabase(c Config) (*Database, error) {
 
 // Prepare prepares the database
 func (d *Database) Prepare() error {
+	log.Debug("call Prepare() dynamodb")
 	err := d.prepareTable(d.Config.TableRedirects, keyNameRedirectsTable)
 	if err != nil {
 		return errors.WithMessagef(err, ErrfTableCreate, d.Config.TableRedirects)
@@ -54,6 +55,7 @@ func (d *Database) Prepare() error {
 }
 
 func (d *Database) prepareTable(tableName string, keyName string) error {
+	log.Debugf("try to create table %s", tableName)
 	tablePrefix := d.Config.TableNamePrefix
 
 	tableCreate := &dynamodb.CreateTableInput{
