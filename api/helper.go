@@ -16,11 +16,17 @@ var (
 )
 
 func sendJSON(r *http.Request, w http.ResponseWriter, obj interface{}, code int) {
-	jsonBytes, _ := json.Marshal(struct {
-		Data interface{} `json:"data"`
-	}{
-		Data: obj,
-	})
+	jsonBytes := []byte{}
+	_, ok := obj.(string)
+	if ok {
+		jsonBytes, _ = json.Marshal(struct {
+			Data interface{} `json:"data"`
+		}{
+			Data: obj,
+		})
+	} else {
+		jsonBytes = obj.([]byte)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")

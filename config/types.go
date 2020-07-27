@@ -10,6 +10,7 @@ type Configuration struct {
 	Database          database.Config
 	API               api.Config
 	LetsencryptUrl    string
+	PebbleCA          string
 	UsePebble         bool
 	HTTPListenerPort  int
 	HTTPSListenerPort int

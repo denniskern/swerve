@@ -3,8 +3,6 @@ package acm
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/axelspringer/swerve/config"
@@ -16,7 +14,7 @@ import (
 // NewACM creates a new instance
 func NewACM(hostPolicy autocert.HostPolicy, cache autocert.Cache, cfg *config.Configuration) *autocert.Manager {
 	client := &acme.Client{
-		HTTPClient: createHttpClient(cfg.UsePebble),
+		HTTPClient: createHttpClient(cfg),
 	}
 	if !cfg.Prod {
 		client.DirectoryURL = cfg.LetsencryptUrl
@@ -31,20 +29,14 @@ func NewACM(hostPolicy autocert.HostPolicy, cache autocert.Cache, cfg *config.Co
 	}
 }
 
-func createHttpClient(usePebble bool) *http.Client {
-	if usePebble {
-		cert, err := ioutil.ReadFile("acm/pebble/pebble.minica.pem")
-		if err != nil {
-			log.Fatal(err)
-		}
-
+func createHttpClient(cfg *config.Configuration) *http.Client {
+	if cfg.UsePebble {
 		cpool := x509.NewCertPool()
-		cpool.AppendCertsFromPEM(cert)
+		cpool.AppendCertsFromPEM([]byte(cfg.PebbleCA))
 
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{
-				ClientCAs: cpool,
-				RootCAs:   cpool,
+				RootCAs: cpool,
 			},
 		}
 

@@ -18,6 +18,7 @@ func NewConfiguration() *Configuration {
 		Prod:              defaultProd,
 		Bootstrap:         defaultBootstrap,
 		CacheInterval:     defaultCacheInterval,
+		PebbleCA:          defaultPebbleCACert,
 		Database: database.Config{
 			TableNamePrefix: defaultTableNamePrefix,
 			Region:          defaultDBRegion,
