@@ -57,7 +57,7 @@ func (d *Database) Prepare() error {
 			keyNameUsersTable: {
 				S: aws.String(defaultDynamoUser),
 			},
-			attrNameCacheValue: {
+			attrNamePwd: {
 				S: aws.String(defaultDynamoPassword),
 			},
 		},

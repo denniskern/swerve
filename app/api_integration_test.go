@@ -83,8 +83,8 @@ type testcase struct {
 
 func Test_APILogin(t *testing.T) {
 	testCases := []testcase{
-		{"valid login", "dkern", "mytestpw", http.StatusOK},
-		{"invalid login", "dkern", "noValidPW", http.StatusUnauthorized},
+		{"valid login", "admin", "mytestpw", http.StatusOK},
+		{"invalid login", "admin", "noValidPW", http.StatusUnauthorized},
 	}
 
 	for _, te := range testCases {

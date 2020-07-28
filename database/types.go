@@ -40,5 +40,5 @@ type CertCacheEntry struct {
 // User contains a users cerdentials
 type User struct {
 	Name string `json:"username"`
-	Pwd  string `json:"password"`
+	Pwd  string `json:"pwd"`
 }
