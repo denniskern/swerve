@@ -16,8 +16,10 @@ func NewACM(hostPolicy autocert.HostPolicy, cache autocert.Cache, cfg *config.Co
 	client := &acme.Client{
 		HTTPClient: createHttpClient(cfg),
 	}
-	if !cfg.Prod {
+	if cfg.UsePebble {
 		client.DirectoryURL = cfg.LetsencryptUrl
+	} else if cfg.UseStage {
+		client.DirectoryURL = LetsEncryptStagingURL
 	} else {
 		client.DirectoryURL = acme.LetsEncryptURL
 	}

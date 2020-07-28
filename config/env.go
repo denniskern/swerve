@@ -31,6 +31,16 @@ func (c *Configuration) FromEnv() error {
 		c.UsePebble = pebbleBoolean
 	}
 
+	useStage := getPrefixedOSEnv(envStrUseStage)
+	if useStage != "" {
+		params[envStrUseStage] = usePebble
+		stageBoolean, err := strconv.ParseBool(useStage)
+		if err != nil {
+			return errors.New(ErrPebbleValInvalid)
+		}
+		c.UseStage = stageBoolean
+	}
+
 	letsencryptUrl := getPrefixedOSEnv(envStrLetsencryptUrl)
 	if letsencryptUrl != "" {
 		params[envStrLetsencryptUrl] = letsencryptUrl

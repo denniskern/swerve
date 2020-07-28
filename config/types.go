@@ -12,6 +12,7 @@ type Configuration struct {
 	LetsencryptUrl    string
 	PebbleCA          string
 	UsePebble         bool
+	UseStage          bool
 	HTTPListenerPort  int
 	HTTPSListenerPort int
 	LogLevel          string
