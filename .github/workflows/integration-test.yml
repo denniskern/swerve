@@ -24,15 +24,8 @@ jobs:
     - name: Build the stack
       run: docker-compose up -d
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-
     - name: Build
       run: go build -v .
-
-    - name: check if Test-DB is filled up correctly
-      run: go test -v ./database/...
 
     - name: Test HTTP Endpoints
       run: go test -tags integration -v ./app
