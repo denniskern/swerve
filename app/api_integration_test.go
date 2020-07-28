@@ -53,6 +53,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_DOMAINS_TLSSWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
+	os.Setenv("SWERVE_BOOTSTRAP", "1")
 	os.Setenv("SWERVE_USE_PEBBLE", "true")
 	os.Setenv("SWERVE_LETSENCRYPT_URL", "https://localhost:14000/dir")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")

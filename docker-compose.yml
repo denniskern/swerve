@@ -19,22 +19,5 @@ services:
       - dynamo_local:/data
     ports:
       - "8000:8000"
-  # inititalize  the database
-  init-dynamodb:
-    image: garland/aws-cli-docker
-    command: "/bin/sh /tmp/init_db.sh"
-    volumes:
-      - ./scripts/init_dynamo.sh:/tmp/init_db.sh 
-    environment:
-      - AWS_ACCESS_KEY_ID=0
-      - AWS_SECRET_ACCESS_KEY=0
-      - AWS_DEFAULT_REGION=eu-west-1
-      - TABLE_REDIRECTS=Redirects
-      - TABLE_CERTCACHE=CertCache
-      - TABLE_USERS=Users
-    depends_on:
-      - "dynamodb"
-    links:
-      - "dynamodb"
 volumes:
   dynamo_local:

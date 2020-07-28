@@ -51,6 +51,21 @@ func (d *Database) Prepare() error {
 	if err != nil {
 		return errors.WithMessagef(err, ErrfTableCreate, d.Config.TableUsers)
 	}
+	_, err = d.Service.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(d.Config.TableUsers),
+		Item: map[string]*dynamodb.AttributeValue{
+			keyNameUsersTable: {
+				S: aws.String(defaultDynamoUser),
+			},
+			attrNameCacheValue: {
+				S: aws.String(defaultDynamoPassword),
+			},
+		},
+	})
+	if err != nil {
+		return errors.WithMessagef(err, "can't create default user", d.Config.TableUsers)
+	}
+
 	return nil
 }
 
