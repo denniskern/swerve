@@ -61,9 +61,9 @@ const (
 	defaultCacheInterval   = 10
 	defaultTableNamePrefix = ""
 	defaultDBRegion        = "eu-west-1"
-	defaultTableRedirects  = "Redirects"
-	defaultTableCertCache  = "CertCache"
-	defaultTableUsers      = "Users"
+	defaultTableRedirects  = "Swerve_Redirects"
+	defaultTableCertCache  = "Swerve_CertCache"
+	defaultTableUsers      = "Swerve_Users"
 	defaultPebbleCACert    = `-----BEGIN CERTIFICATE-----
 MIIDCTCCAfGgAwIBAgIIJOLbes8sTr4wDQYJKoZIhvcNAQELBQAwIDEeMBwGA1UE
 AxMVbWluaWNhIHJvb3QgY2EgMjRlMmRiMCAXDTE3MTIwNjE5NDIxMFoYDzIxMTcx
