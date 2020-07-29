@@ -32,7 +32,7 @@ func sendJSON(r *http.Request, w http.ResponseWriter, obj interface{}, code int)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(code)
 	w.Write(jsonBytes)
-	log.Response(r, code)
+	// log.Response(r, code)
 }
 
 func sendJSONMessage(r *http.Request, w http.ResponseWriter, msg string, code int) {
@@ -41,7 +41,7 @@ func sendJSONMessage(r *http.Request, w http.ResponseWriter, msg string, code in
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
-	log.ResponseWithMsg(r, code, msg)
+	// log.ResponseWithMsg(r, code, msg)
 }
 
 func sendTextMessage(w http.ResponseWriter, msg string, code int) {

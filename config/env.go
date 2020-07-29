@@ -31,6 +31,12 @@ func (c *Configuration) FromEnv() error {
 		c.UsePebble = pebbleBoolean
 	}
 
+	pebbleCAUrl := getPrefixedOSEnv(envStrPebbleCAUrl)
+	if pebbleCAUrl != "" {
+		params[envStrPebbleCAUrl] = pebbleCAUrl
+		c.PebbleCAUrl = pebbleCAUrl
+	}
+
 	useStage := getPrefixedOSEnv(envStrUseStage)
 	if useStage != "" {
 		params[envStrUseStage] = usePebble

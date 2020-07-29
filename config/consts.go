@@ -8,6 +8,7 @@ const (
 	envStrAPIListenerPort   = "API_LISTENER"
 	envStrLetsencryptUrl    = "LETSENCRYPT_URL"
 	envStrUsePebble         = "USE_PEBBLE"
+	envStrPebbleCAUrl       = "PEBBLE_CA_URL"
 	envStrUseStage          = "USE_STAGE"
 	envStrAPIVersion        = "API_VERSION"
 	envStrAPIUIURL          = "API_UI_URL"

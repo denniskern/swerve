@@ -53,11 +53,11 @@ func (h *HTTPS) handler() http.Handler {
 		if err == nil {
 			redirectURL, redirectCode := redirect.GetRedirect(r.URL)
 			http.Redirect(w, r, redirectURL, redirectCode)
-			log.Response(r, redirectCode)
+			// log.Response(r, redirectCode)
 			return
 		}
 
 		http.NotFound(w, r)
-		log.Response(r, http.StatusNotFound)
+		// log.Response(r, http.StatusNotFound)
 	})
 }
