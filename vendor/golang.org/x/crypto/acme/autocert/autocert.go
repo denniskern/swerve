@@ -31,6 +31,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"golang.org/x/crypto/acme"
 	"golang.org/x/net/idna"
 )
@@ -645,7 +646,7 @@ func (m *Manager) certState(ck certKey) (*certState, error) {
 // authorizedCert starts the domain ownership verification process and requests a new cert upon success.
 // The key argument is the certificate private key.
 func (m *Manager) authorizedCert(ctx context.Context, key crypto.Signer, ck certKey) (der [][]byte, leaf *x509.Certificate, err error) {
-	csr, err := certRequest(key, ck.domain, m.ExtraExtensions,ck.domain)
+	csr, err := certRequest(key, ck.domain, m.ExtraExtensions, ck.domain)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -814,6 +815,7 @@ AuthorizeOrderLoop:
 				continue AuthorizeOrderLoop
 			}
 			if _, err := client.WaitAuthorization(ctx, z.URI); err != nil {
+				spew.Dump(err)
 				continue AuthorizeOrderLoop
 			}
 		}
