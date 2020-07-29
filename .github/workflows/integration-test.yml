@@ -2,7 +2,9 @@ name: Go
 
 on:
   push:
-    branches: [ gomod ]
+    branches:
+      - gomod
+      - eks_testing
   pull_request:
     branches: [ master ]
 jobs:
