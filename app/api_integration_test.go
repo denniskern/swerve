@@ -43,7 +43,9 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	os.Setenv("SWERVE_STAGING", "true")
+	os.Setenv("SWERVE_USE_PEBBLE", "true")
+	os.Setenv("SWERVE_PEBBLE_CA_URL", "http://localhost:15000/roots/0")
+	os.Setenv("SWERVE_LETSENCRYPT_URL", "https://localhost:14000/dir")
 	os.Setenv("SWERVE_DB_ENDPOINT", "http://localhost:8000")
 	os.Setenv("SWERVE_DB_REGION", "eu-west-1")
 	os.Setenv("SWERVE_DB_KEY", "0")
@@ -54,8 +56,6 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	os.Setenv("SWERVE_BOOTSTRAP", "1")
-	os.Setenv("SWERVE_USE_PEBBLE", "true")
-	os.Setenv("SWERVE_LETSENCRYPT_URL", "https://localhost:14000/dir")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")
 	a := NewApplication()
 	cfg = a.Config

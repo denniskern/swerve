@@ -11,6 +11,7 @@ type Configuration struct {
 	API               api.Config
 	LetsencryptUrl    string
 	PebbleCA          string
+	PebbleCAUrl       string
 	UsePebble         bool
 	UseStage          bool
 	HTTPListenerPort  int

@@ -3,7 +3,10 @@ package acm
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/axelspringer/swerve/log"
 
 	"github.com/axelspringer/swerve/config"
 
@@ -37,13 +40,27 @@ func createHttpClient(cfg *config.Configuration) *http.Client {
 		cpool.AppendCertsFromPEM([]byte(cfg.PebbleCA))
 
 		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		resp, err := client.Get(cfg.PebbleCAUrl)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cert, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		cpool.AppendCertsFromPEM(cert)
+
+		trWithValidation := &http.Transport{
 			TLSClientConfig: &tls.Config{
 				RootCAs: cpool,
 			},
 		}
 
 		httpclient := &http.Client{
-			Transport: tr,
+			Transport: trWithValidation,
 		}
 		return httpclient
 	}

@@ -3,23 +3,9 @@ package api
 import (
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/axelspringer/swerve/log"
 
 	"github.com/gorilla/mux"
 )
-
-func (api *API) logMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		end := time.Now()
-		diff := end.Sub(start)
-		log.Infof("Request finished in %d ms for %s %s %s %s ", diff.Nanoseconds()/int64(time.Millisecond), r.Proto, r.Method, r.Host, r.URL.Path)
-
-	})
-}
 
 func (api *API) corsMiddlewear(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

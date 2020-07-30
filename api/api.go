@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/axelspringer/swerve/helper"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/axelspringer/swerve/log"
@@ -25,7 +27,7 @@ func NewAPIServer(mod ModelAdapter, conf Config, wrapHandler func(string, http.H
 	}
 
 	router := mux.NewRouter()
-	router.Use(api.logMiddleware)
+	router.Use(helper.LoggingMiddleware)
 
 	router.HandleFunc("/metrics", prometheusHandler).
 		Methods(http.MethodGet)
