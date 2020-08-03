@@ -8,7 +8,7 @@ import (
 	"github.com/axelspringer/swerve/https"
 )
 
-// Application is evades app model
+// Application is swerves app model
 type Application struct {
 	Config      *config.Configuration
 	APIServer   *api.API

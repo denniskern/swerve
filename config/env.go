@@ -21,38 +21,6 @@ func (c *Configuration) FromEnv() error {
 		c.API.Listener = apiPortNumber
 	}
 
-	usePebble := getPrefixedOSEnv(envStrUsePebble)
-	if usePebble != "" {
-		params[envStrUsePebble] = usePebble
-		pebbleBoolean, err := strconv.ParseBool(usePebble)
-		if err != nil {
-			return errors.New(ErrPebbleValInvalid)
-		}
-		c.UsePebble = pebbleBoolean
-	}
-
-	pebbleCAUrl := getPrefixedOSEnv(envStrPebbleCAUrl)
-	if pebbleCAUrl != "" {
-		params[envStrPebbleCAUrl] = pebbleCAUrl
-		c.PebbleCAUrl = pebbleCAUrl
-	}
-
-	useStage := getPrefixedOSEnv(envStrUseStage)
-	if useStage != "" {
-		params[envStrUseStage] = usePebble
-		stageBoolean, err := strconv.ParseBool(useStage)
-		if err != nil {
-			return errors.New(ErrPebbleValInvalid)
-		}
-		c.UseStage = stageBoolean
-	}
-
-	letsencryptUrl := getPrefixedOSEnv(envStrLetsencryptUrl)
-	if letsencryptUrl != "" {
-		params[envStrLetsencryptUrl] = letsencryptUrl
-		c.LetsencryptUrl = letsencryptUrl
-	}
-
 	apiVersion := getPrefixedOSEnv(envStrAPIVersion)
 	if apiVersion != "" {
 		params[envStrAPIVersion] = apiVersion
@@ -91,6 +59,38 @@ func (c *Configuration) FromEnv() error {
 		c.HTTPSListenerPort = httpsPortNumber
 	}
 
+	usePebble := getPrefixedOSEnv(envStrUsePebble)
+	if usePebble != "" {
+		params[envStrUsePebble] = usePebble
+		pebbleBoolean, err := strconv.ParseBool(usePebble)
+		if err != nil {
+			return errors.New(ErrPebbleValInvalid)
+		}
+		c.ACM.UsePebble = pebbleBoolean
+	}
+
+	pebbleCAURL := getPrefixedOSEnv(envStrPebbleCAURL)
+	if pebbleCAURL != "" {
+		params[envStrPebbleCAURL] = pebbleCAURL
+		c.ACM.PebbleCAURL = pebbleCAURL
+	}
+
+	useStage := getPrefixedOSEnv(envStrUseStage)
+	if useStage != "" {
+		params[envStrUseStage] = useStage
+		stageBoolean, err := strconv.ParseBool(useStage)
+		if err != nil {
+			return errors.New(ErrStageValInvalid)
+		}
+		c.ACM.UseStage = stageBoolean
+	}
+
+	letsEncryptURL := getPrefixedOSEnv(envStrLetsEncryptURL)
+	if letsEncryptURL != "" {
+		params[envStrLetsEncryptURL] = letsEncryptURL
+		c.ACM.LetsEncryptURL = letsEncryptURL
+	}
+
 	logLevel := getPrefixedOSEnv(envStrLogLevel)
 	if logLevel != "" {
 		params[envStrLogLevel] = logLevel
@@ -101,16 +101,6 @@ func (c *Configuration) FromEnv() error {
 	if logFormatter != "" {
 		params[envStrLogFormatter] = logFormatter
 		c.LogFormatter = logFormatter
-	}
-
-	prod := getPrefixedOSEnv(envStrProd)
-	if prod != "" {
-		isProd, err := strconv.ParseBool(prod)
-		if err != nil {
-			return errors.New(ErrProdValInvalid)
-		}
-		params[envStrProd] = isProd
-		c.Prod = isProd
 	}
 
 	bootstrap := getPrefixedOSEnv(envStrBootstrap)

@@ -19,7 +19,6 @@ func (c *Model) CheckPassword(username string, plainPwd string) error {
 	bytePlain := []byte(plainPwd)
 
 	err = bcrypt.CompareHashAndPassword(byteHash, bytePlain)
-	// err = bcrypt.CompareHashAndPassword(bytePlain, byteHash)
 	if err != nil {
 		return errors.WithMessage(err, ErrPwdInvalid)
 	}

@@ -54,12 +54,10 @@ func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		redirectURL, redirectCode := redirect.GetRedirect(r.URL)
 		http.Redirect(w, r, redirectURL, redirectCode)
-		// log.Response(r, redirectCode)
 		return
 	}
 
 	http.NotFound(w, r)
-	// log.Response(r, http.StatusNotFound)
 }
 
 func (h *HTTP) serve(fallback http.Handler, w http.ResponseWriter, r *http.Request) {

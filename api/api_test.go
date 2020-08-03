@@ -25,31 +25,31 @@ func TestLogin(t *testing.T) {
 	var tests = []struct {
 		name               string
 		user               string
-		mockPlainPass      string
+		mockEncPass        string
 		body               []byte
 		handler            http.HandlerFunc
 		ExpectedStatusCode int
 	}{
 		{
-			"plain pw matches encypted password",
-			"dkern",
-			"mytestpw",
-			[]byte(`{ "username": "dkern", "pwd": "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS" }`),
+			"plain pw matches encrypted password",
+			"admin",
+			"$2y$12$CdZjcrdpFWxE9ISuW.rF2OWnCJP.p5bVRAeznn3xUWsoyM7J5DYIi",
+			[]byte(`{ "username": "admin", "pwd": "mytestpw" }`),
 			api.login,
 			200,
 		},
 		{
-			"plain pw  does not match encypted password",
+			"plain pw  does not match encrypted password",
 			"dkern",
-			"unknown",
-			[]byte(`{ "username": "dkern", "pwd": "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS" }`),
+			"$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS",
+			[]byte(`{ "username": "dkern", "pwd": "unknown" }`),
 			api.login,
 			401,
 		},
 	}
 
 	for _, test := range tests {
-		d.EXPECT().GetPwdHash(test.user).Return(test.mockPlainPass, nil).Times(1)
+		d.EXPECT().GetPwdHash(test.user).Return(test.mockEncPass, nil).Times(1)
 
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/login", bytes.NewReader(test.body))

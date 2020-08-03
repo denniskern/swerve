@@ -23,12 +23,11 @@ type Redirect struct {
 	RedirectFrom string  `json:"redirect_from"`
 	Description  string  `json:"description"`
 	RedirectTo   string  `json:"redirect_to"`
-	Domain       string  `json:"domain"`
 	Promotable   bool    `json:"promotable"`
 	Code         int     `json:"code"`
 	Created      int     `json:"created"`
 	Modified     int     `json:"modified"`
-	CPathMaps    *[]byte `json:"cpath-map,omitempty"`
+	CPathMaps    *[]byte `json:"cpath_map,omitempty"`
 }
 
 // CertCacheEntry contains a certificate for the domain

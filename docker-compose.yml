@@ -1,6 +1,46 @@
 version: "2"
 
 services:
+  # swerve
+  swerve:
+    build:
+      context: .
+    image: axelspringer/swerve
+    restart: always
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+    environment:
+      - SWERVE_API_LISTENER=8082
+      - SWERVE_API_VERSION=1.0
+      - SWERVE_API_UI_URL=http://local.test:8084
+      - SWERVE_API_JWT_SECRET=placeholder
+      - SWERVE_HTTP_LISTENER=8080
+      - SWERVE_HTTPS_LISTENER=8081
+      - SWERVE_LOG_LEVEL=debug
+      - SWERVE_LOG_FORMATTER=text
+      - SWERVE_PROD=0
+      - SWERVE_BOOTSTRAP=1
+      - SWERVE_CACHE_INTERVAL=1
+      - SWERVE_TABLE_PREFIX=Swerve-
+      - SWERVE_DB_REGION=eu-west-1
+      - SWERVE_TABLE_REDIRECTS=Redirects
+      - SWERVE_TABLE_CERTCACHE=CertCache
+      - SWERVE_TABLE_USERS=Users
+      - SWERVE_DB_KEY=0
+      - SWERVE_DB_SECRET=0
+      - SWERVE_DB_ENDPOINT=http://dynamodb:8000
+      - SWERVE_USE_PEBBLE=1
+      - SWERVE_LETSENCRYPT_URL=https://pebble:14000/dir
+      - SWERVE_PEBBLE_CA_URL=https://pebble:15000/roots/0
+    volumes:
+      - ./bin/swerve_linux/main:/swerve
+    depends_on:
+      - "pebble"
+      - "dynamodb"
+    links:
+      - "dynamodb"
   # local CA (letsencrypt)
   pebble:
     image: letsencrypt/pebble

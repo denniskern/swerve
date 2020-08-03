@@ -1,43 +1,21 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/axelspringer/swerve/log"
 	"github.com/gorilla/mux"
 )
 
-var (
-	uiDomain = strings.TrimSpace(os.Getenv("API_UI_URL"))
-)
-
-func sendJSON(r *http.Request, w http.ResponseWriter, obj interface{}, code int) {
-	jsonBytes := []byte{}
-	_, ok := obj.(string)
-	if ok {
-		jsonBytes, _ = json.Marshal(struct {
-			Data interface{} `json:"data"`
-		}{
-			Data: obj,
-		})
-	} else {
-		jsonBytes = obj.([]byte)
-	}
+func sendJSON(w http.ResponseWriter, data []byte, code int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(code)
-	w.Write(jsonBytes)
+	w.Write([]byte(fmt.Sprintf("{\"data\":%s}", string(data))))
 }
 
-func sendJSONMessage(r *http.Request, w http.ResponseWriter, msg string, code int) {
+func sendJSONMessage(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", uiDomain)
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	w.WriteHeader(code)
 	w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
 }

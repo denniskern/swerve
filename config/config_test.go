@@ -31,7 +31,7 @@ var _ = Describe("Config", func() {
 		})
 		Context("with env vars of wrong type", func() {
 			It("should throw error", func() {
-				os.Setenv("EVADE_API_LISTENER", ":foo")
+				os.Setenv("SWERVE_API_LISTENER", ":foo")
 				err := conf.FromEnv()
 				Expect(err.Error()).Should(Equal(config.ErrAPIPortInvalid))
 			})

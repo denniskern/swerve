@@ -6,18 +6,17 @@ const (
 
 const (
 	envStrAPIListenerPort   = "API_LISTENER"
-	envStrLetsencryptUrl    = "LETSENCRYPT_URL"
-	envStrUsePebble         = "USE_PEBBLE"
-	envStrPebbleCAUrl       = "PEBBLE_CA_URL"
-	envStrUseStage          = "USE_STAGE"
 	envStrAPIVersion        = "API_VERSION"
 	envStrAPIUIURL          = "API_UI_URL"
 	envStrAPIJWTSecret      = "API_JWT_SECRET"
 	envStrHTTPListenerPort  = "HTTP_LISTENER"
 	envStrHTTPSListenerPort = "HTTPS_LISTENER"
+	envStrLetsEncryptURL    = "LETSENCRYPT_URL"
+	envStrUsePebble         = "USE_PEBBLE"
+	envStrPebbleCAURL       = "PEBBLE_CA_URL"
+	envStrUseStage          = "USE_STAGE"
 	envStrLogLevel          = "LOG_LEVEL"
 	envStrLogFormatter      = "LOG_FORMATTER"
-	envStrProd              = "PROD"
 	envStrBootstrap         = "BOOTSTRAP"
 	envStrCacheInterval     = "CACHE_INTERVAL"
 	envStrTableNamePrefix   = "TABLE_PREFIX"
@@ -37,9 +36,12 @@ const (
 	paramStrAPIJWTSecret      = "api-jwt-secret"
 	paramStrHTTPListenerPort  = "http-listener"
 	paramStrHTTPSListenerPort = "https-listener"
+	paramStrLetsEncryptURL    = "letsencrypt-url"
+	paramStrUsePebble         = "use-pebble"
+	paramStrPebbleCAURL       = "pebble-ca-url"
+	paramStrUseStage          = "use-stage"
 	paramStrLogLevel          = "log-level"
 	paramStrLogFormatter      = "log-formatter"
-	paramStrProd              = "prod"
 	paramStrBootstrap         = "bootstrap"
 	paramStrCacheInterval     = "cache-interval"
 	paramStrTableNamePrefix   = "table-prefix"
@@ -58,7 +60,6 @@ const (
 	defaultHTTPSListener   = 8081
 	defaultLogLevel        = "debug"
 	defaultLogFormatter    = "text"
-	defaultProd            = false
 	defaultBootstrap       = false
 	defaultCacheInterval   = 10
 	defaultTableNamePrefix = ""

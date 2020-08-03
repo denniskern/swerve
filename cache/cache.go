@@ -76,14 +76,14 @@ func (c *Cache) Update() {
 	c.redirectsMap = map[string]*database.Redirect{}
 
 	for i, redirect := range redirects {
-		c.redirectsMap[redirect.Domain] = &redirects[i]
+		c.redirectsMap[redirect.RedirectFrom] = &redirects[i]
 	}
 }
 
 // AllowHostPolicy decides which host shall pass
 func (c *Cache) AllowHostPolicy(_ context.Context, host string) error {
 	if _, err := c.GetRedirectByDomain(host); err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("AllowHostPolicy, no redirect fround for %s -> ", host))
+		return errors.WithMessage(err, fmt.Sprintf(ErrHostNotConfigured, host))
 	}
 	return nil
 }

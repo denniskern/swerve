@@ -52,7 +52,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_DB_SECRET", "0")
 	os.Setenv("SWERVE_USERS", "Users")
 	os.Setenv("SWERVE_DOMAINS", "Domains")
-	os.Setenv("SWERVE_DOMAINS_TLSSWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")
+	os.Setenv("SWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	os.Setenv("SWERVE_BOOTSTRAP", "1")

@@ -47,30 +47,29 @@ func (a *Application) Setup() error {
 	if a.Config.Bootstrap {
 		err = db.Prepare()
 		if err != nil {
-			log.Errorf("error while preparing the dynamodb %v", err)
 			return errors.WithMessage(err, ErrTablePrepare)
 		}
 	}
 
-	pro := phm.NewPHM()
+	prom := phm.NewPHM()
 	a.Cache = cache.NewCache(db)
 
 	controlModel := model.NewModel(a.Cache)
 
 	autocertManager := acm.NewACM(a.Cache.AllowHostPolicy,
 		a.Cache,
-		a.Config)
+		a.Config.ACM)
 
 	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,
 		a.Config.HTTPListenerPort,
-		pro.WrapHandler)
+		prom.WrapHandler)
 
 	a.HTTPSServer = https.NewHTTPSServer(controlModel.GetRedirectByDomain,
 		autocertManager.GetCertificate,
 		a.Config.HTTPSListenerPort,
-		pro.WrapHandler)
-	a.APIServer = api.NewAPIServer(controlModel, a.Config.API, pro.WrapHandler)
+		prom.WrapHandler)
+	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
 
 	return nil
 }
