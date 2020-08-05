@@ -100,10 +100,7 @@ func certExists(domain string, c *cache.Cache) (bool, error) {
 }
 
 func checkCertOrder(domain string, c *cache.Cache) (database.CertOrder, error) {
-	name, err := os.Hostname()
-	if err != nil {
-		return database.CertOrder{}, err
-	}
+	ip := os.Getenv("SWERVE_POD_IP")
 	order, err := c.DB.GetCertOrderEntry(domain)
 	if err != nil {
 		return order, err
@@ -111,8 +108,8 @@ func checkCertOrder(domain string, c *cache.Cache) (database.CertOrder, error) {
 	if order.Domain != "" {
 		log.Infof("[name] @ cache GET found CERT ORDER for %s", order.Domain)
 	}
-	if order.Hostname != name {
-		log.Infof("[name] @ cache GET HOSTNAME IS NOT EQUAL %s proxy Forward is needed!", order.Hostname)
+	if order.Hostname != ip {
+		log.Infof("[name] @ cache IP (local %s) IS NOT EQUAL (order %s) proxy Forward is needed!", ip, order.Hostname)
 	}
 
 	return order, nil
