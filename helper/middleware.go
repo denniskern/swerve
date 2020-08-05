@@ -46,9 +46,15 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 		//	next.ServeHTTP(w, r)
 		// }
 
-		log.Debug("call CheckProxy, next loop for existing certorder")
-		order, _ := checkCertOrder(r.Host, c)
-		log.Debugf("CheckProxy: %s", r.Host)
+		host := r.Host
+		headerHost := r.Header.Get("X-SWERVE-Forwarded-Host")
+		if headerHost != "" {
+			host = headerHost
+		}
+
+		log.Debugf("call CheckProxy, next lookup for existing certorder for domain %s", host)
+		order, _ := checkCertOrder(host, c)
+		log.Debugf("CheckProxy: %s", host)
 
 		if order.Hostname != "" {
 			target := fmt.Sprintf("http://%s:8080", order.Hostname)
@@ -56,10 +62,10 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 			log.Infof(`CALL REVERSE proxy, forward req to pod %s`, order.Hostname)
 			proxy := httputil.NewSingleHostReverseProxy(u)
 
-			r.URL.Host = u.Host
+			r.URL.Host = host
 			r.URL.Scheme = "http"
-			r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-			r.Host = u.Host
+			r.Header.Set("X-SWERVE-Forwarded-Host", host)
+			r.Host = host
 
 			proxy.ServeHTTP(w, r)
 			r.Context().Done()
