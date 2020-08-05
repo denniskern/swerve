@@ -47,12 +47,12 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 		// }
 
 		order, _ := checkCertOrder(r.Host, c)
-		log.Debug("CheckProxy: %s", r.Host)
+		log.Debugf("CheckProxy: %s", r.Host)
 
 		if order.Hostname != "" {
-			target := fmt.Sprintf("http://%s", order.Hostname)
+			target := fmt.Sprintf("http://%s:8080", order.Hostname)
 			u, _ := url.Parse(target)
-			log.Infof(`CALL REVERSE proxy, forward req to pod %s`, "---")
+			log.Infof(`CALL REVERSE proxy, forward req to pod %s`, order.Hostname)
 			proxy := httputil.NewSingleHostReverseProxy(u)
 
 			r.URL.Host = u.Host
@@ -105,10 +105,10 @@ func checkCertOrder(domain string, c *cache.Cache) (database.CertOrder, error) {
 		return order, err
 	}
 	if order.Domain != "" {
-		log.Infof("[name] @ cache GET found CERT ORDER")
+		log.Infof("[name] @ cache GET found CERT ORDER for %s", order.Domain)
 	}
 	if order.Hostname != name {
-		log.Infof("[name] @ cache GET HOSTNAME IS EQUAL no proxy Forward is needed!")
+		log.Infof("[name] @ cache GET HOSTNAME IS EQUAL to %s no proxy Forward is needed!", order.Hostname)
 	}
 
 	return order, nil
