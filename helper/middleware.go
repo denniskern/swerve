@@ -6,7 +6,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/axelspringer/swerve/database"
@@ -37,11 +36,11 @@ func (w *logWriter) Write(b []byte) (int, error) {
 func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
-			log.Debug("INCOMING LETS ENCRYPT Request")
-			next.ServeHTTP(w, r)
-			return
-		}
+		//if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
+		//		log.Debug("INCOMING LETS ENCRYPT Request")
+		//		next.ServeHTTP(w, r)
+		//		return
+		//	}
 
 		// exists, err := certExists(r.Host, c)
 		// if err != nil {
@@ -63,7 +62,9 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 		order, _ := checkCertOrder(host, c)
 		log.Debugf("CheckProxy: %s", host)
 
-		if order.Hostname != "" {
+		ip := os.Getenv("SWERVE_POD_IP")
+
+		if order.Hostname != ip && order.Hostname != "" {
 			target := fmt.Sprintf("http://%s:8080", order.Hostname)
 			u, _ := url.Parse(target)
 			log.Infof(`CALL REVERSE proxy, forward req to pod %s`, order.Hostname)
@@ -78,7 +79,7 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 			r.Context().Done()
 			log.Debug("Serve Proxy DONE")
 		} else {
-			log.Debug("CheckProxy call normal next.Handler")
+			log.Debug("Request is for this pod!")
 			next.ServeHTTP(w, r)
 		}
 	})
