@@ -76,7 +76,11 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
-	sendJSONMessage(w, api.Config.Version, http.StatusOK)
+	versionSuffix := ""
+	if githubHash != "" {
+		versionSuffix = fmt.Sprintf("-%s", githubHash)
+	}
+	sendJSONMessage(r, w, api.Config.Version+versionSuffix, http.StatusOK)
 }
 
 func (api *API) exportRedirects(w http.ResponseWriter, r *http.Request) {
