@@ -6,6 +6,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/axelspringer/swerve/database"
@@ -35,6 +36,12 @@ func (w *logWriter) Write(b []byte) (int, error) {
 
 func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
+			log.Debug("INCOMING LETS ENCRYPT Request")
+			next.ServeHTTP(w, r)
+			return
+		}
 
 		// exists, err := certExists(r.Host, c)
 		// if err != nil {
