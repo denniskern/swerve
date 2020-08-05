@@ -108,7 +108,7 @@ func checkCertOrder(domain string, c *cache.Cache) (database.CertOrder, error) {
 		log.Infof("[name] @ cache GET found CERT ORDER for %s", order.Domain)
 	}
 	if order.Hostname != name {
-		log.Infof("[name] @ cache GET HOSTNAME IS EQUAL to %s no proxy Forward is needed!", order.Hostname)
+		log.Infof("[name] @ cache GET HOSTNAME IS NOT EQUAL %s proxy Forward is needed!", order.Hostname)
 	}
 
 	return order, nil
