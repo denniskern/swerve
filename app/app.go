@@ -1,9 +1,12 @@
 package app
 
 import (
+	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	phm "github.com/axelspringer/swerve/prometheus"
 
@@ -12,7 +15,7 @@ import (
 	"github.com/axelspringer/swerve/cache"
 	"github.com/axelspringer/swerve/config"
 	"github.com/axelspringer/swerve/database"
-	"github.com/axelspringer/swerve/http"
+	hp "github.com/axelspringer/swerve/http"
 	"github.com/axelspringer/swerve/https"
 	"github.com/axelspringer/swerve/log"
 	"github.com/axelspringer/swerve/model"
@@ -60,7 +63,7 @@ func (a *Application) Setup() error {
 		a.Cache,
 		a.Config.ACM)
 
-	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
+	a.HTTPServer = hp.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,
 		a.Config.HTTPListenerPort,
 		prom.WrapHandler,
@@ -95,6 +98,14 @@ func (a *Application) Run() {
 	go func() {
 		log.Fatal(a.HTTPSServer.Listen())
 	}()
+
+	time.Sleep(time.Second * 1)
+
+	url := fmt.Sprintf("http://localhost:%d", a.Config.HTTPListenerPort)
+	_, err := http.Get(url)
+	if err != nil {
+		log.Error(err)
+	}
 
 	<-sigchan
 }
