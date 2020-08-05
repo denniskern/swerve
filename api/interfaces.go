@@ -1,7 +1,10 @@
 package api
 
+import "github.com/axelspringer/swerve/database"
+
 // ModelAdapter is the interface for the business logic
 type ModelAdapter interface {
+	CreateCertOrderFromJSON(jsonStr []byte) (database.CertOrder, error)
 	CreateRedirectFromJSON(jsonStr []byte) error
 	UpdateRedirectByDomainWithJSON(domain string, jsonStr []byte) error
 	DeleteRedirectByDomain(domain string) error

@@ -2,14 +2,13 @@ package config
 
 import (
 	"github.com/axelspringer/swerve/acm"
-	"github.com/axelspringer/swerve/api"
 	"github.com/axelspringer/swerve/database"
 )
 
 // Configuration contains the config for the app
 type Configuration struct {
 	Database          database.Config
-	API               api.Config
+	API               Api
 	ACM               acm.Config
 	HTTPListenerPort  int
 	HTTPSListenerPort int
@@ -17,4 +16,11 @@ type Configuration struct {
 	LogFormatter      string
 	Bootstrap         bool
 	CacheInterval     int
+}
+
+type Api struct {
+	COR      string
+	Version  string
+	Listener int
+	Secret   string
 }

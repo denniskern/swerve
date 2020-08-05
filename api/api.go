@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/axelspringer/swerve/config"
+
 	"github.com/axelspringer/swerve/helper"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -17,8 +19,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var githubHash string
+
 // NewAPIServer creates a new instance
-func NewAPIServer(mod ModelAdapter, conf Config) *API {
+func NewAPIServer(mod ModelAdapter, conf *config.Configuration) *API {
 	api := &API{
 		Model:  mod,
 		Config: conf,
@@ -36,7 +40,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router.HandleFunc("/login", api.login).
 		Methods(http.MethodPost, http.MethodOptions)
 
-	auth := router.PathPrefix("/" + conf.Version + "/redirects").Subrouter()
+	auth := router.PathPrefix("/" + conf.API.Version + "/redirects").Subrouter()
 	auth.HandleFunc("/export", api.exportRedirects).
 		Methods(http.MethodGet, http.MethodOptions)
 	auth.HandleFunc("/import", api.importRedirects).
@@ -56,7 +60,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	auth.Use(api.authMiddlewear)
 	router.Walk(walkRoutes)
 
-	addr := ":" + strconv.Itoa(api.Config.Listener)
+	addr := ":" + strconv.Itoa(api.Config.API.Listener)
 	api.server = &http.Server{
 		Addr:    addr,
 		Handler: router,
@@ -67,7 +71,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 
 // Listen to api
 func (api *API) Listen() error {
-	log.Infof("API listening to %d", api.Config.Listener)
+	log.Infof("API listening to %d", api.Config.API.Listener)
 	return api.server.ListenAndServe()
 }
 
@@ -76,7 +80,11 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
-	sendJSONMessage(w, api.Config.Version, http.StatusOK)
+	versionSuffix := ""
+	if githubHash != "" {
+		versionSuffix = fmt.Sprintf("-%s", githubHash)
+	}
+	sendJSONMessage(w, api.Config.API.Version+versionSuffix, http.StatusOK)
 }
 
 func (api *API) exportRedirects(w http.ResponseWriter, r *http.Request) {
@@ -152,12 +160,20 @@ func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
+		log.Errorf("CertOrder error"+": %s", err.Error())
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
+
+	// CertOrder ensures that the
+	err = api.CertOrder(data)
+	if err != nil {
+		log.Error(err)
+	}
+
 	err = api.Model.CreateRedirectFromJSON(data)
 	if err != nil {
-		log.Debugf(ErrRedirectCreate+": %s", err.Error())
+		log.Errorf(ErrRedirectCreate+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectCreate, http.StatusInternalServerError)
 		return
 	}
@@ -209,7 +225,7 @@ func (api *API) login(w http.ResponseWriter, r *http.Request) {
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
-	tokenString, expirationTime, err := api.Model.CheckPasswordFromJSON(data, api.Config.Secret)
+	tokenString, expirationTime, err := api.Model.CheckPasswordFromJSON(data, api.Config.API.Secret)
 	if err != nil {
 		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 		return

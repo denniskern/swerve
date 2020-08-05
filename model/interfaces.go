@@ -4,6 +4,7 @@ import "github.com/axelspringer/swerve/database"
 
 // DatabaseAdapter is the interface required for the database interacion via cache
 type DatabaseAdapter interface {
+	CreateCertOrder(redirect database.Redirect) (database.CertOrder, error)
 	CreateRedirect(redirect database.Redirect) error
 	GetRedirectByDomain(name string) (database.Redirect, error)
 	DeleteRedirectByDomain(name string) error

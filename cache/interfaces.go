@@ -1,9 +1,12 @@
 package cache
 
-import "github.com/axelspringer/swerve/database"
+import (
+	"github.com/axelspringer/swerve/database"
+)
 
 // DatabaseAdapter is the interface required for the database interacion
 type DatabaseAdapter interface {
+	CreateCertOrder(redirect database.Redirect) (database.CertOrder, error)
 	CreateRedirect(redirect database.Redirect) error
 	GetRedirectByDomain(name string) (database.Redirect, error)
 	DeleteRedirectByDomain(name string) error
@@ -13,6 +16,7 @@ type DatabaseAdapter interface {
 	ExportRedirects() ([]database.Redirect, error)
 	UpdateCacheEntry(key string, data []byte) error
 	GetCacheEntry(key string) ([]byte, error)
+	GetCertOrderEntry(key string) (database.CertOrder, error)
 	DeleteCacheEntry(key string) error
 	GetPwdHash(username string) (string, error)
 }

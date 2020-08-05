@@ -2,6 +2,7 @@ package cache
 
 import (
 	"sync"
+	"time"
 
 	"github.com/axelspringer/swerve/database"
 )
@@ -13,4 +14,5 @@ type Cache struct {
 	closer       chan struct{}
 	mapMutex     *sync.RWMutex
 	redirectsMap map[string]*database.Redirect
+	certOrderMap map[string]time.Time
 }

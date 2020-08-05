@@ -30,6 +30,31 @@ func (d *Database) UpdateCacheEntry(key string, data []byte) error {
 }
 
 // GetCacheEntry returns the certificate cache entry corresponding to the key
+func (d *Database) GetCertOrderEntry(key string) (CertOrder, error) {
+	tablePrefix := d.Config.TableNamePrefix
+	tableName := d.Config.TableCertOrders
+	order := CertOrder{}
+
+	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(tablePrefix + tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			keyNameCertOrdersTable: {
+				S: aws.String(key),
+			},
+		},
+	})
+	if err != nil {
+		return order, errors.WithMessage(err, "GetCertOrderEntry, getItem error")
+	}
+
+	if err := dynamodbattribute.UnmarshalMap(res.Item, &order); err != nil {
+		return order, errors.WithMessage(err, "GetCertOrderEntry Unmarshal error")
+	}
+
+	return order, nil
+}
+
+// GetCacheEntry returns the certificate cache entry corresponding to the key
 func (d *Database) GetCacheEntry(key string) ([]byte, error) {
 	tablePrefix := d.Config.TableNamePrefix
 	tableName := d.Config.TableCertCache

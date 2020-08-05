@@ -2,18 +2,19 @@ package database
 
 // dynamodb field names
 const (
-	keyNameRedirectsTable = "redirect_from"
-	attrNameDescription   = "description"
-	attrNameRedirect      = "redirect_to"
-	attrNamePromotable    = "promotable"
-	attrNameCode          = "code"
-	attrNameCreated       = "created"
-	attrNameModified      = "modified"
-	attrNamePathMap       = "cpath_map"
-	keyNameCertCacheTable = "domain"
-	attrNameCacheValue    = "cert"
-	keyNameUsersTable     = "username"
-	attrNamePwd           = "pwd"
+	keyNameRedirectsTable  = "redirect_from"
+	attrNameDescription    = "description"
+	attrNameRedirect       = "redirect_to"
+	attrNamePromotable     = "promotable"
+	attrNameCode           = "code"
+	attrNameCreated        = "created"
+	attrNameModified       = "modified"
+	attrNamePathMap        = "cpath_map"
+	keyNameCertCacheTable  = "domain"
+	keyNameCertOrdersTable = "domain"
+	attrNameCacheValue     = "cert"
+	keyNameUsersTable      = "username"
+	attrNamePwd            = "pwd"
 )
 
 // default values

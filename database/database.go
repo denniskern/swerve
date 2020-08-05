@@ -51,6 +51,10 @@ func (d *Database) Prepare() error {
 	if err != nil {
 		return errors.WithMessagef(err, ErrTableCreate, d.Config.TableUsers)
 	}
+	err = d.prepareTable(d.Config.TableCertOrders, keyNameCertOrdersTable)
+	if err != nil {
+		return errors.WithMessagef(err, ErrTableCreate, d.Config.TableCertOrders)
+	}
 	// TODO: the default user should either be optional or configurable via envs
 	err = d.createDefaultUser()
 	if err != nil {

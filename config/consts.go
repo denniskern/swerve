@@ -67,6 +67,7 @@ const (
 	defaultTableRedirects  = "Swerve_Redirects"
 	defaultTableCertCache  = "Swerve_CertCache"
 	defaultTableUsers      = "Swerve_Users"
+	defaultTableCertOrder  = "Swerve_CertOrders"
 	defaultPebbleCACert    = `-----BEGIN CERTIFICATE-----
 MIIDCTCCAfGgAwIBAgIIJOLbes8sTr4wDQYJKoZIhvcNAQELBQAwIDEeMBwGA1UE
 AxMVbWluaWNhIHJvb3QgY2EgMjRlMmRiMCAXDTE3MTIwNjE5NDIxMFoYDzIxMTcx

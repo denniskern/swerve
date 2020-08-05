@@ -19,6 +19,7 @@ func NewCache(d DatabaseAdapter) *Cache {
 		Observing:    false,
 		mapMutex:     &sync.RWMutex{},
 		redirectsMap: map[string]*database.Redirect{},
+		certOrderMap: map[string]time.Time{},
 	}
 }
 
@@ -82,6 +83,13 @@ func (c *Cache) Update() {
 
 // AllowHostPolicy decides which host shall pass
 func (c *Cache) AllowHostPolicy(_ context.Context, host string) error {
+
+	// TODO on start up load Certs for this host
+	if _, ok := c.certOrderMap[host]; ok {
+		log.Debugf("certOrder, host %s pass HostPolicy", host)
+		return nil
+	}
+
 	if _, err := c.GetRedirectByDomain(host); err != nil {
 		return errors.WithMessage(err, fmt.Sprintf(ErrHostNotConfigured, host))
 	}

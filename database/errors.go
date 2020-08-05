@@ -15,6 +15,7 @@ const (
 
 // Error string constants - Redirects
 const (
+	ErrCertOrderMarshal     = "CertOrder entry could not be marshaled"
 	ErrRedirectMarshal      = "Redirect entry could not be marshaled"
 	ErrRedirectCreate       = "Redirect entry could not be created"
 	ErrRedirectDelete       = "Redirect entry could not be deleted"
@@ -27,6 +28,7 @@ const (
 	ErrCursorDecode         = "Cursor could not be decoded"
 	ErrRedirectListEmpty    = "Paginated redirect entry list ist empty"
 	ErrRedirectExists       = "Redirect entry alerady exists"
+	ErrCertOrderExists      = "Cert order entry alerady exists"
 	ErrRedirectNotFound     = "Redirect entry could not be found"
 )
 

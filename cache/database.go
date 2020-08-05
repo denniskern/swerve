@@ -1,9 +1,21 @@
 package cache
 
 import (
+	"time"
+
 	"github.com/axelspringer/swerve/database"
 	"github.com/pkg/errors"
 )
+
+func (c *Cache) CreateCertOrder(redirect database.Redirect) (database.CertOrder, error) {
+	c.mapMutex.Lock()
+	defer c.mapMutex.Unlock()
+	certOrder, err := c.DB.CreateCertOrder(redirect)
+	if err == nil {
+		c.certOrderMap[certOrder.Domain] = time.Now()
+	}
+	return certOrder, err
+}
 
 // GetRedirectByDomain returns a redirect entry from the local cache
 func (c *Cache) GetRedirectByDomain(name string) (database.Redirect, error) {

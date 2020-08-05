@@ -1,5 +1,7 @@
 package database
 
+import "time"
+
 // Database is the API to the database
 type Database struct {
 	Service DynamoDBAdapter
@@ -13,6 +15,7 @@ type Config struct {
 	TableRedirects  string
 	TableCertCache  string
 	TableUsers      string
+	TableCertOrders string
 	Key             string
 	Secret          string
 	Endpoint        string
@@ -28,6 +31,12 @@ type Redirect struct {
 	Created      int     `json:"created"`
 	Modified     int     `json:"modified"`
 	CPathMaps    *[]byte `json:"cpath_map,omitempty"`
+}
+
+type CertOrder struct {
+	Domain    string    `json:"domain"`
+	Hostname  string    `json:"hostname"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // CertCacheEntry contains a certificate for the domain

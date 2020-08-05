@@ -3,8 +3,18 @@ package model
 import (
 	"encoding/json"
 
+	"github.com/axelspringer/swerve/database"
+
 	"github.com/pkg/errors"
 )
+
+func (c *Model) CreateCertOrderFromJSON(jsonStr []byte) (database.CertOrder, error) {
+	var redirect Redirect
+	if err := json.Unmarshal(jsonStr, &redirect); err != nil {
+		return database.CertOrder{}, errors.WithMessage(err, ErrBodyUnmarshal)
+	}
+	return c.CreateCertOrder(redirect)
+}
 
 // CreateRedirectFromJSON takes JSON and creates the corresponding new redirect entry in the database
 func (c *Model) CreateRedirectFromJSON(jsonStr []byte) error {

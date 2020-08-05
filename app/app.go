@@ -63,13 +63,14 @@ func (a *Application) Setup() error {
 	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,
 		a.Config.HTTPListenerPort,
-		prom.WrapHandler)
+		prom.WrapHandler,
+		a.Cache)
 
 	a.HTTPSServer = https.NewHTTPSServer(controlModel.GetRedirectByDomain,
 		autocertManager.GetCertificate,
 		a.Config.HTTPSListenerPort,
 		prom.WrapHandler)
-	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
+	a.APIServer = api.NewAPIServer(controlModel, a.Config)
 
 	return nil
 }

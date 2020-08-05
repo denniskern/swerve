@@ -7,6 +7,10 @@ type Model struct {
 	DB DatabaseAdapter
 }
 
+type RedirectData struct {
+	Data Redirect `json:"data"`
+}
+
 // Redirect is the redirect entry model
 type Redirect struct {
 	RedirectFrom string    `json:"redirect_from"`

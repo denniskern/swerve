@@ -3,6 +3,7 @@ package database
 import (
 	"encoding/base64"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -12,6 +13,36 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
+
+// CreateCertOrder creates a new redirect entry
+func (d *Database) CreateCertOrder(redirect Redirect) (CertOrder, error) {
+	order := CertOrder{}
+	_, err := d.GetCertOrder(redirect.RedirectFrom)
+	if err == nil {
+		return order, errors.New(ErrCertOrderExists)
+	}
+
+	host, err := os.Hostname()
+	if err != nil {
+		return order, err
+	}
+
+	order.Domain = redirect.RedirectFrom
+	order.Hostname = host
+	order.CreatedAt = time.Now()
+
+	payload, err := dynamodbattribute.MarshalMap(order)
+	if err != nil {
+		return order, errors.WithMessage(err, ErrCertOrderMarshal)
+	}
+
+	_, err = d.Service.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(d.Config.TableNamePrefix + d.Config.TableCertOrders),
+		Item:      payload,
+	})
+
+	return order, err
+}
 
 // CreateRedirect creates a new redirect entry
 func (d *Database) CreateRedirect(redirect Redirect) error {
@@ -37,6 +68,35 @@ func (d *Database) CreateRedirect(redirect Redirect) error {
 	})
 
 	return err
+}
+
+// GetRedirectByDomain returns one redirect entry by domain name
+func (d *Database) GetCertOrder(domain string) (CertOrder, error) {
+	tablePrefix := d.Config.TableNamePrefix
+	tableName := d.Config.TableCertOrders
+	certOrder := CertOrder{}
+
+	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(tablePrefix + tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			keyNameRedirectsTable: {
+				S: aws.String(domain),
+			},
+		},
+	})
+	if err != nil {
+		return certOrder, errors.WithMessage(err, "Domain order could not be fetched")
+	}
+
+	if len(res.Item) == 0 {
+		return certOrder, errors.New(ErrRedirectNotFound)
+	}
+
+	if err = dynamodbattribute.UnmarshalMap(res.Item, &certOrder); err != nil {
+		return certOrder, errors.WithMessage(err, ErrRedirectMarshal)
+	}
+
+	return certOrder, nil
 }
 
 // GetRedirectByDomain returns one redirect entry by domain name

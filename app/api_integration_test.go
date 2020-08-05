@@ -185,9 +185,9 @@ func Test_GetRedirects(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		r := model.Redirect{}
+		r := model.RedirectData{}
 		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
-		assert.Equal(t, testDomainFrom, r.RedirectFrom, "unmarshal response against model.Redirect")
+		assert.Equal(t, testDomainFrom, r.Data.RedirectFrom, "unmarshal response against model.Redirect")
 		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
 	}
 }
@@ -344,7 +344,7 @@ func Test_RedirectExistAfterDelete(t *testing.T) {
 // Tests end here
 func getHttpClientWithPebbleIntermediateCert(t *testing.T) *http.Client {
 	caPool := x509.NewCertPool()
-	caPool.AppendCertsFromPEM([]byte(cfg.PebbleCA))
+	caPool.AppendCertsFromPEM([]byte(cfg.ACM.PebbleCA))
 
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,

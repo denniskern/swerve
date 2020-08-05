@@ -2,14 +2,13 @@ package config
 
 import (
 	"github.com/axelspringer/swerve/acm"
-	"github.com/axelspringer/swerve/api"
 	"github.com/axelspringer/swerve/database"
 )
 
 // NewConfiguration creates a new instance
 func NewConfiguration() *Configuration {
 	return &Configuration{
-		API: api.Config{
+		API: Api{
 			Listener: defaultAPIListener,
 		},
 		ACM: acm.Config{
@@ -27,6 +26,7 @@ func NewConfiguration() *Configuration {
 			TableRedirects:  defaultTableRedirects,
 			TableCertCache:  defaultTableCertCache,
 			TableUsers:      defaultTableUsers,
+			TableCertOrders: defaultTableCertOrder,
 		},
 	}
 }

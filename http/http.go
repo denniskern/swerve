@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/axelspringer/swerve/cache"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/axelspringer/swerve/helper"
@@ -14,7 +16,8 @@ import (
 func NewHTTPServer(getRedirect GetRedirect,
 	acmHandler ACMHandler,
 	listener int,
-	wrapHandler func(string, http.Handler) http.Handler) *HTTP {
+	wrapHandler func(string, http.Handler) http.Handler,
+	cache *cache.Cache) *HTTP {
 	server := &HTTP{
 		ACMHandler:  acmHandler,
 		getRedirect: getRedirect,
@@ -23,7 +26,16 @@ func NewHTTPServer(getRedirect GetRedirect,
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
-	mux.Handle("/", wrapHandler("HTTP", helper.LoggingMiddleware(server.handler())))
+	mux.Handle("/", wrapHandler(
+		"HTTP",
+		helper.CheckProxy(
+			cache,
+			helper.LoggingMiddleware(
+				server.handler(),
+			),
+		),
+	),
+	)
 
 	addr := ":" + strconv.Itoa(listener)
 	server.server = &http.Server{

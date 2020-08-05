@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/axelspringer/swerve/database"
 	"github.com/pkg/errors"
 )
 
@@ -9,6 +10,19 @@ func NewModel(d DatabaseAdapter) *Model {
 	return &Model{
 		DB: d,
 	}
+}
+
+// CreateCertOrder creates the order for a ssl cert
+func (c *Model) CreateCertOrder(redirect Redirect) (database.CertOrder, error) {
+	err := redirect.Validate()
+	if err != nil {
+		return database.CertOrder{}, err
+	}
+	dbRedirect, err := compress(redirect)
+	if err != nil {
+		return database.CertOrder{}, err
+	}
+	return c.DB.CreateCertOrder(dbRedirect)
 }
 
 // CreateRedirect creates the corresponding new redirect entry in the database

@@ -2,19 +2,13 @@ package api
 
 import (
 	"net/http"
+
+	"github.com/axelspringer/swerve/config"
 )
 
 // API is an API server
 type API struct {
 	Model  ModelAdapter
 	server *http.Server
-	Config Config
-}
-
-// Config contains the API config
-type Config struct {
-	COR      string
-	Version  string
-	Listener int
-	Secret   string
+	Config *config.Configuration
 }
