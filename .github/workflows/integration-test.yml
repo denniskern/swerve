@@ -2,7 +2,7 @@ name: Go
 
 on:
   push:
-    branches: [ poc_cert_order ]
+    branches: [ poc_cert_order,gomod ]
   pull_request:
     branches: [ master ]
 jobs:
