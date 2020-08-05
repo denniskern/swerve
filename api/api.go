@@ -165,7 +165,7 @@ func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// CertOrder ensures that the
+	// CertOrder
 	err = api.CertOrder(data)
 	if err != nil {
 		log.Error(err)

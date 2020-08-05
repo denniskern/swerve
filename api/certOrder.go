@@ -17,13 +17,13 @@ func (api *API) CertOrder(data []byte) error {
 	- Initiate SSL Request from redirect_from and first path mapping
 	- Wait for response and
 	*/
-	order, err := api.Model.CreateCertOrderFromJSON(data)
+	_, err := api.Model.CreateCertOrderFromJSON(data)
 	if err != nil {
 		log.Debugf("CertOrder error"+": %s", err.Error())
 		return err
 	}
 
-	client := getHttpClient(api.Config)
+	/*client := getHttpClient(api.Config)
 	url := getUrl(order.Domain, api.Config)
 
 	log.Debugf("call %s for ssl cert creation", url)
@@ -39,7 +39,7 @@ func (api *API) CertOrder(data []byte) error {
 	if resp != nil {
 		log.Debugf("resp of https://"+order.Domain+" Statuscode: %d", resp.StatusCode)
 	}
-
+	*/
 	return nil
 }
 
