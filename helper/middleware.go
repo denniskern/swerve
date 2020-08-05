@@ -46,6 +46,7 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 		//	next.ServeHTTP(w, r)
 		// }
 
+		log.Debug("call CheckProxy, next loop for existing certorder")
 		order, _ := checkCertOrder(r.Host, c)
 		log.Debugf("CheckProxy: %s", r.Host)
 
@@ -61,7 +62,10 @@ func CheckProxy(c *cache.Cache, next http.Handler) http.Handler {
 			r.Host = u.Host
 
 			proxy.ServeHTTP(w, r)
+			r.Context().Done()
+			log.Debug("Serve Proxy DONE")
 		} else {
+			log.Debug("CheckProxy call normal next.Handler")
 			next.ServeHTTP(w, r)
 		}
 	})

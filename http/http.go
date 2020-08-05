@@ -54,11 +54,13 @@ func (h *HTTP) Listen() error {
 
 func (h *HTTP) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Debug("call http handler")
 		h.serve(http.HandlerFunc(h.handleRedirect), w, r)
 	})
 }
 
 func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
+	log.Debug("call handleRedirect handler")
 	hostHeader := r.Host
 	redirect, err := h.getRedirect(hostHeader)
 
@@ -73,5 +75,6 @@ func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HTTP) serve(fallback http.Handler, w http.ResponseWriter, r *http.Request) {
+	log.Debug("call acm handler")
 	h.ACMHandler(fallback).ServeHTTP(w, r)
 }
