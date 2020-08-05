@@ -83,6 +83,7 @@ func (c *Cache) Update() {
 
 // AllowHostPolicy decides which host shall pass
 func (c *Cache) AllowHostPolicy(_ context.Context, host string) error {
+	return nil
 
 	// TODO on start up load Certs for this host
 	if _, ok := c.certOrderMap[host]; ok {

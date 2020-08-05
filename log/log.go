@@ -1,6 +1,7 @@
 package log
 
 import (
+	"os"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -32,50 +33,69 @@ func SetupLogger(level string, outType string) {
 
 // Fatal wraps log.Fatal
 func Fatal(args ...interface{}) {
-	logger.Fatal(args...)
+	logger.Fatal(addHostToArgs(args)...)
 }
 
 // Fatalf wraps log.Fatalf
 func Fatalf(fmt string, args ...interface{}) {
-	logger.Fatalf(fmt, args...)
+	logger.Fatalf(addHostToFmt(fmt), addHostToArgs(args)...)
 }
 
 // Debug wraps log.Debug
 func Debug(args ...interface{}) {
-	logger.Debug(args...)
+	logger.Debug(addHostToArgs(args)...)
 }
 
 // Debugf wraps log.Debugf
 func Debugf(fmt string, args ...interface{}) {
-	logger.Debugf(fmt, args...)
+	logger.Debugf(addHostToFmt(fmt), addHostToArgs(args)...)
 }
 
 // Info wraps log.Info
 func Info(args ...interface{}) {
-	logger.Info(args...)
+	logger.Info(addHostToArgs(args)...)
 }
 
 // Infof wraps log.Infof
 func Infof(fmt string, args ...interface{}) {
-	logger.Infof(fmt, args...)
+	logger.Infof(addHostToFmt(fmt), addHostToArgs(args)...)
 }
 
 // Warn wraps log.Warn
 func Warn(args ...interface{}) {
-	logger.Warn(args...)
+	logger.Warn(addHostToArgs(args)...)
 }
 
 // Warnf wraps log.Warnf
 func Warnf(fmt string, args ...interface{}) {
-	logger.Warnf(fmt, args...)
+	logger.Warnf(addHostToFmt(fmt), addHostToArgs(args)...)
 }
 
 // Error wraps log.Error
 func Error(args ...interface{}) {
-	logger.Error(args...)
+	logger.Error(addHostToArgs(args)...)
 }
 
 // Errorf wraps log.Errorf
 func Errorf(fmt string, args ...interface{}) {
-	logger.Errorf(fmt, args...)
+	logger.Errorf(addHostToFmt(fmt), addHostToArgs(args)...)
+}
+
+func addHostToFmt(fmt string) string {
+	return "[%s] " + fmt
+}
+
+func addHostToArgs(args ...interface{}) []interface{} {
+	host, err := os.Hostname()
+	if err == nil {
+		var newArgs []interface{}
+		newArgs = append(newArgs, host)
+		for _, v := range args {
+			newArgs = append(newArgs, v)
+		}
+		return newArgs
+	} else {
+		return args
+	}
+
 }
