@@ -1,7 +1,7 @@
 package log
 
 import (
-	"os"
+	"net/http"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -17,7 +17,7 @@ func SetupLogger(level string, outType string) {
 	if logLevel, err := logrus.ParseLevel(level); err == nil {
 		logger.SetLevel(logLevel)
 	}
-	// logger.WithField("a", "b")
+	logger.WithField("a", "b")
 
 	outType = strings.ToLower(outType)
 
@@ -33,69 +33,60 @@ func SetupLogger(level string, outType string) {
 
 // Fatal wraps log.Fatal
 func Fatal(args ...interface{}) {
-	logger.Fatal(addHostToArgs(args)...)
+	logger.Fatal(args)
 }
 
 // Fatalf wraps log.Fatalf
 func Fatalf(fmt string, args ...interface{}) {
-	logger.Fatalf(addHostToFmt(fmt), addHostToArgs(args)...)
+	logger.Fatalf(fmt, args...)
 }
 
 // Debug wraps log.Debug
 func Debug(args ...interface{}) {
-	logger.Debug(addHostToArgs(args)...)
+	logger.Debug(args)
 }
 
 // Debugf wraps log.Debugf
 func Debugf(fmt string, args ...interface{}) {
-	logger.Debugf(addHostToFmt(fmt), addHostToArgs(args)...)
+	logger.Debugf(fmt, args...)
 }
 
 // Info wraps log.Info
 func Info(args ...interface{}) {
-	logger.Info(addHostToArgs(args)...)
+	logger.Info(args)
 }
 
 // Infof wraps log.Infof
 func Infof(fmt string, args ...interface{}) {
-	logger.Infof(addHostToFmt(fmt), addHostToArgs(args)...)
+	logger.Infof(fmt, args...)
 }
 
 // Warn wraps log.Warn
 func Warn(args ...interface{}) {
-	logger.Warn(addHostToArgs(args)...)
+	logger.Warn(args)
 }
 
 // Warnf wraps log.Warnf
 func Warnf(fmt string, args ...interface{}) {
-	logger.Warnf(addHostToFmt(fmt), addHostToArgs(args)...)
+	logger.Warnf(fmt, args...)
 }
 
 // Error wraps log.Error
 func Error(args ...interface{}) {
-	logger.Error(addHostToArgs(args)...)
+	logger.Error(args)
 }
 
 // Errorf wraps log.Errorf
 func Errorf(fmt string, args ...interface{}) {
-	logger.Errorf(addHostToFmt(fmt), addHostToArgs(args)...)
+	logger.Errorf(fmt, args...)
 }
 
-func addHostToFmt(fmt string) string {
-	return "[%s] " + fmt
+// ResponseWithMsg logs response specific data including error messages
+func ResponseWithMsg(r *http.Request, code int, msg string) {
+	logger.Infof("status=%d request=%s %s %s%s msg=%s", code, r.Proto, r.Method, r.Host, r.URL.Path, msg)
 }
 
-func addHostToArgs(args ...interface{}) []interface{} {
-	host, err := os.Hostname()
-	if err == nil {
-		var newArgs []interface{}
-		newArgs = append(newArgs, host)
-		for _, v := range args {
-			newArgs = append(newArgs, v)
-		}
-		return newArgs
-	} else {
-		return args
-	}
-
+// Response logs response specific data
+func Response(r *http.Request, code int) {
+	logger.Infof("status=%d request=%s %s %s%s", code, r.Proto, r.Method, r.Host, r.URL.Path)
 }
