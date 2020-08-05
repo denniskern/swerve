@@ -138,6 +138,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		next.ServeHTTP(&sw, r)
 		diff := time.Now().Sub(start)
 		ts := time.Now().Format("02/Jan/2006 03:04:05")
-		log.Infof(`ts="%s" method="%s" proto="%s" code="%d" host="%s" path="%s" qstring="%v" took="%.03fms" ua="%s"`, ts, r.Method, r.Proto, sw.status, r.Host, r.URL.Path, r.URL.RawQuery, float64(diff.Microseconds())/1000, r.UserAgent())
+		log.Infof(`ts="%s" method="%s" proto="%s" code="%d" host="%s" path="%s" qstring="%v" took="%.03fms" ua="%s" remote="%s"`, ts, r.Method, r.Proto, sw.status, r.Host, r.URL.Path, r.URL.RawQuery, float64(diff.Microseconds())/1000, r.UserAgent(), r.RemoteAddr)
 	})
 }
