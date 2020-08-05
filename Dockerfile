@@ -14,7 +14,7 @@ WORKDIR /swerve
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-w -s -X github.com/axelspringer/swerve/api.githubHash=`git rev-parse --short HEAD`" -o swerve main.go
 
 # RUNTIME
-FROM scratch
+FROM debian:latest
 LABEL maintainer="jamie.kolles@axelspringer.com"
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
