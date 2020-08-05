@@ -22,13 +22,10 @@ func (d *Database) CreateCertOrder(redirect Redirect) (CertOrder, error) {
 		return order, errors.New(ErrCertOrderExists)
 	}
 
-	host, err := os.Hostname()
-	if err != nil {
-		return order, err
-	}
+	ip := os.Getenv("SWERVE_POD_IP")
 
 	order.Domain = redirect.RedirectFrom
-	order.Hostname = host
+	order.Hostname = ip
 	order.CreatedAt = time.Now()
 
 	payload, err := dynamodbattribute.MarshalMap(order)
