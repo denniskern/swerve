@@ -43,7 +43,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			"path":    r.URL.Path,
 			"qstring": r.URL.RawQuery,
 			"took":    fmt.Sprintf("%.03fms", float64(diff.Microseconds())/1000),
-			"us":      r.UserAgent(),
+			"ua":      r.UserAgent(),
 			"remote":  r.RemoteAddr,
 		}, "incoming request")
 	})
