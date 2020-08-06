@@ -31,6 +31,10 @@ const (
 	updateNewPromotable  = false
 )
 
+type responseRedirect struct {
+	Data model.Redirect `json:"data"`
+}
+
 var (
 	token             string
 	cfg               *config.Configuration
@@ -160,6 +164,7 @@ func Test_PostRedirects(t *testing.T) {
 }
 
 func Test_GetRedirects(t *testing.T) {
+
 	if checkEmptyToken(t) {
 		return
 	}
@@ -185,9 +190,9 @@ func Test_GetRedirects(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		r := model.Redirect{}
+		r := responseRedirect{}
 		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
-		assert.Equal(t, testDomainFrom, r.RedirectFrom, "unmarshal response against model.Redirect")
+		assert.Equal(t, testDomainFrom, r.Data.RedirectFrom, "unmarshal response against model.Redirect")
 		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
 	}
 }
@@ -259,13 +264,13 @@ func Test_UpdatedRedirects(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		r := model.Redirect{}
+		r := responseRedirect{}
 		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
-		assert.Equal(t, testDomainTo, r.RedirectTo, "check to domain are equal")
-		assert.Equal(t, testDomainFrom, r.RedirectFrom, "check previous updated redirect.RedirectFrom")
-		assert.Equal(t, updateNewDescription, r.Description, "check previous updated redirect.description")
-		assert.Equal(t, updateNewPromotable, r.Promotable, "check previous updated redirect.Promotable")
-		assert.Equal(t, updateNewPathMap, r.PathMaps, "check previous updated redirect.PathMap")
+		assert.Equal(t, testDomainTo, r.Data.RedirectTo, "check to domain are equal")
+		assert.Equal(t, testDomainFrom, r.Data.RedirectFrom, "check previous updated redirect.RedirectFrom")
+		assert.Equal(t, updateNewDescription, r.Data.Description, "check previous updated redirect.description")
+		assert.Equal(t, updateNewPromotable, r.Data.Promotable, "check previous updated redirect.Promotable")
+		assert.Equal(t, updateNewPathMap, r.Data.PathMaps, "check previous updated redirect.PathMap")
 		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
 	}
 }
@@ -344,7 +349,7 @@ func Test_RedirectExistAfterDelete(t *testing.T) {
 // Tests end here
 func getHttpClientWithPebbleIntermediateCert(t *testing.T) *http.Client {
 	caPool := x509.NewCertPool()
-	caPool.AppendCertsFromPEM([]byte(cfg.PebbleCA))
+	caPool.AppendCertsFromPEM([]byte(cfg.ACM.PebbleCA))
 
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
