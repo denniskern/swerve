@@ -23,6 +23,9 @@ func NewHTTPServer(getRedirect GetRedirect,
 
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
 	mux.Handle("/", wrapHandler("HTTP", helper.LoggingMiddleware(server.handler())))
 
 	addr := ":" + strconv.Itoa(listener)

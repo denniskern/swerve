@@ -17,6 +17,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var githubHash string
+
 // NewAPIServer creates a new instance
 func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	api := &API{
@@ -76,7 +78,11 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
-	sendJSONMessage(w, api.Config.Version, http.StatusOK)
+	versionSuffix := ""
+	if githubHash != "" {
+		versionSuffix = fmt.Sprintf("-%s", githubHash)
+	}
+	sendJSONMessage(w, api.Config.Version+versionSuffix, http.StatusOK)
 }
 
 func (api *API) exportRedirects(w http.ResponseWriter, r *http.Request) {
