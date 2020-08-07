@@ -38,11 +38,11 @@ func sendTextMessage(w http.ResponseWriter, msg string, code int) {
 func walkRoutes(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 	tpl, err := route.GetPathTemplate()
 	if err != nil {
-		log.Error(err)
+		log.Warn(err.Error())
 	}
 	met, err := route.GetMethods()
 	if err != nil {
-		log.Error(err)
+		log.Warn(err.Error())
 	}
 	log.Infof("API route: %+v - %+v", tpl, met)
 	return nil

@@ -19,6 +19,7 @@ func SetupLogger(level string, outType string) {
 	// logger.WithField("a", "b")
 
 	outType = strings.ToLower(outType)
+	logger.SetReportCaller(true)
 
 	switch outType {
 	case "json":

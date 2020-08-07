@@ -56,10 +56,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router.Use(api.corsMiddlewear)
 	auth.Use(api.corsMiddlewear)
 	auth.Use(api.authMiddlewear)
-	err := router.Walk(walkRoutes)
-	if err != nil {
-		log.Error()
-	}
+	_ = router.Walk(walkRoutes)
 
 	addr := ":" + strconv.Itoa(api.Config.Listener)
 	api.server = &http.Server{
@@ -212,7 +209,12 @@ func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
 	if err != nil {
 		log.Error(err)
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
