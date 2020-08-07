@@ -66,7 +66,7 @@ func (c *Cache) CloseObserver() {
 func (c *Cache) Update() {
 	redirects, err := c.DB.ExportRedirects()
 	if err != nil {
-		log.Warn(errors.WithMessage(err, "Redirect entries could not be fetched").Error())
+		log.Error(errors.WithMessage(err, "Redirect entries could not be fetched").Error())
 		return
 	}
 

@@ -56,7 +56,10 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router.Use(api.corsMiddlewear)
 	auth.Use(api.corsMiddlewear)
 	auth.Use(api.authMiddlewear)
-	router.Walk(walkRoutes)
+	err := router.Walk(walkRoutes)
+	if err != nil {
+		log.Error()
+	}
 
 	addr := ":" + strconv.Itoa(api.Config.Listener)
 	api.server = &http.Server{
@@ -88,7 +91,7 @@ func (api *API) version(w http.ResponseWriter, r *http.Request) {
 func (api *API) exportRedirects(w http.ResponseWriter, r *http.Request) {
 	data, err := api.Model.ExportRedirectsAsJSON()
 	if err != nil {
-		log.Debugf(ErrRedirectsExport+": %s", err.Error())
+		log.Errorf(ErrRedirectsExport+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectsExport, http.StatusInternalServerError)
 	}
 	modtime := time.Now()
@@ -108,12 +111,15 @@ func (api *API) getRedirectsPaginated(w http.ResponseWriter, r *http.Request) {
 	}
 	redirects, newCursor, err := api.Model.GetRedirectsPaginatedAsJSON(cursor)
 	if err != nil {
-		log.Debugf(ErrRedirectsFetch+": %s", err.Error())
+		log.Errorf(ErrRedirectsFetch+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectsFetch, http.StatusInternalServerError)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("{\"data\":%s,\"cursor\":\"%s\"}", string(redirects), newCursor)))
+	_, err = w.Write([]byte(fmt.Sprintf("{\"data\":%s,\"cursor\":\"%s\"}", string(redirects), newCursor)))
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func (api *API) importRedirects(w http.ResponseWriter, r *http.Request) {
@@ -122,16 +128,24 @@ func (api *API) importRedirects(w http.ResponseWriter, r *http.Request) {
 		sendJSONMessage(w, "Please provide a file", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
+
 	reader := bufio.NewReader(file)
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "File could not be read", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.ImportRedirectsFromJSON(data)
 	if err != nil {
-		log.Debugf(ErrRedirectsImport+": %s", err.Error())
+		log.Errorf(ErrRedirectsImport+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectsImport, http.StatusInternalServerError)
 		return
 	}
@@ -147,7 +161,7 @@ func (api *API) getRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 	redirect, err := api.Model.GetRedirectByDomainAsJSON(domain)
 	if err != nil {
-		log.Debugf(ErrRedirectNotFound+": %s", err.Error())
+		log.Errorf(ErrRedirectNotFound+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectNotFound, http.StatusNotFound)
 		return
 	}
@@ -156,14 +170,18 @@ func (api *API) getRedirect(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	defer func() {
+		err := r.Body.Close()
+		log.Error(err)
+	}()
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.CreateRedirectFromJSON(data)
 	if err != nil {
-		log.Debugf(ErrRedirectCreate+": %s", err.Error())
+		log.Errorf(ErrRedirectCreate+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectCreate, http.StatusInternalServerError)
 		return
 	}
@@ -179,7 +197,7 @@ func (api *API) deleteRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 	err := api.Model.DeleteRedirectByDomain(domain)
 	if err != nil {
-		log.Debugf(ErrRedirectDelete+": %s", err.Error())
+		log.Errorf(ErrRedirectDelete+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectDelete, http.StatusInternalServerError)
 		return
 	}
@@ -196,12 +214,13 @@ func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
 	err = api.Model.UpdateRedirectByDomainWithJSON(domain, data)
 	if err != nil {
-		log.Debugf(ErrRedirectUpdate+": %s", err.Error())
+		log.Errorf(ErrRedirectUpdate+": %s", err.Error())
 		sendJSONMessage(w, ErrRedirectUpdate, http.StatusInternalServerError)
 		return
 	}
@@ -210,13 +229,21 @@ func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 
 func (api *API) login(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
+
+	defer func() {
+		err := r.Body.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}()
 	tokenString, expirationTime, err := api.Model.CheckPasswordFromJSON(data, api.Config.Secret)
 	if err != nil {
+		log.Error(err)
 		sendJSONMessage(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}

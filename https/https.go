@@ -48,6 +48,9 @@ func (h *HTTPS) Listen() error {
 func (h *HTTPS) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		redirect, err := h.getRedirect(strings.Split(r.Host, ":")[0])
+		if err != nil {
+			log.Error(err)
+		}
 
 		// regular domain lookup
 		if err == nil {

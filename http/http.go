@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -25,10 +24,6 @@ func NewHTTPServer(getRedirect GetRedirect,
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNoContent)
-	})
-	mux.HandleFunc("/error", func(w http.ResponseWriter, r *http.Request) {
-		log.Error(fmt.Errorf("sytetic error"))
 		w.WriteHeader(http.StatusNoContent)
 	})
 	mux.Handle("/", wrapHandler("HTTP", helper.LoggingMiddleware(server.handler())))
@@ -57,6 +52,9 @@ func (h *HTTP) handler() http.Handler {
 func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	hostHeader := r.Host
 	redirect, err := h.getRedirect(hostHeader)
+	if err != nil {
+		log.Error(err)
+	}
 
 	// regular domain lookup
 	if err == nil {
