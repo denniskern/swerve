@@ -16,10 +16,8 @@ func SetupLogger(level string, outType string) {
 	if logLevel, err := logrus.ParseLevel(level); err == nil {
 		logger.SetLevel(logLevel)
 	}
-	// logger.WithField("a", "b")
 
 	outType = strings.ToLower(outType)
-	logger.SetReportCaller(true)
 
 	switch outType {
 	case "json":
