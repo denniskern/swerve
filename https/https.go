@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/axelspringer/swerve/api"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/axelspringer/swerve/helper"
@@ -48,7 +50,7 @@ func (h *HTTPS) Listen() error {
 func (h *HTTPS) handler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		redirect, err := h.getRedirect(strings.Split(r.Host, ":")[0])
-		if err != nil {
+		if err != nil && err.Error() != api.ErrRedirectNotFound {
 			log.Error(err)
 		}
 
