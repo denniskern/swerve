@@ -45,6 +45,7 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			"took":    fmt.Sprintf("%.03fms", float64(diff.Microseconds())/1000),
 			"ua":      r.UserAgent(),
 			"remote":  r.RemoteAddr,
+			"header":  r.Header,
 		}, "incoming request")
 	})
 }
