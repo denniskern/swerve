@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-
 	"github.com/axelspringer/swerve/app"
 )
 
