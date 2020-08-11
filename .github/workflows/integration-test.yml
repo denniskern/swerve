@@ -35,6 +35,8 @@ jobs:
         PROJECT: 'swerve'
       run: |
         IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
+        version=$(git version)
+        echo $version
         echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
         tag=$(git describe --tags `git rev-list --tags --max-count=1`)
         FULL_NAME="$IMAGE_NAME:$tag"
