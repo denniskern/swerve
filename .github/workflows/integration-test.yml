@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Unshallow git
-      run: git fetch --prune --unshallow
+      run: git fetch --prune --unshallow && git describe --tags --abbrev=0 --match '*' --exclude '*-rc*' HEAD~
 
     - name: Build
       run: go build -v .
