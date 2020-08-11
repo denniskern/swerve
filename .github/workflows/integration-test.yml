@@ -21,6 +21,8 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+      with:
+        skip-unshallow: "true"
 
     - name: Build
       run: go build -v .
