@@ -26,7 +26,7 @@ jobs:
       run: git fetch --prune --tags --unshallow
       
     - name: git desc
-      run: git describe --tags
+      run: git describe --tags `git rev-parse --short HEAD`
 
     - name: Build
       run: go build -v .
