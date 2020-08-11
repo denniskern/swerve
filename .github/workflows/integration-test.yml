@@ -26,7 +26,7 @@ jobs:
       run: git branch
 
     - name: Unshallow git
-      run: git fetch --prune --unshallow && git describe --tags --abbrev=0 --match '*' --exclude '*-rc*' HEAD~
+      run: git fetch --prune --tags --unshallow && git describe --tags --abbrev=0 --match '*' --exclude '*-rc*' HEAD~
 
     - name: Build
       run: go build -v .
