@@ -39,6 +39,7 @@ jobs:
         tag=$(git describe --tags `git rev-list --tags --max-count=1`)
         FULL_NAME="$IMAGE_NAME:$tag"
         echo "Push to: $(echo ${FULL_NAME})"
+        echo "${GITHUB_REF##*/}"
         echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
         docker build --pull -t $FULL_NAME .
         docker push $FULL_NAME
