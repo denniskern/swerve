@@ -35,7 +35,7 @@ jobs:
       run: |
         IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
         echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
-        FULL_NAME="$IMAGE_NAME:1.5.1"
+        FULL_NAME="$IMAGE_NAME:1.5.2"
         echo "Push to: $(echo ${FULL_NAME})"
         echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
         docker build --pull -t $FULL_NAME .
