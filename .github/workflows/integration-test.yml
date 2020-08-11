@@ -36,6 +36,10 @@ jobs:
       run: |
         IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
         version=$(git version)
+        reflist=$(git rev-list --tags --max-count=1)
+        echo $reflist
+        tags=$(git describe --tags)
+        echo $tags
         echo $version
         echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
         tag=$(git describe --tags `git rev-list --tags --max-count=1`)
