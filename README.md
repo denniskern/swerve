@@ -1,4 +1,4 @@
-# Swerve
+# Swerve 1.5.7
 A scalable redirecting service with integrated path mapping functionality and automatic certificate issuing and renewal using a persistent certificate cache
 ## Step 1
 
