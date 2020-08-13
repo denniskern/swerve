@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/axelspringer/swerve/api"
+	"github.com/axelspringer/swerve/database"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -54,7 +54,7 @@ func (h *HTTP) handler() http.Handler {
 func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	hostHeader := r.Host
 	redirect, err := h.getRedirect(hostHeader)
-	if err != nil && err.Error() != api.ErrRedirectNotFound {
+	if err != nil && err.Error() != database.ErrRedirectNotFound {
 		log.Error(err)
 	}
 
