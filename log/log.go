@@ -22,11 +22,11 @@ func SetupLogger(level string, outType string) {
 
 	switch outType {
 	case "json":
-		logrus.SetFormatter(new(logrus.JSONFormatter))
+		logger.SetFormatter(new(logrus.JSONFormatter))
 	case "text":
-		logrus.SetFormatter(new(logrus.TextFormatter))
+		logger.SetFormatter(new(logrus.TextFormatter))
 	default:
-		logrus.SetFormatter(new(logrus.TextFormatter))
+		logger.SetFormatter(new(logrus.TextFormatter))
 	}
 }
 
@@ -58,6 +58,11 @@ func Info(args ...interface{}) {
 // Infof wraps log.Infof
 func Infof(fmt string, args ...interface{}) {
 	logger.Infof(fmt, args...)
+}
+
+// Infof wraps log.Infof
+func InfoWithFields(fields logrus.Fields, msg string) {
+	logger.WithFields(fields).Info(msg)
 }
 
 // Warn wraps log.Warn

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/axelspringer/swerve/log"
+
 	"github.com/gorilla/mux"
 )
 
@@ -15,6 +17,8 @@ func (api *API) corsMiddlewear(next http.Handler) http.Handler {
 			methods, err := mux.CurrentRoute(r).GetMethods()
 			if err == nil {
 				w.Header().Set("Access-Control-Allow-Methods", strings.Join(methods, ","))
+			} else {
+				log.Error(err)
 			}
 			return
 		}

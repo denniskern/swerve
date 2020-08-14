@@ -4,6 +4,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
+	"github.com/axelspringer/swerve/database"
+
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/axelspringer/swerve/helper"
@@ -21,14 +25,19 @@ func NewHTTPServer(getRedirect GetRedirect,
 		listener:    listener,
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle("/metrics", promhttp.Handler())
-	mux.Handle("/", wrapHandler("HTTP", helper.LoggingMiddleware(server.handler())))
+	router := mux.NewRouter()
+	router.Use(helper.LoggingMiddleware)
+
+	router.Handle("/", wrapHandler("HTTP", server.handler()))
+	router.Handle("/metrics", promhttp.Handler())
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	})
 
 	addr := ":" + strconv.Itoa(listener)
 	server.server = &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: router,
 	}
 
 	return server
@@ -49,6 +58,9 @@ func (h *HTTP) handler() http.Handler {
 func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 	hostHeader := r.Host
 	redirect, err := h.getRedirect(hostHeader)
+	if err != nil && err.Error() != database.ErrRedirectNotFound {
+		log.Error(err)
+	}
 
 	// regular domain lookup
 	if err == nil {

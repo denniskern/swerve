@@ -11,19 +11,28 @@ import (
 func sendJSON(w http.ResponseWriter, data []byte, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write([]byte(fmt.Sprintf("{\"data\":%s}", string(data))))
+	_, err := w.Write([]byte(fmt.Sprintf("{\"data\":%s}", string(data))))
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func sendJSONMessage(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
+	_, err := w.Write([]byte(fmt.Sprintf("{\"code\":%d,\"message\":\"%s\"}", code, msg)))
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func sendTextMessage(w http.ResponseWriter, msg string, code int) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(code)
-	w.Write([]byte(fmt.Sprintf(msg)))
+	_, err := w.Write([]byte(fmt.Sprintf(msg)))
+	if err != nil {
+		log.Error(err)
+	}
 }
 
 func walkRoutes(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {

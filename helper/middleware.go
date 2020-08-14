@@ -1,8 +1,11 @@
 package helper
 
 import (
+	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/axelspringer/swerve/log"
 )
@@ -32,7 +35,17 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		sw := logWriter{ResponseWriter: w}
 		next.ServeHTTP(&sw, r)
 		diff := time.Now().Sub(start)
-		ts := time.Now().Format("02/Jan/2006 03:04:05")
-		log.Infof(`ts="%s" method="%s" proto="%s" code="%d" host="%s" path="%s" qstring="%v" took="%.03fms" ua="%s"`, ts, r.Method, r.Proto, sw.status, r.Host, r.URL.Path, r.URL.RawQuery, float64(diff.Microseconds())/1000, r.UserAgent())
+		log.InfoWithFields(logrus.Fields{
+			"method":  r.Method,
+			"proto":   r.Proto,
+			"code":    sw.status,
+			"host":    r.Host,
+			"path":    r.URL.Path,
+			"qstring": r.URL.RawQuery,
+			"took":    fmt.Sprintf("%.03fms", float64(diff.Microseconds())/1000),
+			"ua":      r.UserAgent(),
+			"remote":  r.RemoteAddr,
+			"header":  r.Header,
+		}, "incoming request")
 	})
 }

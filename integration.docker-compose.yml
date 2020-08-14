@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  # local CA (letsencrypt)
+  pebble:
+    image: letsencrypt/pebble
+    restart: always
+    ports:
+    - "14000:14000"
+    - "15000:15000"
+    environment:
+      - PEBBLE_VA_ALWAYS_VALID=1
+  # dynamodb
+  dynamodb:
+    image: dwmkerr/dynamodb:latest
+    command: "-sharedDb -dbPath /data"
+    restart: always
+    volumes:
+      - dynamo_local:/data
+    ports:
+      - "8000:8000"
+volumes:
+  dynamo_local:

@@ -136,6 +136,9 @@ func (d *Database) UpdateRedirectByDomain(name string, redirect Redirect) error 
 	expr, err := expression.NewBuilder().
 		WithUpdate(update).
 		Build()
+	if err != nil {
+		return err
+	}
 
 	res, err := d.Service.UpdateItem(&dynamodb.UpdateItemInput{
 		TableName: aws.String(tablePrefix + tableName),

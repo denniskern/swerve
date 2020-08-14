@@ -3,6 +3,8 @@ package model
 import (
 	"time"
 
+	"github.com/axelspringer/swerve/log"
+
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
@@ -53,6 +55,9 @@ func (c *Model) CheckToken(token string, secret string) bool {
 	tkn, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
+	if err != nil {
+		log.Error(err)
+	}
 
 	return err == nil && tkn.Valid
 }
