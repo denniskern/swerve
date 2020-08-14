@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
 	"github.com/axelspringer/swerve/database"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -23,17 +25,19 @@ func NewHTTPServer(getRedirect GetRedirect,
 		listener:    listener,
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle("/metrics", promhttp.Handler())
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+	router.Use(helper.LoggingMiddleware)
+
+	router.Handle("/", wrapHandler("HTTP", server.handler()))
+	router.Handle("/metrics", promhttp.Handler())
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})
-	mux.Handle("/", wrapHandler("HTTP", helper.LoggingMiddleware(server.handler())))
 
 	addr := ":" + strconv.Itoa(listener)
 	server.server = &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: router,
 	}
 
 	return server
