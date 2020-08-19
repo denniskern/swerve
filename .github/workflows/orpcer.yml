@@ -38,5 +38,6 @@ jobs:
         FULL_NAME="$IMAGE_NAME:${GITHUB_SHA::7}"
         echo "Push to: $(echo ${FULL_NAME})"
         echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
-        cd cmd/orpcer && docker build --pull -t $FULL_NAME .
-        cd cmd/orpcer && docker push $FULL_NAME
+        cd cmd/orpcer
+        docker build --pull -t $FULL_NAME .
+        docker push $FULL_NAME
