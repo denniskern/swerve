@@ -33,6 +33,7 @@ jobs:
         PARENT: 'red'
         PROJECT: 'swerve-orpcer'
       run: |
+        pwd
         IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
         echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
         FULL_NAME="$IMAGE_NAME:${GITHUB_SHA::7}"
