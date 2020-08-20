@@ -1,6 +1,7 @@
 package orphan
 
 import (
+	"fmt"
 	"orpcer/config"
 	"orpcer/log"
 	"time"
@@ -28,6 +29,9 @@ func (c *Client) GetOrphanCerts() ([]Cert, error) {
 	}
 
 	for _, cert := range certs {
+		if (cert.CreatedAt == time.Time{}) {
+			return nil, fmt.Errorf("GetOrphanCerts: (%s) created_at is zero value, check if field is available. Seems the repo doesn't provide correct timestamp", cert.Domain)
+		}
 		duration := time.Since(cert.CreatedAt)
 		days := int(duration.Hours() / 24)
 		cert.Age = days
