@@ -95,10 +95,10 @@ func (a *Application) Run() {
 		log.Fatal(a.HTTPSServer.Listen())
 	}()
 
-	err := a.ensureHttpCall()
-	if err != nil {
-		log.Error(err)
-	}
+	//err := a.ensureHttpCall()
+	//if err != nil {
+	//		log.Error(err)
+	//}
 
 	<-sigchan
 }

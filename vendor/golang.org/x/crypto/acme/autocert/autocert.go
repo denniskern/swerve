@@ -22,6 +22,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"io"
 	mathrand "math/rand"
 	"net"
@@ -579,6 +580,7 @@ func (m *Manager) createCert(ctx context.Context, ck certKey) (*tls.Certificate,
 	state.locked = false
 
 	der, leaf, err := m.authorizedCert(ctx, state.key, ck)
+	spew.Dump(err)
 	if err != nil {
 		// Remove the failed state after some time,
 		// making the manager call createCert again on the following TLS hello.
@@ -674,6 +676,7 @@ func (m *Manager) authorizedCert(ctx context.Context, key crypto.Signer, ck cert
 	// RFC 8555 compliant CA.
 	default:
 		o, err := m.verifyRFC(ctx, client, ck.domain)
+		spew.Dump(err)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -814,6 +817,7 @@ AuthorizeOrderLoop:
 				continue AuthorizeOrderLoop
 			}
 			if _, err := client.WaitAuthorization(ctx, z.URI); err != nil {
+				spew.Dump(err)
 				continue AuthorizeOrderLoop
 			}
 		}
