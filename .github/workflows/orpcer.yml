@@ -27,8 +27,8 @@ jobs:
     - name: Build docker image
       if: ${{ success() }}
       env:
-        DOCKER_USER: dennis.kern@axelspringer.com
-        DOCKER_PASSWD: ${{ secrets.ARTIFACTORY_AUTH_TOKEN }}
+        DOCKER_USER: red-github-actions
+        DOCKER_PASSWD: ${{ secrets.RED_GITHUB_ACTIONS_ARTIFACTORY_TOKEN }}
         DOCKER_REGISTRY: 'spring-docker.jfrog.io'
         PARENT: 'red'
         PROJECT: 'swerve-orpcer'
