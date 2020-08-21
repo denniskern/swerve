@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -20,6 +22,9 @@ func (d *Database) UpdateCacheEntry(key string, data []byte) error {
 			},
 			attrNameCacheValue: {
 				S: aws.String(string(data)),
+			},
+			"created_at": {
+				S: aws.String(time.Now().Format(time.RFC3339)),
 			},
 		},
 	}); err != nil {

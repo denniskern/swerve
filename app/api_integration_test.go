@@ -164,7 +164,6 @@ func Test_PostRedirects(t *testing.T) {
 }
 
 func Test_GetRedirects(t *testing.T) {
-
 	if checkEmptyToken(t) {
 		return
 	}
