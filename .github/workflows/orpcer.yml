@@ -12,6 +12,8 @@ jobs:
   build:
     name: Bild orpcer
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
     
     steps:
 

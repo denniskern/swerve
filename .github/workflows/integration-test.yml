@@ -9,6 +9,8 @@ jobs:
   build:
     name: Run integration test
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
     
     steps:
 
