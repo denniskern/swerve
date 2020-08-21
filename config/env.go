@@ -170,6 +170,21 @@ func (c *Configuration) FromEnv() error {
 		c.Database.Endpoint = dbEndpoint
 	}
 
+	dynamoDefaultuserPW := getPrefixedOSEnv(envStrDBDefaultPW)
+	if dynamoDefaultuserPW != "" {
+		params[envStrDBDefaultPW] = dynamoDefaultuserPW
+		c.Database.DefaultUserPW = dynamoDefaultuserPW
+	}
+
+	enableHttpChallenge := getPrefixedOSEnv(envStrHTTPChallenge)
+	if enableHttpChallenge != "" {
+		enable, err := strconv.ParseBool(enableHttpChallenge)
+		if err != nil {
+			return errors.New(ErrEnableHTTPChallenge)
+		}
+		c.EnableHTTPChallenge = enable
+	}
+
 	log.Infof("Loading config from environment: %+v", params)
 
 	return nil

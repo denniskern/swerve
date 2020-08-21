@@ -1,14 +1,13 @@
 package dynamodb
 
 import (
+	"github.com/axelspringer/swerve/cmd/orpcer/config"
+	"github.com/axelspringer/swerve/cmd/orpcer/orphan"
 	"github.com/sirupsen/logrus"
 
+	"github.com/axelspringer/swerve/cmd/orpcer/log"
+
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-
-	logging "orpcer/log"
-
-	"orpcer/config"
-	"orpcer/orphan"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -25,7 +24,7 @@ func NewRepo(cfg config.Swerve) Repo {
 	r := Repo{}
 	r.DB.Config.CertTable = cfg.TableCertCache
 	r.DB.Client, err = NewDatabase(cfg)
-	r.Log = logging.SetupLogger(cfg.LogLevel, cfg.LogLevel)
+	r.Log = log.SetupLogger(cfg.LogLevel, cfg.LogLevel)
 	if err != nil {
 		r.Log.Fatal(err)
 	}

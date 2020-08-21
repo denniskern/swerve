@@ -1,12 +1,12 @@
 package main
 
 import (
-	"orpcer/config"
-	dynamodb "orpcer/dynamodb"
-	"orpcer/orphan"
 	"os"
 
-	"orpcer/log"
+	"github.com/axelspringer/swerve/cmd/orpcer/config"
+	"github.com/axelspringer/swerve/cmd/orpcer/dynamodb"
+	"github.com/axelspringer/swerve/cmd/orpcer/log"
+	"github.com/axelspringer/swerve/cmd/orpcer/orphan"
 )
 
 func main() {

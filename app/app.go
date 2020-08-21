@@ -95,9 +95,11 @@ func (a *Application) Run() {
 		log.Fatal(a.HTTPSServer.Listen())
 	}()
 
-	err := a.ensureHttpCall()
-	if err != nil {
-		log.Error(err)
+	if a.Config.EnableHTTPChallenge {
+		err := a.ensureHttpCall()
+		if err != nil {
+			log.Error(err)
+		}
 	}
 
 	<-sigchan

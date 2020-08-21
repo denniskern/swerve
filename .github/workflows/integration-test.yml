@@ -2,7 +2,7 @@ name: Go
 
 on:
   push:
-    branches: [ master, gomod,evadetest ]
+    branches: [ master,gomod,evadetest ]
   pull_request:
     branches: [ master ]
 jobs:
@@ -15,11 +15,16 @@ jobs:
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
-        go-version: ^1.14
+        go-version: ^1.15
       id: go
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
+
+    - name: Run Gosec Security Scanner
+      uses: securego/gosec@master
+      with:
+        args: ./...
 
     - name: Build the stack
       run: docker-compose -f integration.docker-compose.yml up -d
@@ -27,9 +32,6 @@ jobs:
     - name: Build
       run: go build -v .
       
-    - name: Test HTTP Endpoints
-      run: go test -tags integration -v ./app
-
     - name: Test HTTP Endpoints
       run: go test -tags integration -v ./app
 

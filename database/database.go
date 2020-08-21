@@ -1,6 +1,8 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -93,6 +95,10 @@ func (d *Database) prepareTable(tableName string, keyName string) error {
 func (d *Database) createDefaultUser() error {
 	tablePrefix := d.Config.TableNamePrefix
 
+	if d.Config.DefaultUserPW == "" {
+		return fmt.Errorf("can't create default user, DefaultPW is empty")
+	}
+
 	log.Infof("Creating default user '%s'", defaultDynamoUser)
 	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(tablePrefix + d.Config.TableUsers),
@@ -101,7 +107,7 @@ func (d *Database) createDefaultUser() error {
 				S: aws.String(defaultDynamoUser),
 			},
 			attrNamePwd: {
-				S: aws.String(defaultDynamoPassword),
+				S: aws.String(d.Config.DefaultUserPW),
 			},
 		},
 	})

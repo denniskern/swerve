@@ -2,11 +2,10 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"log"
-
-	"github.com/jessevdk/go-flags"
+	flags "github.com/jessevdk/go-flags"
 )
 
 const (

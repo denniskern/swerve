@@ -12,12 +12,8 @@ const (
 	attrNamePathMap       = "cpath_map"
 	keyNameCertCacheTable = "domain"
 	attrNameCacheValue    = "cert"
+	attrNameCreatedAt     = "created_at"
 	keyNameUsersTable     = "username"
 	attrNamePwd           = "pwd"
-)
-
-// default values
-const (
 	defaultDynamoUser     = "admin"
-	defaultDynamoPassword = "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS"
 )

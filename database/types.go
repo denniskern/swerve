@@ -16,6 +16,7 @@ type Config struct {
 	Key             string
 	Secret          string
 	Endpoint        string
+	DefaultUserPW   string
 }
 
 // Redirect is the redirect entry model

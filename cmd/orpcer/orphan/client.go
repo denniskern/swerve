@@ -2,10 +2,10 @@ package orphan
 
 import (
 	"fmt"
-	"orpcer/config"
-	"orpcer/log"
 	"time"
 
+	"github.com/axelspringer/swerve/cmd/orpcer/config"
+	"github.com/axelspringer/swerve/cmd/orpcer/log"
 	"github.com/sirupsen/logrus"
 )
 

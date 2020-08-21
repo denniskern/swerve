@@ -8,13 +8,14 @@ import (
 
 // Configuration contains the config for the app
 type Configuration struct {
-	Database          database.Config
-	API               api.Config
-	ACM               acm.Config
-	HTTPListenerPort  int
-	HTTPSListenerPort int
-	LogLevel          string
-	LogFormatter      string
-	Bootstrap         bool
-	CacheInterval     int
+	Database            database.Config
+	API                 api.Config
+	ACM                 acm.Config
+	HTTPListenerPort    int
+	HTTPSListenerPort   int
+	LogLevel            string
+	LogFormatter        string
+	Bootstrap           bool
+	CacheInterval       int
+	EnableHTTPChallenge bool
 }

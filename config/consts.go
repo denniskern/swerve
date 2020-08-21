@@ -8,7 +8,7 @@ const (
 	envStrAPIListenerPort   = "API_LISTENER"
 	envStrAPIVersion        = "API_VERSION"
 	envStrAPIUIURL          = "API_UI_URL"
-	envStrAPIJWTSecret      = "API_JWT_SECRET"
+	envStrAPIJWTSecret      = "API_JWT_SECRET" // #nosec
 	envStrHTTPListenerPort  = "HTTP_LISTENER"
 	envStrHTTPSListenerPort = "HTTPS_LISTENER"
 	envStrLetsEncryptURL    = "LETSENCRYPT_URL"
@@ -27,13 +27,15 @@ const (
 	envStrDBKey             = "DB_KEY"
 	envStrDBSecret          = "DB_SECRET"
 	envStrDBEndpoint        = "DB_ENDPOINT"
+	envStrDBDefaultPW       = "DB_DEFAULT_PW"
+	envStrHTTPChallenge     = "ENABLE_HTTP_CHALLENGE"
 )
 
 const (
 	paramStrAPIListenerPort   = "api-listener"
 	paramStrAPIVersion        = "api-version"
 	paramStrAPIUIURL          = "api-ui-url"
-	paramStrAPIJWTSecret      = "api-jwt-secret"
+	paramStrAPIJWTSecret      = "api-jwt-secret" // #nosec
 	paramStrHTTPListenerPort  = "http-listener"
 	paramStrHTTPSListenerPort = "https-listener"
 	paramStrLetsEncryptURL    = "letsencrypt-url"

@@ -39,7 +39,7 @@ func createHTTPClient(c Config) *http.Client {
 
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
+		} // #nosec
 		client := &http.Client{Transport: tr}
 		resp, err := client.Get(c.PebbleCAURL)
 		if err != nil {
@@ -53,7 +53,8 @@ func createHTTPClient(c Config) *http.Client {
 
 		trWithValidation := &http.Transport{
 			TLSClientConfig: &tls.Config{
-				RootCAs: cpool,
+				MinVersion: tls.VersionTLS12,
+				RootCAs:    cpool,
 			},
 		}
 

@@ -23,7 +23,7 @@ func (d *Database) UpdateCacheEntry(key string, data []byte) error {
 			attrNameCacheValue: {
 				S: aws.String(string(data)),
 			},
-			"created_at": {
+			attrNameCreatedAt: {
 				S: aws.String(time.Now().Format(time.RFC3339)),
 			},
 		},

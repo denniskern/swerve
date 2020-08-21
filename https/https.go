@@ -34,6 +34,7 @@ func NewHTTPSServer(getRedirect GetRedirect,
 		Addr: addr,
 		TLSConfig: &tls.Config{
 			GetCertificate: getCertificate,
+			MinVersion:     tls.VersionTLS12,
 		},
 		Handler: mux,
 	}
