@@ -26,6 +26,9 @@ jobs:
 
     - name: Build
       run: go build -v .
+      
+    - name: Test HTTP Endpoints
+      run: go test -tags integration -v ./app
 
     - name: Test HTTP Endpoints
       run: go test -tags integration -v ./app
