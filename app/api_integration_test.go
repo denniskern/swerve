@@ -61,6 +61,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	os.Setenv("SWERVE_BOOTSTRAP", "1")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")
+	os.Setenv("SWERVE_DB_DEFAULT_PW", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS")
 	a := NewApplication()
 	cfg = a.Config
 	httpClient = http.Client{
