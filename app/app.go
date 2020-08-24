@@ -87,9 +87,11 @@ func (a *Application) Run() {
 		log.Fatal(a.APIServer.Listen())
 	}()
 
-	go func() {
-		log.Fatal(a.HTTPServer.Listen())
-	}()
+	/*
+		go func() {
+			log.Fatal(a.HTTPServer.Listen())
+		}()
+	*/
 
 	go func() {
 		log.Fatal(a.HTTPSServer.Listen())
