@@ -1,0 +1,41 @@
+name: Go
+
+on:
+  push:
+    branches: [ caddy ]
+
+jobs:
+  caddy:
+    name: Bild caddy
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    
+    steps:
+
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.15
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Build docker image
+      if: ${{ success() }}
+      env:
+        DOCKER_USER: red-github-actions
+        DOCKER_PASSWD: ${{ secrets.RED_GITHUB_ACTIONS_ARTIFACTORY_TOKEN }}
+        DOCKER_REGISTRY: 'spring-docker.jfrog.io'
+        PARENT: 'red'
+        PROJECT: 'swerve'
+      run: |
+        IMAGE_NAME="$DOCKER_REGISTRY/$PARENT/$PROJECT"
+        echo "Branch name: $(echo ${GITHUB_REF#refs/heads/})"
+        FULL_NAME="$IMAGE_NAME:${GITHUB_SHA::7}"
+        echo "Push to: $(echo ${FULL_NAME})"
+        echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
+        cd caddy
+        docker build --pull -t $FULL_NAME .
+        docker push $FULL_NAME
