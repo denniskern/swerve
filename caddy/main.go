@@ -13,6 +13,8 @@ func main() {
 		w.Write([]byte("Hello World"))
 	})
 
+	def := certmagic.NewDefault()
+
 	cache := certmagic.NewCache(certmagic.CacheOptions{
 		GetConfigForCert: func(cert certmagic.Certificate) (*certmagic.Config, error) {
 			// do whatever you need to do to get the right
@@ -26,11 +28,11 @@ func main() {
 		},
 	})
 
-	magic := certmagic.New(cache, certmagic.Config{})
+	magic := certmagic.New(cache, *def)
 
 	myACME := certmagic.NewACMEManager(magic, certmagic.ACMEManager{
 		CA:                   certmagic.LetsEncryptStagingCA,
-		Email:                "you@yours.com",
+		Email:                "dennis.kern@axelspringer.com",
 		Agreed:               true,
 		DisableHTTPChallenge: true,
 	})
