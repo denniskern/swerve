@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/crypto/acme"
+
 	"github.com/axelspringer/swerve/database"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -35,7 +37,7 @@ func NewHTTPSServer(getRedirect GetRedirect,
 		TLSConfig: &tls.Config{
 			GetCertificate: getCertificate,
 			MinVersion:     tls.VersionTLS12,
-			// NextProtos:     []string{"acme-tls/1", "http/1.1", "h2"},
+			NextProtos:     []string{acme.ALPNProto, "http/1.1", "h2"},
 		},
 		Handler: mux,
 	}
