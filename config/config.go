@@ -47,7 +47,7 @@ type Swerve struct {
 	LogFormat            string          `long:"log-format" env:"SWERVE_LOG_FORMAT" default:"text" description:"logging format" choice:"text" choice:"json"`
 	HttpListener         int             `long:"http-listener" env:"SWERVE_HTTP_LISTENER" default:"8080" description:"HTTP listener port"`
 	HttpsListener        int             `long:"https-listener" env:"SWERVE_HTTPS_LISTENER" default:"8081" description:"HTTPS listener port"`
-	DisableHTTPChallenge bool            `long:"enable-http-challenge" env:"SWERVE_DISABLE_HTTP_CHALLENGE" description:"Enable the challenge http-01"`
+	DisableHTTPChallenge bool            `long:"enable-http-challenge" env:"SWERVE_DISABLE_HTTP_CHALLENGE" description:"Disable the challenge http-01"`
 	CacheInterval        int             `long:"cache-interval" env:"SWERVE_CACHE_INTERVAL" description:"renew cache in minutes, has impact on redirects not on certificates" default:"5"`
 }
 

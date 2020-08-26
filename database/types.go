@@ -10,7 +10,7 @@ type Database struct {
 type Config struct {
 	Key            string `long:"dyno-aws-key" env:"SWERVE_DYNO_AWS_KEY" default:"0" required:"false" description:"AWS access key for dynamodb"`
 	Secret         string `long:"dyno-aws-sec" env:"SWERVE_DYNO_AWS_SECRET" default:"0" required:"false" description:"AWS secret key for dynamodb"`
-	Region         string `long:"dyno-aws-region" env:"SWERVE_DYNO_REGION" required:"false" description:"AWS region for dynamodb" default:"eu-central-1"`
+	Region         string `long:"dyno-aws-region" env:"SWERVE_DYNO_AWS_REGION" required:"false" description:"AWS region for dynamodb" default:"eu-central-1"`
 	Endpoint       string `long:"dyno-endpoint" env:"SWERVE_DYNO_ENDPOINT" required:"false" description:"Endpoint of dynamodb" default:"http://localhost:8000"`
 	DefaultUserPW  string `long:"dyno-default-user-pw" env:"SWERVE_DYNO_DEFAULT_PW" required:"false" description:"Default PW for the admin user"`
 	DefaultUser    string `long:"dyno-default-user" env:"SWERVE_DYNO_DEFAULT_USER" required:"false" description:"Default PW for the admin user" default:"admin"`

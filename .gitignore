@@ -5,3 +5,4 @@ data/
 /swerve.coverprofile
 diff.txt
 src/client/node_modules
+swerve
