@@ -8,15 +8,16 @@ type Database struct {
 
 // Config contains the databases config
 type Config struct {
-	TableNamePrefix string
-	Region          string
-	TableRedirects  string
-	TableCertCache  string
-	TableUsers      string
-	Key             string
-	Secret          string
-	Endpoint        string
-	DefaultUserPW   string
+	Key            string `long:"dyno-aws-key" env:"SWERVE_DYNO_AWS_KEY" default:"0" required:"false" description:"AWS access key for dynamodb"`
+	Secret         string `long:"dyno-aws-sec" env:"SWERVE_DYNO_AWS_SECRET" default:"0" required:"false" description:"AWS secret key for dynamodb"`
+	Region         string `long:"dyno-aws-region" env:"SWERVE_DYNO_REGION" required:"false" description:"AWS region for dynamodb" default:"eu-central-1"`
+	Endpoint       string `long:"dyno-endpoint" env:"SWERVE_DYNO_ENDPOINT" required:"false" description:"Endpoint of dynamodb" default:"http://localhost:8000"`
+	DefaultUserPW  string `long:"dyno-default-user-pw" env:"SWERVE_DYNO_DEFAULT_PW" required:"false" description:"Default PW for the admin user"`
+	DefaultUser    string `long:"dyno-default-user" env:"SWERVE_DYNO_DEFAULT_USER" required:"false" description:"Default PW for the admin user" default:"admin"`
+	TableRedirects string `long:"dyno-tbl-redirects" env:"SWERVE_DYNO_TABLE_REDIRECTS" required:"false" description:"Table name for redirects" default:"Swerve_Redirects"`
+	TableCertCache string `long:"dyno-tbl-certcache" env:"SWERVE_DYNO_TABLE_CERTCACHE" required:"false" description:"Table name for cert cache" default:"Swerve_CertCache"`
+	TableUsers     string `long:"dyno-tbl-users" env:"SWERVE_DYNO_TABLE_USERS" required:"false" description:"Table name for users" default:"Swerve_Users"`
+	Bootstrap      bool   `long:"dyno-bootstrap" env:"SWERVE_DYNO_BOOTSTRAP" required:"false" description:"Create tables and default user on startup"`
 }
 
 // Redirect is the redirect entry model

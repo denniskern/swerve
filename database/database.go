@@ -16,16 +16,14 @@ func NewDatabase(c Config) (*Database, error) {
 	db := &Database{}
 
 	dynamoConfig := &aws.Config{
-		Region: aws.String(c.Region),
+		Region: aws.String(c.Endpoint),
 	}
 
 	if c.Endpoint != "" {
 		dynamoConfig.Endpoint = aws.String(c.Endpoint)
 	}
 
-	if c.Key != "" && c.Secret != "" {
-		dynamoConfig.Credentials = credentials.NewStaticCredentials(c.Key, c.Secret, "")
-	}
+	dynamoConfig.Credentials = credentials.NewStaticCredentials(c.Key, c.Secret, "")
 
 	sess, err := session.NewSession(dynamoConfig)
 	if err != nil {
@@ -63,10 +61,9 @@ func (d *Database) Prepare() error {
 }
 
 func (d *Database) prepareTable(tableName string, keyName string) error {
-	tablePrefix := d.Config.TableNamePrefix
 
 	tableCreate := &dynamodb.CreateTableInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(tableName),
 		KeySchema: []*dynamodb.KeySchemaElement{
 			{AttributeName: aws.String(keyName), KeyType: aws.String("HASH")},
 		},
@@ -79,7 +76,7 @@ func (d *Database) prepareTable(tableName string, keyName string) error {
 		},
 	}
 	tableDescribe := &dynamodb.DescribeTableInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(tableName),
 	}
 
 	if _, err := d.Service.DescribeTable(tableDescribe); err != nil {
@@ -93,18 +90,16 @@ func (d *Database) prepareTable(tableName string, keyName string) error {
 }
 
 func (d *Database) createDefaultUser() error {
-	tablePrefix := d.Config.TableNamePrefix
-
 	if d.Config.DefaultUserPW == "" {
 		return fmt.Errorf("can't create default user, DefaultPW is empty")
 	}
 
 	log.Infof("Creating default user '%s'", defaultDynamoUser)
 	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
-		TableName: aws.String(tablePrefix + d.Config.TableUsers),
+		TableName: aws.String(d.Config.TableUsers),
 		Item: map[string]*dynamodb.AttributeValue{
 			keyNameUsersTable: {
-				S: aws.String(defaultDynamoUser),
+				S: aws.String(d.Config.DefaultUser),
 			},
 			attrNamePwd: {
 				S: aws.String(d.Config.DefaultUserPW),

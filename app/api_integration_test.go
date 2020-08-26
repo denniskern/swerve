@@ -24,6 +24,7 @@ import (
 )
 
 const (
+	defaultUser          = "spooky"
 	testDomainFrom       = "ilk.io"
 	testDomainTo         = "https://bild.de"
 	updateNewDescription = "this is a new description"
@@ -37,7 +38,7 @@ type responseRedirect struct {
 
 var (
 	token             string
-	cfg               *config.Configuration
+	cfg               config.Swerve
 	httpClient        http.Client
 	baseUrlApi        string
 	baseUrlRedirecter string
@@ -47,21 +48,22 @@ var (
 )
 
 func TestMain(m *testing.M) {
+	os.Setenv("SWERVE_DYNO_ENDPOINT", "http://localhost:8000")
+	os.Setenv("SWERVE_DYNO_REGION", "eu-west-1")
+	os.Setenv("SWERVE_DYNO_AWS_KEY", "0")
+	os.Setenv("SWERVE_DYNO_AWS_SECRET", "0")
+	os.Setenv("SWERVE_DYNO_TABLE_USERS", "Swerve_Users")
+	os.Setenv("SWERVE_DYNO_TABLE_REDIRECTS", "Swerve_Redirects")
+	os.Setenv("SWERVE_DYNO_TABLE_DOMAINS_CERTCACHE", "Swerve_CertCache")
+	os.Setenv("SWERVE_DYNO_BOOTSTRAP", "true")
+	os.Setenv("SWERVE_DYNO_DEFAULT_USER", defaultUser)
+	os.Setenv("SWERVE_DYNO_DEFAULT_PW", "$2y$12$0n7R3fPqu5E/UhTbxN0qNOQEsYvBzYVmC3eTw1DS5Jbt2MThoYfrG")
 	os.Setenv("SWERVE_USE_PEBBLE", "true")
 	os.Setenv("SWERVE_PEBBLE_CA_URL", "http://localhost:15000/roots/0")
 	os.Setenv("SWERVE_LETSENCRYPT_URL", "https://localhost:14000/dir")
-	os.Setenv("SWERVE_DB_ENDPOINT", "http://localhost:8000")
-	os.Setenv("SWERVE_DB_REGION", "eu-west-1")
-	os.Setenv("SWERVE_DB_KEY", "0")
-	os.Setenv("SWERVE_DB_SECRET", "0")
-	os.Setenv("SWERVE_USERS", "Users")
-	os.Setenv("SWERVE_DOMAINS", "Domains")
-	os.Setenv("SWERVE_DOMAINS_TLS_CACHE", "DomainsTLSCache")
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
-	os.Setenv("SWERVE_BOOTSTRAP", "1")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")
-	os.Setenv("SWERVE_DB_DEFAULT_PW", "$2a$12$gh.TtSizoP0JFLHACOdIouPr42713m6k/8fH8jKPl0xQAUBk0OIdS")
 	a := NewApplication()
 	cfg = a.Config
 	httpClient = http.Client{
@@ -88,8 +90,8 @@ type testcase struct {
 
 func Test_APILogin(t *testing.T) {
 	testCases := []testcase{
-		{"valid login", "admin", "mytestpw", http.StatusOK},
-		{"invalid login", "admin", "noValidPW", http.StatusUnauthorized},
+		{"valid login", defaultUser, "mytestpw", http.StatusOK},
+		{"invalid login", defaultUser, "noValidPW", http.StatusUnauthorized},
 	}
 
 	for _, te := range testCases {

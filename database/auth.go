@@ -9,10 +9,9 @@ import (
 
 // GetPwdHash returns a password hash from the database
 func (d *Database) GetPwdHash(username string) (string, error) {
-	tablePrefix := d.Config.TableNamePrefix
 	tableName := d.Config.TableUsers
 	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			keyNameUsersTable: {
 				S: aws.String(username),

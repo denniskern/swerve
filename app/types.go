@@ -10,7 +10,7 @@ import (
 
 // Application is swerves app model
 type Application struct {
-	Config      *config.Configuration
+	Config      config.Swerve
 	APIServer   *api.API
 	HTTPServer  *http.HTTP
 	HTTPSServer *https.HTTPS

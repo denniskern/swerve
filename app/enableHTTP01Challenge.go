@@ -14,7 +14,7 @@ func (a *Application) ensureHttpCall() error {
 	log.Debug("ensureHttpCall: make local http call to activate http01 challenge")
 	for i := 0; i < 15; i++ {
 		time.Sleep(time.Second * 2)
-		resp, err := nethttp.Get(fmt.Sprintf("http://127.0.0.1:%d", a.Config.HTTPListenerPort))
+		resp, err := nethttp.Get(fmt.Sprintf("http://127.0.0.1:%d", a.Config.HttpListener))
 		if err != nil {
 			log.Errorf("ensureHttpCall: %v", err)
 		}
@@ -23,5 +23,5 @@ func (a *Application) ensureHttpCall() error {
 			return nil
 		}
 	}
-	return fmt.Errorf("ensureHttpCall: can't reach server on http://127.0.0.1:%d, http01 will not be available", a.Config.HTTPListenerPort)
+	return fmt.Errorf("ensureHttpCall: can't reach server on http://127.0.0.1:%d, http01 will not be available", a.Config.HttpListener)
 }

@@ -13,8 +13,8 @@ type API struct {
 
 // Config contains the API config
 type Config struct {
-	COR      string
-	Version  string
-	Listener int
-	Secret   string
+	Secret   string `long:"api-jwt-sec" env:"SWERVE_API_JWT_SECRET" description:"JWT token"`
+	Version  string `long:"api-version" env:"SWERVE_API_VERSION" description:"api version in pattern of v1 or v2" default:"v1"`
+	COR      string `long:"api-ui-url" env:"SWERVE_API_UI_URL" description:"The url is needed for cors headers"`
+	Listener int    `long:"api-listener" env:"SWERVE_API_LISTENER" description:"Listener port for the api" default:"8082"`
 }

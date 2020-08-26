@@ -5,12 +5,12 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/axelspringer/swerve/config"
 	phm "github.com/axelspringer/swerve/prometheus"
 
 	"github.com/axelspringer/swerve/acm"
 	"github.com/axelspringer/swerve/api"
 	"github.com/axelspringer/swerve/cache"
-	"github.com/axelspringer/swerve/config"
 	"github.com/axelspringer/swerve/database"
 	"github.com/axelspringer/swerve/http"
 	"github.com/axelspringer/swerve/https"
@@ -22,29 +22,19 @@ import (
 // NewApplication creates a new instance
 func NewApplication() *Application {
 	return &Application{
-		Config: config.NewConfiguration(),
+		Config: config.Get(),
 	}
 }
 
 // Setup sets up the application
 func (a *Application) Setup() error {
-	err := a.Config.FromEnv()
-	if err != nil {
-		return errors.WithMessage(err, ErrConfigInvalid)
-	}
-	a.Config.FromParameter()
-	err = a.Config.Validate()
-	if err != nil {
-		return errors.WithMessage(err, ErrConfigInvalid)
-	}
+	log.SetupLogger(a.Config.LogLevel, a.Config.LogFormat)
 
-	log.SetupLogger(a.Config.LogLevel, a.Config.LogFormatter)
-
-	db, err := database.NewDatabase(a.Config.Database)
+	db, err := database.NewDatabase(a.Config.DynamoDB)
 	if err != nil {
 		return errors.WithMessage(err, ErrDatabaseServiceCreate)
 	}
-	if a.Config.Bootstrap {
+	if a.Config.DynamoDB.Bootstrap {
 		err = db.Prepare()
 		if err != nil {
 			return errors.WithMessage(err, ErrTablePrepare)
@@ -62,12 +52,12 @@ func (a *Application) Setup() error {
 
 	a.HTTPServer = http.NewHTTPServer(controlModel.GetRedirectByDomain,
 		autocertManager.HTTPHandler,
-		a.Config.HTTPListenerPort,
+		a.Config.HttpListener,
 		prom.WrapHandler)
 
 	a.HTTPSServer = https.NewHTTPSServer(controlModel.GetRedirectByDomain,
 		autocertManager.GetCertificate,
-		a.Config.HTTPSListenerPort,
+		a.Config.HttpsListener,
 		prom.WrapHandler)
 	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
 
@@ -95,7 +85,7 @@ func (a *Application) Run() {
 		log.Fatal(a.HTTPSServer.Listen())
 	}()
 
-	if a.Config.EnableHTTPChallenge {
+	if !a.Config.DisableHTTPChallenge {
 		err := a.ensureHttpCall()
 		if err != nil {
 			log.Error(err)

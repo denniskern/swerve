@@ -15,9 +15,6 @@ import (
 
 // CreateRedirect creates a new redirect entry
 func (d *Database) CreateRedirect(redirect Redirect) error {
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
-
 	redirect.Created = int(time.Now().Unix())
 	redirect.Modified = redirect.Created
 
@@ -32,7 +29,7 @@ func (d *Database) CreateRedirect(redirect Redirect) error {
 	}
 
 	_, err = d.Service.PutItem(&dynamodb.PutItemInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(d.Config.TableRedirects),
 		Item:      payload,
 	})
 
@@ -41,12 +38,10 @@ func (d *Database) CreateRedirect(redirect Redirect) error {
 
 // GetRedirectByDomain returns one redirect entry by domain name
 func (d *Database) GetRedirectByDomain(name string) (Redirect, error) {
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
 	redirect := Redirect{}
 
 	res, err := d.Service.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(d.Config.TableRedirects),
 		Key: map[string]*dynamodb.AttributeValue{
 			keyNameRedirectsTable: {
 				S: aws.String(name),
@@ -70,11 +65,8 @@ func (d *Database) GetRedirectByDomain(name string) (Redirect, error) {
 
 // DeleteRedirectByDomain deletes a redirect entry by domain name
 func (d *Database) DeleteRedirectByDomain(name string) error {
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
-
 	_, err := d.Service.DeleteItem(&dynamodb.DeleteItemInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(d.Config.TableRedirects),
 		Key: map[string]*dynamodb.AttributeValue{
 			keyNameRedirectsTable: {
 				S: aws.String(name),
@@ -86,9 +78,6 @@ func (d *Database) DeleteRedirectByDomain(name string) error {
 
 // UpdateRedirectByDomain updates a redirect entry
 func (d *Database) UpdateRedirectByDomain(name string, redirect Redirect) error {
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
-
 	currentRedirect, err := d.GetRedirectByDomain(name)
 	if err != nil {
 		return errors.WithMessage(err, ErrRedirectNotExist)
@@ -141,7 +130,7 @@ func (d *Database) UpdateRedirectByDomain(name string, redirect Redirect) error 
 	}
 
 	res, err := d.Service.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName: aws.String(tablePrefix + tableName),
+		TableName: aws.String(d.Config.TableRedirects),
 		Key: map[string]*dynamodb.AttributeValue{
 			keyNameRedirectsTable: {
 				S: aws.String(name),
@@ -169,8 +158,6 @@ func (d *Database) UpdateRedirectByDomain(name string, redirect Redirect) error 
 func (d *Database) GetRedirectsPaginated(cursor *string) ([]Redirect, *string, error) {
 	var startkey map[string]*dynamodb.AttributeValue
 	var newCursor string
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
 
 	if cursor != nil {
 		encodedLastKey, err := url.QueryUnescape(*cursor)
@@ -189,7 +176,7 @@ func (d *Database) GetRedirectsPaginated(cursor *string) ([]Redirect, *string, e
 	}
 
 	res, err := d.Service.Scan(&dynamodb.ScanInput{
-		TableName:         aws.String(tablePrefix + tableName),
+		TableName:         aws.String(d.Config.TableRedirects),
 		Limit:             aws.Int64(25),
 		ExclusiveStartKey: startkey,
 	})
@@ -237,9 +224,6 @@ func (d *Database) ExportRedirects() ([]Redirect, error) {
 // ImportRedirects imports a set of redirect entries
 // TODO: add limit so write capacity isn't exceeded
 func (d *Database) ImportRedirects(redirects []Redirect) error {
-	tablePrefix := d.Config.TableNamePrefix
-	tableName := d.Config.TableRedirects
-
 	for _, redirect := range redirects {
 		redirect.Created = int(time.Now().Unix())
 		redirect.Modified = redirect.Created
@@ -250,7 +234,7 @@ func (d *Database) ImportRedirects(redirects []Redirect) error {
 		}
 
 		_, err = d.Service.PutItem(&dynamodb.PutItemInput{
-			TableName: aws.String(tablePrefix + tableName),
+			TableName: aws.String(d.Config.TableRedirects),
 			Item:      payload,
 		})
 
