@@ -16,7 +16,7 @@ func NewDatabase(c Config) (*Database, error) {
 	db := &Database{}
 
 	dynamoConfig := &aws.Config{
-		Region: aws.String(c.Endpoint),
+		Region: aws.String(c.Region),
 	}
 
 	if c.Endpoint != "" {
