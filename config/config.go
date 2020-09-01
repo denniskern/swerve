@@ -77,7 +77,11 @@ func (s *Swerve) Validate() []error {
 	if s.ACM.UsePebble {
 		s.ACM.PebbleCA = defaultPebbleCACert
 	}
-	return nil
+	//if s.DynamoDB.Bootstrap && s.DynamoDB.DefaultUserPW == "" {
+	//	errors = append(errors, fmt.Errorf("If dynamodb bootstrap is enabled, then SWERVE_DYNO_DEFAULT_PW or --dyno-default-user-pw is required"))
+	//}
+
+	return errors
 }
 
 func Get() Swerve {

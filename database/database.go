@@ -51,7 +51,6 @@ func (d *Database) Prepare() error {
 	if err != nil {
 		return errors.WithMessagef(err, ErrTableCreate, d.Config.TableUsers)
 	}
-	// TODO: the default user should either be optional or configurable via envs
 	err = d.createDefaultUser()
 	if err != nil {
 		return errors.WithMessage(err, ErrDefaultUserCreate)
@@ -90,11 +89,17 @@ func (d *Database) prepareTable(tableName string, keyName string) error {
 }
 
 func (d *Database) createDefaultUser() error {
-	if d.Config.DefaultUserPW == "" {
-		return fmt.Errorf("can't create default user, DefaultPW is empty")
+	// The User is not required for swerve to work properly
+	if d.Config.DefaultUserPW == "" && d.Config.DefaultUser == "" {
+		log.Info("no dynamodb default user will be created because username and password are not provided")
+		return nil
 	}
 
-	log.Infof("Creating default user '%s'", defaultDynamoUser)
+	if d.Config.DefaultUserPW == "" || d.Config.DefaultUser == "" {
+		return fmt.Errorf("can't create default user, you must provide a username and a password")
+	}
+
+	log.Infof("creating default user '%s'", defaultDynamoUser)
 	_, err := d.Service.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(d.Config.TableUsers),
 		Item: map[string]*dynamodb.AttributeValue{
