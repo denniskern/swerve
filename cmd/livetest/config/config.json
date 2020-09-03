@@ -1,0 +1,40 @@
+{
+  "api_base_url": "https://api-swerve.dev-1.red.springtools.de",
+  "api_version": "v1",
+  "dyno_user": "admin",
+  "data": [
+    {
+      "redirect": {
+        "redirect_from": "ilk.swervetest.de",
+        "path_map": [
+          {
+            "from": "/",
+            "to": "/"
+          },
+          {
+            "from": "/sport",
+            "to": "/sport"
+          }
+        ],
+        "redirect_to": "https://www.bild.de/digital",
+        "promotable": false,
+        "code": 301,
+        "description": "This is a test redirect"
+      },
+      "cases": [
+        {
+          "call":"https://ilk.swervetest.de",
+          "expected": "https://www.bild.de/digital"
+        },
+        {
+          "call":"https://ilk.swervetest.de/",
+          "expected":"https://www.bild.de/digital"
+        },
+        {
+          "call":"https://ilk.swervetest.de/sport",
+          "expected":"https://www.bild.de/digital/sport"
+        }
+      ]
+    }
+  ]
+}
