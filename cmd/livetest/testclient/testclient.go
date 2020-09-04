@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/davecgh/go-spew/spew"
 
@@ -109,10 +110,13 @@ func (c *Client) TestRedirects() {
 	var errors []error
 	header := make(map[string]string)
 	header["Cookie"] = fmt.Sprintf("token=%s", c.token)
+	var results [][]string
+	c.PrintCall("Test redirects")
 
 	for _, v := range c.cfg.Data {
 		for _, test := range v.Cases {
-			c.PrintCall(test.Call)
+			fmt.Print(".")
+			status := "OK"
 			req := request{}
 			req.Url = fmt.Sprintf("%s", test.Call)
 			req.Headers = header
@@ -121,12 +125,18 @@ func (c *Client) TestRedirects() {
 			if err != nil {
 				errors = append(errors, err)
 			}
-			c.PrintOk(res.Header.Get("Location"))
+			location := res.Header.Get("Location")
+			if location != test.Expected || res.StatusCode != v.Redirect.Code {
+				status = "ERROR"
+				errors = append(errors, fmt.Errorf("test failed, call: %s, expected: %s, got: %s", test.Call, test.Expected, location))
+			}
+			results = append(results, []string{status, strconv.FormatBool(v.Redirect.Promotable), test.Call, test.Expected, location, strconv.Itoa(v.Redirect.Code), strconv.Itoa(res.StatusCode), v.Redirect.Description})
 		}
 	}
 
+	printResults(results)
+
 	if len(errors) > 0 {
-		spew.Dump(errors)
-		log.Fatal("Not all calls and expected results matches")
+		log.Fatal(" *** Not all calls and expected results matches ***")
 	}
 }

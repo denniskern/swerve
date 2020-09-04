@@ -4,9 +4,11 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/olekukonko/tablewriter"
 )
 
 func doRequest(r request) (response, error) {
@@ -49,4 +51,17 @@ func (c *Client) PrintCall(url string) {
 
 func (c *Client) PrintOk(msg string) {
 	fmt.Printf(" -> [OK] %s\n", msg)
+}
+func (c *Client) PrintFail(msg string) {
+	fmt.Printf(" -> [Fail] %s\n", msg)
+}
+
+func printResults(results [][]string) {
+	println()
+	table := tablewriter.NewWriter(os.Stdout)
+	table.NumLines()
+	table.SetHeader([]string{"RES", "PROM", "Call", "expected", "got", "w-c", "g-c", "description"})
+	table.SetBorder(true)     // Set Border to false
+	table.AppendBulk(results) // Add Bulk Data
+	table.Render()
 }

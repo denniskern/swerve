@@ -6,3 +6,6 @@ data/
 diff.txt
 src/client/node_modules
 swerve
+cmd/livetest/go_livetest
+cmd/livetest/livetest
+cmd/orpcer/orpcer
