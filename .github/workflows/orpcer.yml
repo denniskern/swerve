@@ -7,6 +7,8 @@ on:
     - 'cmd/orpcer/**'
   pull_request:
     branches: [ master ]
+    paths:
+    - 'cmd/orpcer/**'
 
 jobs:
   orpcer:
@@ -32,7 +34,7 @@ jobs:
     #    args: cmd/orpcer/...
 
     - name: Build
-      run: cd cmd/orpcer && go build -v .
+      run: go build ./cmd/orpcer
 
     - name: Build docker image
       if: ${{ success() }}
@@ -49,5 +51,5 @@ jobs:
         echo "Push to: $(echo ${FULL_NAME})"
         echo "$DOCKER_PASSWD" | docker login -u $DOCKER_USER --password-stdin https://$DOCKER_REGISTRY
         cd cmd/orpcer
-        docker build --pull -t $FULL_NAME .
+        docker build --pull -f orpcer.Dockerfile -t $FULL_NAME .
         docker push $FULL_NAME

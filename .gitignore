@@ -10,3 +10,4 @@ swerve
 cmd/livetest/go_livetest
 cmd/livetest/livetest
 cmd/orpcer/orpcer
+cmd/orpcer/go_orpcer
