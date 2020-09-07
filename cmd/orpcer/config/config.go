@@ -14,14 +14,15 @@ const (
 )
 
 type Swerve struct {
-	AwsKey           string `long:"aws-key" env:"SWERVE_DB_KEY" default:"0" description:"AWS access key for dynamodb"`
-	AwsSec           string `long:"aws-sec" env:"SWERVE_DB_SECRET" default:"0" description:"AWS secret key for dynamodb"`
-	AwsRegion        string `long:"aws-region" env:"SWERVE_DB_REGION" required:"true" description:"AWS region for dynamodb"`
-	DynamoDBEndpoint string `long:"db-endpoint" env:"SWERVE_DB_ENDPOINT" required:"true" description:"Endpoint of dynamodb"`
-	TableCertCache   string `long:"table-certs" env:"SWERVE_TABLE_CERTCACHE" required:"true" description:"dynamodb name of table certcache"`
-	MaxAge           int    `long:"cert-maxage" env:"SWERVE_CERT_MAXAGE" required:"true" description:"Log an error if found a cert which is older than <cert-maxage>"`
-	LogLevel         string `long:"log-level" env:"SWERVE_LOG_LEVEL" default:"info" description:"logging servety"`
-	LogFormat        string `long:"log-format" env:"SWERVE_LOG_FORMAT" default:"test" description:"logging format"`
+	AwsKey           string `long:"aws-key" env:"ORPCER_DYNO_AWS_KEY" default:"0" description:"AWS access key for dynamodb"`
+	AwsSec           string `long:"aws-sec" env:"ORPCER_DYNO_AWS_SECRET" default:"0" description:"AWS secret key for dynamodb"`
+	AwsRegion        string `long:"aws-region" env:"ORPCER_DYNO_AWS_REGION" required:"true" description:"AWS region for dynamodb"`
+	DynamoDBEndpoint string `long:"db-endpoint" env:"ORPCER_DYNO_ENDPOINT" required:"true" description:"Endpoint of dynamodb"`
+	TableCertCache   string `long:"table-certs" env:"ORPCER_DYNO_TABLE_CERTCACHE" required:"true" description:"dynamodb name of table certcache"`
+	MaxAge           int    `long:"cert-maxage" env:"ORPCER_CERT_MAXAGE" required:"true" description:"Log an error if found a cert which is older than <cert-maxage>"`
+	LogLevel         string `long:"log-level" env:"ORPCER_LOG_LEVEL" default:"info" description:"logging servety"`
+	LogFormat        string `long:"log-format" env:"ORPCER_LOG_FORMAT" default:"test" description:"logging format"`
+	Verbose          bool   `long:"verbose" env:"ORPCER_VERBOSE" description:"print verbose output"`
 }
 
 func Get() Swerve {

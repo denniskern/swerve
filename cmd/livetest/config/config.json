@@ -13,6 +13,7 @@
         "path_map": [
           { "from": "/", "to": "/" },
           { "from": "/s", "to": "/b" },
+          { "from": "/sr", "to": "/" },
           { "from": "/sport", "to": "/sport" },
           { "from": "/sport4", "to": "/sport4" },
           { "from": "/sport/fussball", "to": "/sport/fussball" },
@@ -25,6 +26,7 @@
         { "call":"https://rd1.swervetest.de/s", "expected": "https://www.bild.de/b" },
         { "call":"https://rd1.swervetest.de/sport", "expected":"https://www.bild.de/sport" },
         { "call":"https://rd1.swervetest.de/sport4", "expected":"https://www.bild.de/sport4" },
+        { "call":"https://rd1.swervetest.de/sport4/berlin?abc=def", "expected":"https://www.bild.de/sport4/berlin?abc=def" },
         { "call":"https://rd1.swervetest.de/sport6", "expected":"https://www.bild.de/sport6" },
         { "call":"https://rd1.swervetest.de/wetter", "expected":"https://www.bild.de/wetter" },
         { "call":"https://rd1.swervetest.de/sport/fussball", "expected":"https://www.bild.de/sport/fussball" },

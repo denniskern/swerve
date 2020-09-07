@@ -1,6 +1,9 @@
 package dynamodb
 
 import (
+	"encoding/base64"
+	"net/url"
+
 	"github.com/axelspringer/swerve/cmd/orpcer/config"
 	"github.com/axelspringer/swerve/cmd/orpcer/orphan"
 	"github.com/sirupsen/logrus"
@@ -34,11 +37,13 @@ func NewRepo(cfg config.Swerve) Repo {
 
 func (r Repo) GetCerts() ([]orphan.Cert, error) {
 	var certs []orphan.Cert
+	var startkey map[string]*dynamodb.AttributeValue
 
 	for {
 		res, err := r.DB.Client.Scan(&dynamodb.ScanInput{
-			TableName: aws.String(r.DB.Config.CertTable),
-			Limit:     aws.Int64(25),
+			TableName:         aws.String(r.DB.Config.CertTable),
+			Limit:             aws.Int64(25),
+			ExclusiveStartKey: startkey,
 		})
 		if err != nil {
 			return nil, err
@@ -51,9 +56,19 @@ func (r Repo) GetCerts() ([]orphan.Cert, error) {
 		}
 
 		certs = append(certs, someCerts...)
-		if _, ok := res.LastEvaluatedKey["domain"]; !ok {
-			break
+		value, ok := res.LastEvaluatedKey["domain"]
+
+		if ok {
+			lastkey := base64.StdEncoding.EncodeToString([]byte(*value.S))
+			lastkey = url.QueryEscape(lastkey)
+			startkey = map[string]*dynamodb.AttributeValue{
+				"domain": {
+					S: aws.String(*value.S),
+				},
+			}
+			continue
 		}
+		break
 	}
 
 	return certs, nil
