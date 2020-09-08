@@ -42,5 +42,17 @@ func Get() Swerve {
 		log.Fatalf("--maxage / $SWERVE_CERT_MAXAGE must be greater than %d and less than %d", maxAgeMin, maxAgeMax)
 	}
 
+	fmt.Println("Used config:")
+	fmt.Printf("  ORPCER_DYNO_AWS_KEY: %s...\n", s.AwsKey[:8])
+	fmt.Printf("  ORPCER_DYNO_AWS_SECRET: %s...\n", s.AwsSec[:8])
+	fmt.Printf("  ORPCER_DYNO_AWS_REGION: %s\n", s.AwsRegion)
+	fmt.Printf("  ORPCER_DYNO_ENDPOINT: %s\n", s.DynamoDBEndpoint)
+	fmt.Printf("  ORPCER_DYNO_TABLE_CERTCACHE: %s\n", s.TableCertCache)
+	fmt.Printf("  ORPCER_CERT_MAXAGE: %d\n", s.MaxAge)
+	fmt.Printf("  ORPCER_LOG_LEVEL: %s\n", s.LogLevel)
+	fmt.Printf("  ORPCER_LOG_FORMAT: %s\n", s.LogFormat)
+	fmt.Printf("  ORPCER_VERBOSE: %t\n", s.Verbose)
+	fmt.Println()
+
 	return s
 }
