@@ -44,7 +44,7 @@ func Get() Swerve {
 
 	fmt.Println("Used config:")
 	fmt.Printf("  ORPCER_DYNO_AWS_KEY: %s...\n", s.AwsKey[:8])
-	fmt.Printf("  ORPCER_DYNO_AWS_SECRET: %s...\n", s.AwsSec[:8])
+	fmt.Printf("  ORPCER_DYNO_AWS_SECRET: %s...\n", s.AwsSec[:5])
 	fmt.Printf("  ORPCER_DYNO_AWS_REGION: %s\n", s.AwsRegion)
 	fmt.Printf("  ORPCER_DYNO_ENDPOINT: %s\n", s.DynamoDBEndpoint)
 	fmt.Printf("  ORPCER_DYNO_TABLE_CERTCACHE: %s\n", s.TableCertCache)
