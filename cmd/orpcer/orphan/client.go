@@ -39,7 +39,6 @@ func (c *Client) GetOrphanCerts() error {
 		days := int(duration.Hours() / 24)
 		cert.Age = days
 		if days > c.MaxAge {
-			c.Log.Debugf("Found orphan cert for domain:%s (%d days old, maxage is %d)", cert.Domain, days, c.MaxAge)
 			orphanCerts = append(orphanCerts, cert)
 		}
 
