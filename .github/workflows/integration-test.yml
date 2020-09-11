@@ -2,7 +2,7 @@ name: Go
 
 on:
   push:
-    branches: [ master,gomod,new_config ]
+    branches: [ master,gomod,new_config,evadetest ]
   pull_request:
     branches: [ master ]
 jobs:
