@@ -169,7 +169,9 @@ func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	defer func() {
 		err := r.Body.Close()
-		log.Error(err)
+		if err != nil {
+			log.Error(err)
+		}
 	}()
 	if err != nil {
 		log.Error(err)

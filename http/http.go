@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/axelspringer/swerve/helper"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -52,15 +53,15 @@ func (h *HTTP) handler() http.Handler {
 }
 
 func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
-	hostHeader := r.Host
-	redirect, err := h.getRedirect(hostHeader)
+	//	hostHeader := r.Host
+	redirect, err := h.getRedirect(strings.Split(r.Host, ":")[0])
 	if err != nil && err.Error() != database.ErrRedirectNotFound {
 		log.Error(err)
 	}
 
 	// regular domain lookup
 	if err == nil {
-		redirectURL, redirectCode := redirect.GetRedirect(r.URL)
+		redirectURL, redirectCode := redirect.GetRedirect(r.URL, "http://")
 		http.Redirect(w, r, redirectURL, redirectCode)
 		return
 	}

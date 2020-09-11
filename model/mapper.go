@@ -2,23 +2,21 @@ package model
 
 import (
 	"net/url"
-	"path"
 	"strings"
 )
 
 // GetRedirect returns the calculated route
-func (r *Redirect) GetRedirect(reqURL *url.URL) (string, int) {
+func (r *Redirect) GetRedirect(reqURL *url.URL, scheme string) (string, int) {
 	code := r.Code
 	reURL := r.RedirectTo
 	rePath := ""
 	reQuery := ""
 	reqPath := reqURL.EscapedPath()
-	reqQuery := reqURL.RawQuery
 
 	if r.Promotable == true {
 		rePath = reqURL.Path
 
-		if len(reqURL.RawQuery) > 0 {
+		if reqURL.RawQuery != "" {
 			reQuery = "?" + reqURL.RawQuery
 		}
 	}
@@ -28,20 +26,11 @@ func (r *Redirect) GetRedirect(reqURL *url.URL) (string, int) {
 			if p.To == "" {
 				continue
 			}
-			if strings.HasPrefix(reqPath+"?"+reqQuery, p.From) {
-				if strings.HasPrefix(reqPath, p.From) {
-					rePath = reqPath[len(p.From):]
-				} else {
-					rePath = p.From
-				}
+			if reqPath == p.From {
 				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
 					reURL = p.To
 				} else {
-					if r.Promotable {
-						rePath = path.Join(p.To, rePath)
-					} else {
-						rePath = p.To
-					}
+					rePath = p.To
 				}
 				break
 			}
@@ -50,6 +39,9 @@ func (r *Redirect) GetRedirect(reqURL *url.URL) (string, int) {
 
 	if strings.HasSuffix(reURL, "/") && strings.HasPrefix(rePath, "/") {
 		rePath = strings.TrimLeft(rePath, "/")
+	}
+	if !strings.HasPrefix(reURL, "http://") && !strings.HasPrefix(reURL, "https://") {
+		reURL = scheme + reURL
 	}
 
 	return reURL + rePath + reQuery, code

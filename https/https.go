@@ -60,7 +60,7 @@ func (h *HTTPS) handler() http.Handler {
 
 		// regular domain lookup
 		if err == nil {
-			redirectURL, redirectCode := redirect.GetRedirect(r.URL)
+			redirectURL, redirectCode := redirect.GetRedirect(r.URL, "https://")
 			http.Redirect(w, r, redirectURL, redirectCode)
 			return
 		}

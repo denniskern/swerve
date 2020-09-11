@@ -12,10 +12,13 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
 	"time"
+
+	app "github.com/axelspringer/swerve/app/testdata"
 
 	"github.com/axelspringer/swerve/config"
 	"github.com/axelspringer/swerve/log"
@@ -24,12 +27,7 @@ import (
 )
 
 const (
-	defaultUser          = "spooky"
-	testDomainFrom       = "ilk.io"
-	testDomainTo         = "https://bild.de"
-	updateNewDescription = "this is a new description"
-	updateNewStatuscode  = 302
-	updateNewPromotable  = false
+	defaultUser = "spooky"
 )
 
 type responseRedirect struct {
@@ -39,11 +37,27 @@ type responseRedirect struct {
 var (
 	token             string
 	cfg               config.Swerve
+	testdata          app.Testdata
 	httpClient        http.Client
 	baseUrlApi        string
 	baseUrlRedirecter string
-	updateNewPathMap  []model.PathMap = []model.PathMap{
-		{From: "/", To: "/home"},
+	updateRedirect    = struct {
+		FromDomain  string          `json:"redirect_from"`
+		ToDomain    string          `json:"redirect_to"`
+		Description string          `json:"description"`
+		Code        int             `json:"code"`
+		Promotable  bool            `json:"promotable"`
+		PathMap     []model.PathMap `json:"path_map"`
+	}{
+		"replaceme",
+		"new.com",
+		"new description",
+		307,
+		false,
+		[]model.PathMap{{
+			From: "/foo",
+			To:   "/bar",
+		}},
 	}
 )
 
@@ -64,6 +78,19 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")
+
+	fh, err := ioutil.ReadFile("testdata/config.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal(fh, &testdata)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(testdata.Data) == 0 {
+		log.Fatal(fmt.Errorf("No testdata available"))
+	}
+
 	a := NewApplication()
 	cfg = a.Config
 	httpClient = http.Client{
@@ -74,7 +101,7 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 	go a.Run()
-	err := waitUntilServerIsUpAndReady(a.Config.API.Listener)
+	err = waitUntilServerIsUpAndReady(a.Config.API.Listener)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,33 +145,10 @@ func Test_PostRedirects(t *testing.T) {
 	if checkEmptyToken(t) {
 		return
 	}
-	testCases := []struct {
-		name               string
-		payload            model.Redirect
-		expectedStatuscode int
-	}{
-		{
-			"post new redirect for domain " + testDomainFrom,
-			model.Redirect{
-				RedirectFrom: testDomainFrom,
-				Description:  "",
-				RedirectTo:   testDomainTo,
-				Promotable:   true,
-				Code:         301,
-				PathMaps: []model.PathMap{
-					{
-						From: "/",
-						To:   "/digital",
-					},
-				},
-			},
-			200,
-		},
-	}
 
 	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/")
-	for _, te := range testCases {
-		payload, err := json.Marshal(te.payload)
+	for _, data := range testdata.Data {
+		payload, err := json.Marshal(data.Redirect)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -157,32 +161,21 @@ func Test_PostRedirects(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, resp.StatusCode, te.expectedStatuscode, te.name)
+		assert.Equal(t, resp.StatusCode, http.StatusOK)
 	}
 
 	if t.Failed() {
 		t.Fatal(fmt.Errorf("POST redirect faild, skipp all other tests"))
 	}
-
 }
 
 func Test_GetRedirects(t *testing.T) {
 	if checkEmptyToken(t) {
 		return
 	}
-	testCases := []struct {
-		name               string
-		domain             string
-		expectedStatuscode int
-	}{
-		{"get redirect for domain " + testDomainFrom,
-			testDomainFrom,
-			200,
-		},
-	}
 
-	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + testDomainFrom)
-	for _, te := range testCases {
+	for _, data := range testdata.Data {
+		url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + data.Redirect.RedirectFrom)
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -194,116 +187,102 @@ func Test_GetRedirects(t *testing.T) {
 		}
 		r := responseRedirect{}
 		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
-		assert.Equal(t, testDomainFrom, r.Data.RedirectFrom, "unmarshal response against model.Redirect")
-		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
+		assert.Equal(t, data.Redirect.RedirectFrom, r.Data.RedirectFrom, "unmarshal response against model.Redirect")
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "check for equal response code")
 	}
+}
+
+func Test_Redirects(t *testing.T) {
+	httpClient := getHttpClientWithPebbleIntermediateCert(t, cfg.HttpListener)
+	httpsClient := getHttpClientWithPebbleIntermediateCert(t, cfg.HttpsListener)
+
+	for _, data := range testdata.Data {
+		for _, testcase := range data.Cases {
+			rawurl, err := url.Parse(testcase.Call)
+			if err != nil {
+				t.Fatal(err)
+			}
+			qstr := ""
+			if rawurl.RawQuery != "" {
+				qstr = "?"
+			}
+			port := cfg.HttpsListener
+			client := httpsClient
+			if rawurl.Scheme == "http" {
+				port = cfg.HttpListener
+				client = httpClient
+			}
+			callUrl := fmt.Sprintf("%s://%s:%d%s%s%s", rawurl.Scheme, rawurl.Host, port, rawurl.Path, qstr, rawurl.RawQuery)
+			resp, err := client.Get(callUrl)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assert.Equal(t, data.Redirect.Code, resp.StatusCode, "compare statuscode")
+			assert.Equal(t, testcase.Expected, resp.Header.Get("Location"), fmt.Sprintf("(Prom: %t, Call:%s", data.Redirect.Promotable, testcase.Call))
+		}
+	}
+
 }
 
 func Test_UpdateRedirects(t *testing.T) {
 	if checkEmptyToken(t) {
 		return
 	}
-	testCases := []struct {
-		name               string
-		redirect           model.Redirect
-		expectedStatuscode int
-	}{
-		{"update redirect for domain " + testDomainFrom,
-			model.Redirect{
-				RedirectFrom: testDomainFrom,
-				Description:  updateNewDescription,
-				RedirectTo:   testDomainTo,
-				Promotable:   updateNewPromotable,
-				Code:         updateNewStatuscode,
-				PathMaps:     updateNewPathMap,
-			},
-			http.StatusOK,
-		},
-	}
 
-	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + testDomainFrom)
-	for _, te := range testCases {
-		payload, err := json.Marshal(te.redirect)
-		if err != nil {
-			t.Fatal(err)
-		}
-		req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payload))
-		if err != nil {
-			t.Fatal(err)
-		}
-		req.Header.Set("Cookie", fmt.Sprintf("token=%s", token))
-		resp, err := httpClient.Do(req)
-		if err != nil {
-			t.Fatal(err)
-		}
-		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
-	}
-}
+	fromDomain := testdata.Data[0].Redirect.RedirectFrom
+	reqUrl := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + fromDomain)
 
-func Test_UpdatedRedirects(t *testing.T) {
-	if checkEmptyToken(t) {
-		return
-	}
-	testCases := []struct {
-		name               string
-		domain             string
-		expectedStatuscode int
-	}{
-		{"get redirect for domain " + testDomainFrom,
-			testDomainFrom,
-			http.StatusOK,
-		},
-	}
-
-	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + testDomainFrom)
-	for _, te := range testCases {
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-		req.Header.Set("Cookie", fmt.Sprintf("token=%s", token))
-		resp, err := httpClient.Do(req)
-		if err != nil {
-			t.Fatal(err)
-		}
-		r := responseRedirect{}
-		assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
-		assert.Equal(t, testDomainTo, r.Data.RedirectTo, "check to domain are equal")
-		assert.Equal(t, testDomainFrom, r.Data.RedirectFrom, "check previous updated redirect.RedirectFrom")
-		assert.Equal(t, updateNewDescription, r.Data.Description, "check previous updated redirect.description")
-		assert.Equal(t, updateNewPromotable, r.Data.Promotable, "check previous updated redirect.Promotable")
-		assert.Equal(t, updateNewPathMap, r.Data.PathMaps, "check previous updated redirect.PathMap")
-		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
-	}
-}
-
-func Test_HTTPSRedirect(t *testing.T) {
-	httpClient := getHttpClientWithPebbleIntermediateCert(t)
-	resp, err := httpClient.Get(fmt.Sprintf("https://%s:8081/", testDomainFrom))
+	updateRedirect.FromDomain = fromDomain
+	payload, err := json.Marshal(updateRedirect)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, updateNewStatuscode, resp.StatusCode, "test redirect for https://ilk.io")
+	req, err := http.NewRequest("PUT", reqUrl, bytes.NewBuffer(payload))
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Cookie", fmt.Sprintf("token=%s", token))
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "")
 }
 
-func Test_DeleteRedirect(t *testing.T) {
-	return
+func Test_CheckSuccessfulUpdate(t *testing.T) {
 	if checkEmptyToken(t) {
 		return
 	}
-	testCases := []struct {
-		name               string
-		domain             string
-		expectedStatuscode int
-	}{
-		{"delete redirect for domain " + testDomainFrom,
-			testDomainFrom,
-			http.StatusOK,
-		},
+
+	fromDomain := testdata.Data[0].Redirect.RedirectFrom
+	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + fromDomain)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Cookie", fmt.Sprintf("token=%s", token))
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := responseRedirect{}
+	assert.Equal(t, nil, json.NewDecoder(resp.Body).Decode(&r), "unmarshal response against model.Redirect")
+	assert.Equal(t, updateRedirect.ToDomain, r.Data.RedirectTo, "check to domain are equal")
+	assert.Equal(t, fromDomain, r.Data.RedirectFrom, "check previous updated redirect.RedirectFrom")
+	assert.Equal(t, updateRedirect.Description, r.Data.Description, "check previous updated redirect.description")
+	assert.Equal(t, updateRedirect.Promotable, r.Data.Promotable, "check previous updated redirect.Promotable")
+	assert.Equal(t, updateRedirect.PathMap, r.Data.PathMaps, "check previous updated redirect.PathMap")
+	assert.Equal(t, updateRedirect.Code, r.Data.Code, "check response code")
+	assert.Equal(t, http.StatusOK, resp.StatusCode, "check response code")
+}
+
+func Test_DeleteRedirect(t *testing.T) {
+	if checkEmptyToken(t) {
+		return
 	}
 
-	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + testDomainFrom)
-	for _, te := range testCases {
+	for _, data := range testdata.Data {
+		url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + data.Redirect.RedirectFrom)
 		req, err := http.NewRequest("DELETE", url, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -313,28 +292,17 @@ func Test_DeleteRedirect(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "check response code")
 	}
 }
 
 func Test_RedirectExistAfterDelete(t *testing.T) {
-	return
 	if checkEmptyToken(t) {
 		return
 	}
-	testCases := []struct {
-		name               string
-		domain             string
-		expectedStatuscode int
-	}{
-		{"test if redirect for domain " + testDomainFrom + " still exists",
-			testDomainFrom,
-			http.StatusNotFound,
-		},
-	}
 
-	url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + testDomainFrom)
-	for _, te := range testCases {
+	for _, data := range testdata.Data {
+		url := fmt.Sprintf(baseUrlApi + "/" + cfg.API.Version + "/redirects/" + data.Redirect.RedirectFrom)
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			t.Fatal(err)
@@ -344,12 +312,12 @@ func Test_RedirectExistAfterDelete(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, te.expectedStatuscode, resp.StatusCode, te.name)
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "check if redirect exists after deleting")
 	}
 }
 
-// Tests end here
-func getHttpClientWithPebbleIntermediateCert(t *testing.T) *http.Client {
+// ****** Tests end here *******
+func getHttpClientWithPebbleIntermediateCert(t *testing.T, port int) *http.Client {
 	caPool := x509.NewCertPool()
 	caPool.AppendCertsFromPEM([]byte(cfg.ACM.PebbleCA))
 
@@ -365,7 +333,7 @@ func getHttpClientWithPebbleIntermediateCert(t *testing.T) *http.Client {
 	tr := &http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			if !strings.Contains(addr, ":15000") {
-				addr = "127.0.0.1:8081"
+				addr = fmt.Sprintf("127.0.0.1:%d", port)
 			}
 			return dialer.DialContext(ctx, network, addr)
 		},
