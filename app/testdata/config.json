@@ -56,7 +56,7 @@
 
     {
       "redirect": {
-        "redirect_from": "https://rd2.swervetest.de",
+        "redirect_from": "rd2.swervetest.de",
         "redirect_to": "https://www.welt.de",
         "promotable": false,
         "code": 301,
