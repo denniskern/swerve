@@ -28,6 +28,10 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 
 	router := mux.NewRouter()
 	router.Use(helper.LoggingMiddleware)
+	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		log.Info("route not found ", req.URL.Path)
+		w.WriteHeader(http.StatusNotFound)
+	})
 
 	router.HandleFunc("/metrics", api.prometheusHandler).
 		Methods(http.MethodGet)
@@ -35,7 +39,7 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 		Methods(http.MethodGet, http.MethodOptions)
 	router.HandleFunc("/version", api.version).
 		Methods(http.MethodGet, http.MethodOptions)
-	router.HandleFunc("/login", api.login).
+	router.HandleFunc("/"+conf.Version+"/login", api.login).
 		Methods(http.MethodPost, http.MethodOptions)
 
 	auth := router.PathPrefix("/" + conf.Version + "/redirects").Subrouter()
@@ -53,9 +57,10 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 		Methods(http.MethodDelete, http.MethodOptions)
 	auth.HandleFunc("/{"+pathParamName+"}", api.updateRedirect).
 		Methods(http.MethodPut, http.MethodOptions)
-	router.Use(api.corsMiddlewear)
-	auth.Use(api.corsMiddlewear)
-	auth.Use(api.authMiddlewear)
+	router.Use(api.corsMiddleware)
+	auth.Use(api.corsMiddleware)
+
+	auth.Use(api.authMiddleware)
 	_ = router.Walk(walkRoutes)
 
 	addr := ":" + strconv.Itoa(api.Config.Listener)

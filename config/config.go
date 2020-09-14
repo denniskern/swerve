@@ -91,7 +91,6 @@ func Get() Swerve {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
 			os.Exit(0)
 		} else {
-			fmt.Printf("%v", err)
 			p.WriteHelp(os.Stdout)
 			os.Exit(1)
 		}
