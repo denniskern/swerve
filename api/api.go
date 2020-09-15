@@ -80,14 +80,14 @@ func (api *API) Listen() error {
 }
 
 func (api *API) health(w http.ResponseWriter, r *http.Request) {
-	rand.Seed(time.Now().UnixNano())
-	n := rand.Intn(3500)
-	fmt.Printf("Sleeping %d millies...\n", n)
-	time.Sleep(time.Duration(n) * time.Millisecond)
 	sendJSONMessage(w, "OK", http.StatusOK)
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
+	rand.Seed(time.Now().UnixNano())
+	n := rand.Intn(3500)
+	fmt.Printf("Sleeping %d millies...\n", n)
+	time.Sleep(time.Duration(n) * time.Millisecond)
 	versionSuffix := ""
 	if githubHash != "" {
 		versionSuffix = fmt.Sprintf("-%s", githubHash)
