@@ -78,6 +78,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("SWERVE_API_UI_URL", "*")
 	os.Setenv("SWERVE_API_VERSION", "v1")
 	os.Setenv("SWERVE_LOG_LEVEL", "error")
+	os.Setenv("SWERVE_API_VERSION", "v1")
 
 	fh, err := ioutil.ReadFile("testdata/config.json")
 	if err != nil {
@@ -122,7 +123,7 @@ func Test_APILogin(t *testing.T) {
 	}
 
 	for _, te := range testCases {
-		url := fmt.Sprintf("%s/login", baseUrlApi)
+		url := fmt.Sprintf("%s/%s/login", baseUrlApi, cfg.API.Version)
 		t.Logf("run -> %s, user: %s wanted statuscode: %d, url: %s", te.name, te.user, te.expectedStatuscode, url)
 		payload := []byte(fmt.Sprintf(`{"username":"%s", "pwd":"%s"}`, te.user, te.pass))
 		resp, err := httpClient.Post(url, "content-type: application/json", bytes.NewReader(payload))
@@ -193,6 +194,9 @@ func Test_GetRedirects(t *testing.T) {
 }
 
 func Test_Redirects(t *testing.T) {
+	if checkEmptyToken(t) {
+		return
+	}
 	httpClient := getHttpClientWithPebbleIntermediateCert(t, cfg.HttpListener)
 	httpsClient := getHttpClientWithPebbleIntermediateCert(t, cfg.HttpsListener)
 
