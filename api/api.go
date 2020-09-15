@@ -30,7 +30,11 @@ func NewAPIServer(mod ModelAdapter, conf Config) *API {
 	router := mux.NewRouter()
 	router.Use(helper.LoggingMiddleware)
 	router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		log.Info("route not found ", req.URL.Path)
+		rand.Seed(time.Now().UnixNano())
+		n := rand.Intn(3500)
+		fmt.Printf("Sleeping %d millies...\n", n)
+		time.Sleep(time.Duration(n) * time.Millisecond)
+		log.Info("route not found (DON-DEMO) ", req.URL.Path)
 		w.WriteHeader(http.StatusNotFound)
 	})
 
@@ -84,10 +88,6 @@ func (api *API) health(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) version(w http.ResponseWriter, r *http.Request) {
-	rand.Seed(time.Now().UnixNano())
-	n := rand.Intn(3500)
-	fmt.Printf("Sleeping %d millies...\n", n)
-	time.Sleep(time.Duration(n) * time.Millisecond)
 	versionSuffix := ""
 	if githubHash != "" {
 		versionSuffix = fmt.Sprintf("-%s", githubHash)
