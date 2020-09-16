@@ -18,27 +18,6 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-/*
-type DynamoDB struct {
-	AwsKey           string `long:"dyno-aws-key" env:"SWERVE_DB_KEY" default:"0" required:"false" description:"AWS access key for dynamodb"`
-	AwsSec           string `long:"dyno-aws-sec" env:"SWERVE_DB_SECRET" default:"0" required:"false" description:"AWS secret key for dynamodb"`
-	AwsRegion        string `long:"dyno-aws-region" env:"SWERVE_DB_REGION" required:"false" description:"AWS region for dynamodb" default:"eu-central-1"`
-	DynamoDBEndpoint string `long:"dyno-endpoint" env:"SWERVE_DB_ENDPOINT" required:"false" description:"Endpoint of dynamodb"`
-	DefaultPW        string `long:"dyno-admin-pw" env:"SWERVE_DB_DEFAULT_PW" required:"false" description:"Default PW for the admin user"`
-	TableRedirects   string `long:"dyno-tbl-redirects" env:"SWERVE_DYNO_TABLE_REDIRECTS" required:"false" description:"Table name for redirects" default:"Swerve_Redirects"`
-	TableCertCache   string `long:"dyno-tbl-certcache" env:"SWERVE_DYNO_TABLE_CERTCACHE" required:"false" description:"Table name for cert cache" default:"Swerve_CertCache"`
-	TableUsers       string `long:"dyno-tbl-users" env:"SWERVE_DYNO_TABLE_USERS" required:"false" description:"Table name for users" default:"Swerve_Users"`
-	Bootstrap        bool   `long:"dyno-bootstrap" env:"SWERVE_DYNO_BOOTSTRAP" required:"false" description:"Create tables and default user on startup"`
-}
-
-type APISettings struct {
-	JWTSecret string `long:"api-jwt-sec" env:"SWERVE_API_JWT_SECRET" description:"JWT token"`
-	Version   string `long:"api-version" env:"SWERVE_API_VERSION" description:"api version in pattern of v1 or v2" default:"v1"`
-	UIUrl     string `long:"api-ui-url" env:"SWERVE_API_UI_URL" description:"The url is needed for cors headers"`
-	Listener  int    `long:"api-listener" env:"SWERVE_API_LISTENER" description:"Listener port for the api" default:"8082"`
-}
-*/
-
 type Swerve struct {
 	DynamoDB             database.Config `group:"DynamoDB settings"`
 	API                  api.Config      `group:"API Settings"`
