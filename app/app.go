@@ -5,6 +5,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/axelspringer/swerve/schema"
+
 	"github.com/axelspringer/swerve/config"
 	phm "github.com/axelspringer/swerve/prometheus"
 
@@ -41,6 +43,7 @@ func (a *Application) Setup() error {
 		}
 	}
 
+	jsonValidator := schema.New()
 	prom := phm.NewPHM()
 	a.Cache = cache.NewCache(db)
 
@@ -59,7 +62,7 @@ func (a *Application) Setup() error {
 		autocertManager.GetCertificate,
 		a.Config.HttpsListener,
 		prom.WrapHandler)
-	a.APIServer = api.NewAPIServer(controlModel, a.Config.API)
+	a.APIServer = api.NewAPIServer(controlModel, jsonValidator, a.Config.API)
 
 	return nil
 }

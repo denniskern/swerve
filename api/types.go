@@ -2,13 +2,16 @@ package api
 
 import (
 	"net/http"
+
+	swerveschema "github.com/axelspringer/swerve/schema"
 )
 
 // API is an API server
 type API struct {
-	Model  ModelAdapter
-	server *http.Server
-	Config Config
+	Model         ModelAdapter
+	server        *http.Server
+	Config        Config
+	JsonValidator swerveschema.Validator
 }
 
 // Config contains the API config

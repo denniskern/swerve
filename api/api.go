@@ -8,7 +8,10 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+
+	swerveschema "github.com/axelspringer/swerve/schema"
 
 	"github.com/axelspringer/swerve/helper"
 
@@ -21,10 +24,11 @@ import (
 var githubHash string
 
 // NewAPIServer creates a new instance
-func NewAPIServer(mod ModelAdapter, conf Config) *API {
+func NewAPIServer(mod ModelAdapter, validator swerveschema.Validator, conf Config) *API {
 	api := &API{
-		Model:  mod,
-		Config: conf,
+		Model:         mod,
+		Config:        conf,
+		JsonValidator: validator,
 	}
 
 	router := mux.NewRouter()
@@ -188,6 +192,16 @@ func (api *API) createRedirect(w http.ResponseWriter, r *http.Request) {
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
+	if errors := api.JsonValidator.ValidateRedirect(data); len(errors) > 0 {
+		allerrors := ""
+		for _, e := range errors {
+			allerrors = allerrors + e.Error() + ", "
+		}
+		allerrors = strings.TrimSuffix(allerrors, ", ")
+		log.Errorf("JSON validate errors: %s ", allerrors)
+		sendJSONMessage(w, "invalid json, these fields are wrong: "+allerrors, http.StatusBadRequest)
+		return
+	}
 	err = api.Model.CreateRedirectFromJSON(data)
 	if err != nil {
 		log.Errorf(ErrRedirectCreate+": %s", err.Error())
@@ -232,6 +246,18 @@ func (api *API) updateRedirect(w http.ResponseWriter, r *http.Request) {
 		sendJSONMessage(w, "Body is invalid", http.StatusBadRequest)
 		return
 	}
+
+	if errors := api.JsonValidator.ValidateRedirect(data); len(errors) > 0 {
+		allerrors := ""
+		for _, e := range errors {
+			allerrors = allerrors + e.Error() + ", "
+		}
+		allerrors = strings.TrimSuffix(allerrors, ", ")
+		log.Errorf("JSON validate errors: %s ", allerrors)
+		sendJSONMessage(w, "invalid json, these fields are wrong: "+allerrors, http.StatusBadRequest)
+		return
+	}
+
 	err = api.Model.UpdateRedirectByDomainWithJSON(domain, data)
 	if err != nil {
 		log.Errorf(ErrRedirectUpdate+": %s", err.Error())
