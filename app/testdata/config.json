@@ -6,7 +6,7 @@
     {
       "redirect": {
         "redirect_from": "rd5.swervetest.de",
-        "redirect_to": "http://www.bild.de",
+        "redirect_to": "www.bild.de",
         "promotable": false,
         "code": 302,
         "description": "5, -path_map, -prom"
@@ -21,7 +21,7 @@
     {
       "redirect": {
         "redirect_from": "rd1.swervetest.de",
-        "redirect_to": "https://www.bild.de",
+        "redirect_to": "www.bild.de",
         "promotable": true,
         "code": 301,
         "description": "1, +path_map, +prom",
@@ -57,7 +57,7 @@
     {
       "redirect": {
         "redirect_from": "rd2.swervetest.de",
-        "redirect_to": "https://www.welt.de",
+        "redirect_to": "www.welt.de",
         "promotable": false,
         "code": 301,
         "description": "2, +path_map, -prom",
@@ -104,7 +104,7 @@
     {
       "redirect": {
         "redirect_from": "rd4.swervetest.de",
-        "redirect_to": "https://www.bild.de",
+        "redirect_to": "www.bild.de",
         "promotable": false,
         "code": 302,
         "description": "4, -path_map, -prom"
