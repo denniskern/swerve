@@ -72,8 +72,11 @@ func (a *Application) Run() {
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
 
-	if err := a.Cache.Observe(a.Config.CacheInterval); err != nil {
-		log.Fatal(errors.WithMessage(err, ErrCacheObserver))
+	if a.Config.CacheInterval > 0 {
+		err := a.Cache.Observe(a.Config.CacheInterval)
+		if err != nil {
+			log.Fatal(errors.WithMessage(err, ErrCacheObserver))
+		}
 	}
 
 	go func() {

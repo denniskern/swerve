@@ -27,7 +27,7 @@ type Swerve struct {
 	HttpListener         int             `long:"http-listener" env:"SWERVE_HTTP_LISTENER" default:"8080" description:"HTTP listener port"`
 	HttpsListener        int             `long:"https-listener" env:"SWERVE_HTTPS_LISTENER" default:"8081" description:"HTTPS listener port"`
 	DisableHTTPChallenge bool            `long:"enable-http-challenge" env:"SWERVE_DISABLE_HTTP_CHALLENGE" description:"Disable the challenge http-01"`
-	CacheInterval        int             `long:"cache-interval" env:"SWERVE_CACHE_INTERVAL" description:"renew cache in minutes, has impact on redirects not on certificates" default:"5"`
+	CacheInterval        int             `long:"cache-interval" env:"SWERVE_CACHE_INTERVAL" description:"has impact on redirects not on certificates, is needed if you have more than one instance" default:"5"`
 }
 
 func (s *Swerve) Validate() []error {

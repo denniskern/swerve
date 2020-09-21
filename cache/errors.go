@@ -10,5 +10,6 @@ const (
 const (
 	ErrRedirectNotFound = "Redirect entry could not be found"
 	ErrObserverRunning  = "Observer is already running"
+	ErrObserverDown     = "Observer is not running anymore"
 	ErrCacheInconsitent = "Cache is inconsistent"
 )

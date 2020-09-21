@@ -16,7 +16,7 @@ func Test_Validator(t *testing.T) {
 	}{
 		{
 			Redirect: `{
-			"redirect_from": "rd1.swervetest.de",
+			"redirect_from": "http://rd1.swervetestde",
 			"redirect_to": "www.bild.de",
 			"promotable": true,
 			"code": 301,

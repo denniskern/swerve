@@ -5,17 +5,18 @@
   "data": [
     {
       "redirect": {
-        "redirect_from": "rd5.swervetest.de",
-        "redirect_to": "www.bild.de",
-        "promotable": false,
-        "code": 302,
-        "description": "5, -path_map, -prom"
+        "redirect_from": "example.com",
+        "redirect_to": "www.example.com",
+        "promotable": true,
+        "code": 301,
+        "description": "6, +path_map, +prom",
+        "path_map": [
+          {"from":"/old/path", "to": "/new/target"}
+        ]
       },
       "cases": [
-        { "call":"http://rd5.swervetest.de", "expected": "http://www.bild.de" },
-        { "call":"http://rd5.swervetest.de/", "expected": "http://www.bild.de" },
-        { "call":"http://rd5.swervetest.de/gibtsnicht", "expected": "http://www.bild.de" },
-        { "call":"http://rd5.swervetest.de?abc=efd", "expected": "http://www.bild.de" }
+        { "call":"https://example.com", "expected": "https://www.example.com/" },
+        { "call":"https://example.com/old/path/to/promote?with=query", "expected": "https://www.example.com/old/path/to/promote?with=query" }
       ]
     },
     {
@@ -30,7 +31,7 @@
           { "from": "/s", "to": "/b" },
           { "from": "/sr", "to": "/" },
           { "from": "/sport", "to": "/sport" },
-          { "from": "/sport4", "to": "/sport4" },
+          { "from": "/sport4?abc=ttt", "to": "/sport4?abc=ttt" },
           { "from": "/sport/fussball", "to": "/sport/fussball" },
           { "from": "/sport/fussball/", "to": "/sport/fussball/" }
         ]
@@ -44,6 +45,7 @@
         { "call":"https://rd1.swervetest.de/s?foo=bar&z=y", "expected": "https://www.bild.de/b?foo=bar&z=y" },
         { "call":"https://rd1.swervetest.de/sport", "expected":"https://www.bild.de/sport" },
         { "call":"https://rd1.swervetest.de/sport4", "expected":"https://www.bild.de/sport4" },
+        { "call":"https://rd1.swervetest.de/sport4?abc=def", "expected":"https://www.bild.de/sport4?abc=def" },
         { "call":"https://rd1.swervetest.de/sport4/berlin?abc=def", "expected":"https://www.bild.de/sport4/berlin?abc=def" },
         { "call":"https://rd1.swervetest.de/sport6", "expected":"https://www.bild.de/sport6" },
         { "call":"https://rd1.swervetest.de/wetter", "expected":"https://www.bild.de/wetter" },
@@ -88,7 +90,7 @@
     {
       "redirect": {
         "redirect_from": "rd3.swervetest.de",
-        "redirect_to": "www.bild.de",
+        "redirect_to": "https://www.bild.de",
         "promotable": true,
         "code": 302,
         "description": "3, -path_map, +prom"
@@ -114,6 +116,39 @@
         { "call":"https://rd4.swervetest.de/", "expected": "https://www.bild.de" },
         { "call":"https://rd4.swervetest.de/gibtsnicht", "expected": "https://www.bild.de" },
         { "call":"https://rd4.swervetest.de?abc=efd", "expected": "https://www.bild.de" }
+      ]
+    },
+    {
+      "redirect": {
+        "redirect_from": "rd5.swervetest.de",
+        "redirect_to": "www.bild.de",
+        "promotable": false,
+        "code": 302,
+        "description": "5, -path_map, -prom"
+      },
+      "cases": [
+        { "call":"http://rd5.swervetest.de", "expected": "https://www.bild.de" },
+        { "call":"http://rd5.swervetest.de/", "expected": "https://www.bild.de" },
+        { "call":"http://rd5.swervetest.de/gibtsnicht", "expected": "https://www.bild.de" },
+        { "call":"http://rd5.swervetest.de?abc=efd", "expected": "https://www.bild.de" }
+      ]
+    },
+    {
+      "redirect": {
+        "redirect_from": "ilk2.io",
+        "redirect_to": "bild.de",
+        "promotable": true,
+        "code": 302,
+        "description": "6, -path_map, -prom",
+        "path_map" : [
+          {"from": "/", "to":  "/winter?abc=def"},
+          {"from": "/winter", "to":  "/winterschlaf?abc=def&foo=bar"}
+        ]
+      },
+      "cases": [
+        { "call":"https://ilk2.io", "expected": "https://bild.de/winter?abc=def" },
+        { "call":"https://ilk2.io/winter?abc=def", "expected": "https://bild.de/winterschlaf?abc=def&foo=bar" },
+        { "call":"https://ilk2.io?abc=def", "expected": "https://bild.de/winter?abc=def" }
       ]
     }
   ]

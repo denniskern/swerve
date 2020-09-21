@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/axelspringer/swerve/schema"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/axelspringer/swerve/model"
@@ -20,7 +22,8 @@ func TestLogin(t *testing.T) {
 	defer mockCtrl.Finish()
 	d := mocks.NewMockDatabaseAdapter(mockCtrl)
 	m := model.NewModel(d)
-	api := NewAPIServer(m, conf)
+	v := schema.New()
+	api := NewAPIServer(m, v, conf)
 
 	var tests = []struct {
 		name               string

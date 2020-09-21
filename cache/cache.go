@@ -32,22 +32,14 @@ func (c *Cache) Observe(pollInterval int) error {
 	c.mapMutex.Unlock()
 	ticker := time.NewTicker(time.Minute * time.Duration(pollInterval))
 	go func() {
-		for c.Observing {
-			select {
-			case <-ticker.C:
-				c.Update()
-			case <-c.closer:
-				c.mapMutex.Lock()
-				c.Observing = false
-				c.mapMutex.Unlock()
-				ticker.Stop()
-				return
-			case <-time.After(time.Minute):
-				log.Warn("Observer timed out")
-				ticker.Stop()
-				return
-			}
+		log.Info("Start observer")
+		c.Observing = true
+		for {
+			<-ticker.C
+			log.Debug("call observer update")
+			c.Update()
 		}
+		log.Error(ErrObserverDown)
 	}()
 	return nil
 }

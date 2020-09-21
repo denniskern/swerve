@@ -61,7 +61,7 @@ func (h *HTTP) handleRedirect(w http.ResponseWriter, r *http.Request) {
 
 	// regular domain lookup
 	if err == nil {
-		redirectURL, redirectCode := redirect.GetRedirect(r.URL, "http://")
+		redirectURL, redirectCode := redirect.GetRedirect(r.URL)
 		http.Redirect(w, r, redirectURL, redirectCode)
 		return
 	}

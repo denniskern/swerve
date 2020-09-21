@@ -18,6 +18,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
+
 	app "github.com/axelspringer/swerve/app/testdata"
 
 	"github.com/axelspringer/swerve/config"
@@ -162,7 +164,16 @@ func Test_PostRedirects(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, resp.StatusCode, http.StatusOK)
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !assert.Equal(t, resp.StatusCode, http.StatusOK) {
+			fmt.Println(req.URL)
+			spew.Dump(payload)
+			spew.Dump(body)
+		}
 	}
 
 	if t.Failed() {

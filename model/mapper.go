@@ -6,7 +6,7 @@ import (
 )
 
 // GetRedirect returns the calculated route
-func (r *Redirect) GetRedirect(reqURL *url.URL, scheme string) (string, int) {
+func (r *Redirect) GetRedirect(reqURL *url.URL) (string, int) {
 	code := r.Code
 	reURL := r.RedirectTo
 	rePath := ""
@@ -27,10 +27,9 @@ func (r *Redirect) GetRedirect(reqURL *url.URL, scheme string) (string, int) {
 				continue
 			}
 			if reqPath == p.From {
-				if strings.HasPrefix(p.To, "http://") || strings.HasPrefix(p.To, "https://") {
-					reURL = p.To
-				} else {
-					rePath = p.To
+				rePath = p.To
+				if r.Promotable && strings.Contains(rePath, "?") {
+					reQuery = strings.Replace(reQuery, "?", "&", 1)
 				}
 				break
 			}
@@ -41,7 +40,10 @@ func (r *Redirect) GetRedirect(reqURL *url.URL, scheme string) (string, int) {
 		rePath = strings.TrimLeft(rePath, "/")
 	}
 	if !strings.HasPrefix(reURL, "http://") && !strings.HasPrefix(reURL, "https://") {
-		reURL = scheme + reURL
+		reURL = "https://" + reURL
+	}
+	if strings.Contains(rePath, reqURL.RawQuery) {
+		reQuery = ""
 	}
 
 	return reURL + rePath + reQuery, code
